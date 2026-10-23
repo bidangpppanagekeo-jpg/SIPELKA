@@ -176,7 +176,7 @@ export function exportBackupJSON(cases: KasusKekerasan[]): void {
   const exportData = {
     app: 'SIPELKA Nagekeo',
     version: '1.0',
-    dinas: 'Bidang PPPA Dinas Sosial PPPA Kabupaten Nagekeo',
+    dinas: 'Bidang PPPA Dinas PMDP3A Kabupaten Nagekeo',
     exportedAt: new Date().toISOString(),
     totalCases: cases.length,
     cases

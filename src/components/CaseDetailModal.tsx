@@ -43,7 +43,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   // Form state for adding progress note
   const [noteDate, setNoteDate] = useState(new Date().toISOString().slice(0, 10));
   const [noteOfficer, setNoteOfficer] = useState(kasus.petugasPendamping || 'Staf PPPA');
-  const [noteAgency, setNoteAgency] = useState('UPTD PPA Nagekeo');
+  const [noteAgency, setNoteAgency] = useState('UPTD PPA Dinas PMDP3A Nagekeo');
   const [noteAction, setNoteAction] = useState('');
   const [noteResult, setNoteResult] = useState('');
   const [noteStatus, setNoteStatus] = useState<StatusPenanganan>(kasus.statusPenanganan);

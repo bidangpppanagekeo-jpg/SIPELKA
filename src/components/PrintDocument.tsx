@@ -1,5 +1,6 @@
 import React from 'react';
 import { KasusKekerasan } from '../types';
+import sealImg from '../assets/images/nagekeo_pppa_seal_1792727445493.jpg';
 
 interface PrintDocumentProps {
   type: 'berita_acara' | 'lembar_kasus' | 'laporan_bulanan';
@@ -28,7 +29,7 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
       <div className="border-b-4 border-double border-black pb-3 mb-6 text-center relative">
         <div className="flex items-center justify-center gap-4 mb-1">
           <img
-            src="/src/assets/images/nagekeo_pppa_seal_1792727445493.jpg"
+            src={sealImg}
             alt="Lambang PPPA Nagekeo"
             className="w-20 h-20 object-contain rounded-full border border-slate-300"
             referrerPolicy="no-referrer"
@@ -37,8 +38,8 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
             <h1 className="text-base font-bold tracking-wider uppercase font-sans">
               PEMERINTAH KABUPATEN NAGEKEO
             </h1>
-            <h2 className="text-lg font-bold uppercase font-sans">
-              DINAS SOSIAL, PEMBERDAYAAN PEREMPUAN DAN PERLINDUNGAN ANAK
+            <h2 className="text-base font-bold uppercase font-sans">
+              DINAS PEMBERDAYAAN MASYARAKAT DAN DESA, PEMBERDAYAAN PEREMPUAN DAN PERLINDUNGAN ANAK (DINAS PMDP3A)
             </h2>
             <h3 className="text-sm font-semibold tracking-wide uppercase font-sans text-slate-800">
               UPTD / BIDANG PEMBERDAYAAN PEREMPUAN DAN PERLINDUNGAN ANAK (PPPA)
@@ -66,7 +67,7 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
           </div>
 
           <p className="mb-4 text-justify leading-relaxed">
-            Pada hari ini, tanggal <strong>{kasus.tanggalLapor}</strong>, bertempat di Kantor Dinas Sosial, Pemberdayaan Perempuan dan Perlindungan Anak Kabupaten Nagekeo, telah diterima laporan pengaduan kasus dugaan tindak kekerasan dengan identitas sebagai berikut:
+            Pada hari ini, tanggal <strong>{kasus.tanggalLapor}</strong>, bertempat di Kantor Dinas PMDP3A Kabupaten Nagekeo, telah diterima laporan pengaduan kasus dugaan tindak kekerasan dengan identitas sebagai berikut:
           </p>
 
           {/* I. Data Pelapor */}

@@ -179,7 +179,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 id: 'CAT-' + Date.now(),
                 tanggal: formData.tanggalLapor || new Date().toISOString().slice(0, 10),
                 petugas: formData.petugasPendamping || 'Staf PPPA',
-                instansi: 'UPTD PPA Kab. Nagekeo',
+                instansi: 'UPTD PPA Dinas PMDP3A Kab. Nagekeo',
                 tindakan: 'Penerimaan Laporan & Penginputan Data ke SIPELKA',
                 hasilDanCatatan: 'Berkas kasus berhasil didaftarkan ke sistem SIMFONI PPA Nagekeo.'
               }
@@ -778,9 +778,9 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
           </button>
           <button
             type="submit"
-            className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-white bg-indigo-900 rounded-lg hover:bg-indigo-950 transition-colors shadow-sm"
+            className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-sky-600 to-purple-600 hover:from-sky-700 hover:to-purple-700 rounded-lg transition-all shadow-sm"
           >
-            <Save className="w-4 h-4 text-amber-300" />
+            <Save className="w-4 h-4 text-white" />
             <span>{isEditing ? 'Simpan Perubahan Berkas' : 'Daftarkan Kasus ke SIPELKA'}</span>
           </button>
         </div>

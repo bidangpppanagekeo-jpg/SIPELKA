@@ -230,7 +230,7 @@ export default function App() {
               SIPELKA Kabupaten Nagekeo
             </span>
             <span>·</span>
-            <span>Bidang Pemberdayaan Perempuan & Perlindungan Anak</span>
+            <span className="font-medium text-purple-900">Dinas PMDP3A</span>
             <span>·</span>
             <span>Mbay, Flores - NTT</span>
           </div>

@@ -63,7 +63,7 @@ export const DAFTAR_STATUS_PENANGANAN = [
 export const JEJARING_LAYANAN_NAGEKEO = [
   {
     kategori: 'Instansi Utama & Perlindungan',
-    nama: 'Bidang PPPA & UPTD PPA Dinas Sosial PPPA Kab. Nagekeo',
+    nama: 'Bidang PPPA & UPTD PPA Dinas PMDP3A Kab. Nagekeo',
     alamat: 'Kompleks Civic Center Mbay, Jl. Soekarno-Hatta, Kec. Aesesa, Kab. Nagekeo, NTT',
     telepon: '0812-3789-9821 / (0386) 21102',
     email: 'bidangpppanagekeo@gmail.com',
@@ -275,7 +275,7 @@ export const INITIAL_KASUS_DATA: KasusKekerasan[] = [
         id: 'CAT-201',
         tanggal: '2026-02-23',
         petugas: 'Yosefina R.',
-        instansi: 'Dinas Sosial PPPA Nagekeo',
+        instansi: 'Dinas PMDP3A Nagekeo',
         tindakan: 'Penerimaan Kepulangan Korban & Registrasi Kasus TPPO',
         hasilDanCatatan: 'Koordinasi dengan Disnakertrans Nagekeo dan Dukcapil untuk pembaharuan KTP/KK korban.'
       },

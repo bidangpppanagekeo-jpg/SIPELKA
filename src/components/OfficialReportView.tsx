@@ -89,7 +89,7 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => onPrintOfficialReport(periodeLabel)}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-indigo-900 rounded-lg hover:bg-indigo-950 transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-blue-700 via-sky-600 to-blue-800 hover:from-blue-800 hover:to-sky-700 rounded-lg transition-all shadow-sm ring-1 ring-amber-400/40"
           >
             <Printer className="w-4 h-4 text-amber-300" />
             <span>Cetak Format Dinas (PDF)</span>
@@ -97,7 +97,7 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
 
           <button
             onClick={() => exportCasesToCSV(filteredCases, isAnonymized)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
             <span>Ekspor Excel</span>
@@ -264,15 +264,15 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
       </div>
 
       {/* Dokumen Pengesahan & Kop Surat Info */}
-      <div className="bg-indigo-950 text-white p-6 rounded-xl space-y-3">
+      <div className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-950 text-white p-6 rounded-2xl border border-amber-400/30 shadow-md space-y-3">
         <div className="flex items-start gap-3">
           <Shield className="w-6 h-6 text-amber-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h3 className="font-bold text-sm text-white">
               Sistem Validasi dan Pengesahan Laporan Resmi Pemkab Nagekeo
             </h3>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Format cetak telah disesuaikan dengan tata naskah dinas Pemerintah Kabupaten Nagekeo, lengkap dengan Kop Surat resmi Dinas Sosial Pemberdayaan Perempuan dan Perlindungan Anak, tanggal penetapan di Mbay, serta lembar pengesahan tanda tangan Kepala Bidang PPPA.
+            <p className="text-xs text-sky-100/90 leading-relaxed">
+              Format cetak telah disesuaikan dengan tata naskah dinas Pemerintah Kabupaten Nagekeo, lengkap dengan Kop Surat resmi Dinas PMDP3A (Pemberdayaan Masyarakat dan Desa, Pemberdayaan Perempuan dan Perlindungan Anak), tanggal penetapan di Mbay, serta lembar pengesahan tanda tangan Kepala Bidang PPPA.
             </p>
           </div>
         </div>

@@ -114,7 +114,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Buku Register Kasus Kekerasan PPPA Nagekeo
+            Buku Register Kasus PPPA Dinas PMDP3A Nagekeo
           </h1>
           <p className="text-xs text-slate-500 mt-1">
             Daftar lengkap registrasi perkara, status pendampingan, dan rekam jejak penanganan korban
@@ -124,7 +124,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => exportCasesToCSV(filteredCases, isAnonymized)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
             title="Download berkas tabel Excel/CSV"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
@@ -133,7 +133,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
 
           <button
             onClick={() => exportBackupJSON(cases)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
             title="Cadangkan database lokal"
           >
             <Download className="w-4 h-4 text-slate-600" />
@@ -142,9 +142,9 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
 
           <button
             onClick={onOpenNewCase}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-indigo-900 rounded-lg hover:bg-indigo-950 transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-sky-600 to-purple-600 hover:from-sky-700 hover:to-purple-700 rounded-lg transition-all shadow-sm"
           >
-            <Plus className="w-4 h-4 text-amber-300" />
+            <Plus className="w-4 h-4 text-white" />
             <span>Tambah Kasus</span>
           </button>
         </div>
@@ -360,7 +360,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
 
                     {/* Status & Urgensi */}
                     <td className="py-3 px-4 align-top">
-                      <div className="font-medium text-indigo-950">
+                      <div className="font-bold text-blue-950">
                         {item.statusPenanganan}
                       </div>
                       <div className="text-[11px] mt-0.5">
@@ -370,7 +370,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                               ? 'text-rose-700'
                               : item.tingkatUrgensi === 'Tinggi'
                               ? 'text-amber-700'
-                              : 'text-slate-600'
+                              : 'text-blue-700'
                           }`}
                         >
                           Urgensi: {item.tingkatUrgensi}
@@ -387,7 +387,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                         <button
                           type="button"
                           onClick={() => onSelectCase(item)}
-                          className="p-1.5 text-slate-600 hover:text-indigo-900 hover:bg-slate-100 rounded"
+                          className="p-1.5 text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded"
                           title="Buka Berkas Kasus"
                         >
                           <Eye className="w-4 h-4" />
@@ -395,7 +395,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                         <button
                           type="button"
                           onClick={() => onEditCase(item)}
-                          className="p-1.5 text-slate-600 hover:text-indigo-900 hover:bg-slate-100 rounded"
+                          className="p-1.5 text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded"
                           title="Ubah Data Kasus"
                         >
                           <Edit className="w-4 h-4" />
@@ -403,7 +403,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                         <button
                           type="button"
                           onClick={() => onPrintCase(item)}
-                          className="p-1.5 text-slate-600 hover:text-indigo-900 hover:bg-slate-100 rounded"
+                          className="p-1.5 text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded"
                           title="Cetak Berita Acara Kasus"
                         >
                           <FileText className="w-4 h-4" />
