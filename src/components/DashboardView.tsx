@@ -1,7 +1,7 @@
 import React from 'react';
 import { KasusKekerasan, KecamatanNagekeo, BentukKekerasan } from '../types';
 import { DAFTAR_KECAMATAN } from '../data/nagekeoData';
-import sealImg from '../assets/images/nagekeo_pppa_seal_1792727445493.jpg';
+import sealImg from '../assets/images/kabupaten_nagekeo_logo_1792733971363.jpg';
 import {
   AlertTriangle,
   FolderOpen,

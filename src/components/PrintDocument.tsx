@@ -1,6 +1,6 @@
 import React from 'react';
 import { KasusKekerasan, PegawaiSIPELKA } from '../types';
-import sealImg from '../assets/images/nagekeo_pppa_seal_1792727445493.jpg';
+import sealImg from '../assets/images/kabupaten_nagekeo_logo_1792733971363.jpg';
 
 interface PrintDocumentProps {
   type: 'berita_acara' | 'lembar_kasus' | 'laporan_bulanan';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { PlusCircle, Eye, EyeOff, Users } from 'lucide-react';
-import sealImg from '../assets/images/nagekeo_pppa_seal_1792727445493.jpg';
+import sealImg from '../assets/images/kabupaten_nagekeo_logo_1792733971363.jpg';
 
 interface HeaderProps {
   currentTab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai';
