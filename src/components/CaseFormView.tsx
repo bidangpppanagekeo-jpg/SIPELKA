@@ -191,42 +191,58 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header bar */}
-      <div className="flex items-center justify-between gap-4">
-        <button
-          onClick={onCancel}
-          className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Kembali ke Register</span>
-        </button>
+      {/* 1. Colorful Official Header Banner */}
+      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white p-6 sm:p-7 rounded-3xl border border-blue-200 shadow-md relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
 
-        <h1 className="text-lg font-bold text-slate-900">
-          {isEditing ? `Ubah Berkas Kasus: ${formData.nomorRegistrasi}` : 'Formulir Penerimaan & Registrasi Kasus PPPA'}
-        </h1>
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+              <span>Formulir Asesmen Terpadu SIMFONI PPA</span>
+              <span>·</span>
+              <span className="text-white">Dinas PMDP3A Nagekeo</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              {isEditing ? `Ubah Berkas Kasus: ${formData.nomorRegistrasi}` : 'Formulir Penerimaan & Registrasi Kasus PPPA'}
+            </h1>
+            <p className="text-xs sm:text-sm text-sky-100">
+              Pencatatan data pengaduan kekerasan perempuan dan anak sesuai standar Kementerian PPPA Republik Indonesia.
+            </p>
+          </div>
 
-        <div className="text-xs text-slate-500 font-mono">
-          Kabupaten Nagekeo
+          <button
+            onClick={onCancel}
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-blue-950 bg-white hover:bg-sky-50 rounded-xl transition-all shadow-sm shrink-0 self-start sm:self-center"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Kembali ke Register</span>
+          </button>
         </div>
       </div>
 
       {errorMessage && (
-        <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg flex items-center gap-2 text-xs text-rose-700">
-          <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+        <div className="p-4 bg-rose-50 border-2 border-rose-300 rounded-2xl flex items-center gap-3 text-xs text-rose-800 font-medium shadow-xs">
+          <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* SECTION 1: Nomor Registrasi & Pelapor */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-4">
-          <div className="border-b border-slate-100 pb-2">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-              1. Data Penerimaan Laporan & Pelapor
-            </h2>
-            <p className="text-xs text-slate-500">
-              Informasi pencatatan awal dan pihak yang menyampaikan pengaduan
-            </p>
+        {/* SECTION 1: Nomor Registrasi & Pelapor (Soft Sky Blue) */}
+        <div className="bg-gradient-to-br from-white via-sky-50/70 to-blue-50/80 p-6 sm:p-7 rounded-3xl border-2 border-blue-200/90 shadow-sm space-y-4">
+          <div className="border-b border-blue-100 pb-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+              01
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-blue-950 uppercase tracking-wide">
+                1. Data Penerimaan Laporan & Pihak Pelapor
+              </h2>
+              <p className="text-xs text-slate-500">
+                Informasi pencatatan awal, nomor registrasi resmi, dan pihak yang menyampaikan aduan
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
@@ -313,15 +329,20 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
           </div>
         </div>
 
-        {/* SECTION 2: Data Korban & Asesmen Kerentanan */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-4">
-          <div className="border-b border-slate-100 pb-2">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-              2. Identitas Korban & Kerentanan
-            </h2>
-            <p className="text-xs text-slate-500">
-              Data identitas korban dilindungi kerahasiaannya sesuai UU Perlindungan Saksi dan Korban
-            </p>
+        {/* SECTION 2: Data Korban & Asesmen Kerentanan (Soft Indigo/Blue) */}
+        <div className="bg-gradient-to-br from-white via-indigo-50/50 to-blue-50/70 p-6 sm:p-7 rounded-3xl border-2 border-indigo-200/90 shadow-sm space-y-4">
+          <div className="border-b border-indigo-100 pb-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+              02
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-indigo-950 uppercase tracking-wide">
+                2. Identitas Korban & Asesmen Kerentanan
+              </h2>
+              <p className="text-xs text-slate-500">
+                Data identitas korban dilindungi kerahasiaannya sesuai UU Perlindungan Saksi dan Korban
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
@@ -496,15 +517,20 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
           </div>
         </div>
 
-        {/* SECTION 3: Data Terlapor & TKP */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-4">
-          <div className="border-b border-slate-100 pb-2">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-              3. Data Terlapor (Pelaku) & Tempat Kejadian Perkara (TKP)
-            </h2>
-            <p className="text-xs text-slate-500">
-              Identitas terduga pelaku dan lokasi tempat kejadian perkara di wilayah Kabupaten Nagekeo
-            </p>
+        {/* SECTION 3: Data Terlapor & TKP (Soft Amber/Gold) */}
+        <div className="bg-gradient-to-br from-white via-amber-50/50 to-yellow-50/70 p-6 sm:p-7 rounded-3xl border-2 border-amber-200/90 shadow-sm space-y-4">
+          <div className="border-b border-amber-200 pb-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow-xs">
+              03
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-amber-950 uppercase tracking-wide">
+                3. Data Terlapor (Pelaku) & Tempat Kejadian Perkara (TKP)
+              </h2>
+              <p className="text-xs text-amber-800/80">
+                Identitas terduga pelaku dan lokasi tempat kejadian perkara di 7 kecamatan Kabupaten Nagekeo
+              </p>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
@@ -626,15 +652,20 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
           </div>
         </div>
 
-        {/* SECTION 4: Bentuk Kekerasan, Kronologi & Layanan */}
-        <div className="bg-white p-6 rounded-xl border border-slate-200 space-y-4">
-          <div className="border-b border-slate-100 pb-2">
-            <h2 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-              4. Bentuk Kekerasan, Kronologi & Rencana Layanan
-            </h2>
-            <p className="text-xs text-slate-500">
-              Klasifikasi jenis pelanggaran, uraian ringkas kejadian, serta penentuan urgensi respon
-            </p>
+        {/* SECTION 4: Bentuk Kekerasan, Kronologi & Layanan (Soft Sky Blue) */}
+        <div className="bg-gradient-to-br from-white via-sky-50/60 to-cyan-50/70 p-6 sm:p-7 rounded-3xl border-2 border-sky-200/90 shadow-sm space-y-4">
+          <div className="border-b border-sky-200 pb-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-sky-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+              04
+            </div>
+            <div>
+              <h2 className="text-sm font-extrabold text-blue-950 uppercase tracking-wide">
+                4. Bentuk Kekerasan, Kronologi & Rencana Layanan
+              </h2>
+              <p className="text-xs text-sky-800/80">
+                Klasifikasi jenis pelanggaran, uraian ringkas kejadian, serta penentuan urgensi respon terpadu
+              </p>
+            </div>
           </div>
 
           <div className="space-y-4 text-xs">
@@ -778,9 +809,9 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
           </button>
           <button
             type="submit"
-            className="flex items-center gap-2 px-6 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-sky-600 to-purple-600 hover:from-sky-700 hover:to-purple-700 rounded-lg transition-all shadow-sm"
+            className="flex items-center gap-2 px-6 py-2.5 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 rounded-xl transition-all shadow-md hover:shadow-lg ring-1 ring-white/50"
           >
-            <Save className="w-4 h-4 text-white" />
+            <Save className="w-4 h-4 text-slate-950" />
             <span>{isEditing ? 'Simpan Perubahan Berkas' : 'Daftarkan Kasus ke SIPELKA'}</span>
           </button>
         </div>

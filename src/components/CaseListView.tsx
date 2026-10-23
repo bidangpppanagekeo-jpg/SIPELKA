@@ -110,58 +110,82 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Title & Action Strip */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            Buku Register Kasus PPPA Dinas PMDP3A Nagekeo
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Daftar lengkap registrasi perkara, status pendampingan, dan rekam jejak penanganan korban
-          </p>
-        </div>
+      {/* 1. Colorful Official Header Banner */}
+      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white p-6 sm:p-7 rounded-3xl border border-blue-200 shadow-md relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => exportCasesToCSV(filteredCases, isAnonymized)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-            title="Download berkas tabel Excel/CSV"
-          >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-700" />
-            <span>Ekspor Excel (CSV)</span>
-          </button>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+              <span>Buku Catatan Register Resmi</span>
+              <span>·</span>
+              <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              Buku Register Kasus Kekerasan PPPA Nagekeo
+            </h1>
+            <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
+              Daftar rekapitulasi perkara, administrasi berkas perkara terpadu, pemantauan riwayat intervensi korban, dan status rujukan hukum/medis se-Kabupaten Nagekeo.
+            </p>
 
-          <button
-            onClick={() => exportBackupJSON(cases)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
-            title="Cadangkan database lokal"
-          >
-            <Download className="w-4 h-4 text-slate-600" />
-            <span>Backup Data (JSON)</span>
-          </button>
+            <div className="flex items-center gap-2 pt-1 flex-wrap text-xs">
+              <span className="bg-white/20 px-3 py-1 rounded-full font-bold text-white">
+                Total: {cases.length} Kasus
+              </span>
+              <span className="bg-amber-400/30 text-amber-200 px-3 py-1 rounded-full font-bold border border-amber-300/40">
+                Aktif: {cases.filter((c) => c.statusPenanganan !== 'Kasus Selesai').length} Perkara
+              </span>
+              {isAnonymized && (
+                <span className="bg-yellow-400 text-slate-950 px-3 py-1 rounded-full font-extrabold">
+                  Mode Privasi Sensor Aktif
+                </span>
+              )}
+            </div>
+          </div>
 
-          <button
-            onClick={onOpenNewCase}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-sky-600 to-purple-600 hover:from-sky-700 hover:to-purple-700 rounded-lg transition-all shadow-sm"
-          >
-            <Plus className="w-4 h-4 text-white" />
-            <span>Tambah Kasus</span>
-          </button>
+          <div className="flex items-center gap-2 flex-wrap shrink-0">
+            <button
+              onClick={() => exportCasesToCSV(filteredCases, isAnonymized)}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-blue-950 bg-white hover:bg-sky-50 rounded-xl transition-all shadow-sm"
+              title="Download berkas tabel Excel/CSV"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <span>Ekspor Excel (CSV)</span>
+            </button>
+
+            <button
+              onClick={() => exportBackupJSON(cases)}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-white/15 hover:bg-white/25 border border-white/30 rounded-xl transition-all backdrop-blur-xs"
+              title="Cadangkan database lokal"
+            >
+              <Download className="w-4 h-4 text-sky-200" />
+              <span>Backup JSON</span>
+            </button>
+
+            <button
+              onClick={onOpenNewCase}
+              className="flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 rounded-xl transition-all shadow-md hover:shadow-lg ring-1 ring-white/50"
+            >
+              <Plus className="w-4 h-4 text-slate-950" />
+              <span>+ Catat Kasus Baru</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+      {/* 2. Filter and Search Bar with Colorful Sky/Blue Gradient Background */}
+      <div className="bg-gradient-to-r from-blue-50/90 via-sky-50/80 to-indigo-50/60 p-5 rounded-2xl border-2 border-blue-200 shadow-sm space-y-3">
         <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
           {/* Search box */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-blue-500" />
             <input
               type="text"
               value={filters.searchQuery}
               onChange={(e) => setFilters({ ...filters, searchQuery: e.target.value })}
               placeholder="Cari nomor registrasi, nama korban/terlapor, kronologi, desa..."
-              className="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white text-slate-900 placeholder:text-slate-400"
+              className="w-full pl-9 pr-4 py-2.5 text-xs bg-white border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-900 placeholder:text-slate-400 shadow-xs"
             />
           </div>
 
@@ -171,7 +195,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
             <select
               value={filters.kecamatan}
               onChange={(e) => setFilters({ ...filters, kecamatan: e.target.value })}
-              className="px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-slate-800 text-xs font-medium"
+              className="px-3 py-2 bg-white border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-800 text-xs font-semibold shadow-xs"
             >
               <option value="">Semua Kecamatan (7)</option>
               {DAFTAR_KECAMATAN.map((k) => (
@@ -185,7 +209,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
             <select
               value={filters.kategoriKorban}
               onChange={(e) => setFilters({ ...filters, kategoriKorban: e.target.value })}
-              className="px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-slate-800 text-xs font-medium"
+              className="px-3 py-2 bg-white border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-800 text-xs font-semibold shadow-xs"
             >
               <option value="">Semua Korban</option>
               <option value="Perempuan Dewasa">Perempuan Dewasa</option>
@@ -198,7 +222,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
             <select
               value={filters.bentukKekerasan}
               onChange={(e) => setFilters({ ...filters, bentukKekerasan: e.target.value })}
-              className="px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-slate-800 text-xs font-medium"
+              className="px-3 py-2 bg-white border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-800 text-xs font-semibold shadow-xs"
             >
               <option value="">Bentuk Kekerasan</option>
               {DAFTAR_BENTUK_KEKERASAN.map((b) => (
@@ -212,7 +236,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
             <select
               value={filters.statusPenanganan}
               onChange={(e) => setFilters({ ...filters, statusPenanganan: e.target.value })}
-              className="px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 text-slate-800 text-xs font-medium"
+              className="px-3 py-2 bg-white border border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 text-slate-800 text-xs font-semibold shadow-xs"
             >
               <option value="">Semua Status</option>
               {DAFTAR_STATUS_PENANGANAN.map((s) => (
@@ -231,7 +255,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
             filters.tingkatUrgensi) && (
             <button
               onClick={handleResetFilters}
-              className="px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg hover:bg-slate-50 whitespace-nowrap"
+              className="px-3 py-2 text-xs font-bold text-blue-900 hover:text-white border border-blue-300 rounded-xl bg-white hover:bg-blue-800 transition-colors whitespace-nowrap shadow-xs"
             >
               Reset Filter
             </button>
@@ -239,35 +263,35 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
         </div>
 
         {/* Counter indicator */}
-        <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+        <div className="flex items-center justify-between text-xs text-blue-950 font-medium pt-1">
           <div>
-            Menampilkan <span className="font-semibold text-slate-900 font-mono tabular-nums">{filteredCases.length}</span> dari{' '}
-            <span className="font-semibold text-slate-900 font-mono tabular-nums">{cases.length}</span> total kasus
+            Menampilkan <strong className="font-bold text-blue-800 font-mono tabular-nums">{filteredCases.length}</strong> dari{' '}
+            <strong className="font-bold text-blue-800 font-mono tabular-nums">{cases.length}</strong> total berkas perkara
           </div>
           {isAnonymized && (
-            <div className="text-amber-800 bg-amber-50 px-2 py-0.5 rounded text-[11px] font-medium border border-amber-200">
+            <div className="text-amber-900 bg-amber-100/90 px-2.5 py-0.5 rounded-md text-[11px] font-bold border border-amber-300">
               Sensor privasi nama korban aktif
             </div>
           )}
         </div>
       </div>
 
-      {/* Table Data Grid */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+      {/* 3. Table Data Grid with Colorful Header and Row Styles */}
+      <div className="bg-white rounded-2xl border-2 border-blue-200/90 overflow-hidden shadow-md">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="py-3 px-4">No. Registrasi & Tanggal</th>
-                <th className="py-3 px-4">Korban</th>
-                <th className="py-3 px-4">TKP / Wilayah</th>
-                <th className="py-3 px-4">Bentuk Kekerasan</th>
-                <th className="py-3 px-4">Pelaku / Hubungan</th>
-                <th className="py-3 px-4">Status & Urgensi</th>
-                <th className="py-3 px-4 text-right">Aksi Tindakan</th>
+              <tr className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white font-bold uppercase tracking-wider text-[11px]">
+                <th className="py-3.5 px-4 text-sky-100">No. Registrasi & Tanggal</th>
+                <th className="py-3.5 px-4 text-sky-100">Korban</th>
+                <th className="py-3.5 px-4 text-sky-100">TKP / Wilayah</th>
+                <th className="py-3.5 px-4 text-sky-100">Bentuk Kekerasan</th>
+                <th className="py-3.5 px-4 text-sky-100">Pelaku / Hubungan</th>
+                <th className="py-3.5 px-4 text-sky-100">Status & Urgensi</th>
+                <th className="py-3.5 px-4 text-right text-sky-100">Aksi Tindakan</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-blue-100">
               {filteredCases.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-12 text-center">

@@ -129,7 +129,12 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/70 via-sky-50/60 to-indigo-50/50 flex flex-col font-sans relative">
+      {/* Background subtle light ambient effects */}
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-sky-200/25 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-amber-100/35 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="fixed top-1/2 right-10 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl pointer-events-none -z-10" />
+
       {/* Top Header */}
       <Header
         currentTab={currentTab}
