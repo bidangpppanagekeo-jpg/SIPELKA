@@ -1,10 +1,10 @@
 import React from 'react';
-import { PlusCircle, Eye, EyeOff } from 'lucide-react';
+import { PlusCircle, Eye, EyeOff, Users } from 'lucide-react';
 import sealImg from '../assets/images/nagekeo_pppa_seal_1792727445493.jpg';
 
 interface HeaderProps {
-  currentTab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop';
-  onSelectTab: (tab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop') => void;
+  currentTab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai';
+  onSelectTab: (tab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai') => void;
   isAnonymized: boolean;
   onToggleAnonymized: () => void;
   onOpenNewCase: () => void;
@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-blue-100 shadow-xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-6">
         {/* Zone 1: Brand wordmark */}
         <button
           onClick={() => onSelectTab('dashboard')}
@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* Zone 2: Nav links */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600">
+        <nav className="hidden lg:flex items-center gap-5 text-sm font-semibold text-slate-600">
           <button
             onClick={() => onSelectTab('dashboard')}
             className={`whitespace-nowrap shrink-0 transition-all py-1 border-b-2 ${
@@ -72,6 +72,17 @@ export const Header: React.FC<HeaderProps> = ({
             }`}
           >
             Input Kasus
+          </button>
+          <button
+            onClick={() => onSelectTab('pegawai')}
+            className={`whitespace-nowrap shrink-0 transition-all py-1 border-b-2 flex items-center gap-1.5 ${
+              currentTab === 'pegawai'
+                ? 'border-blue-600 text-blue-900 font-bold'
+                : 'border-transparent hover:text-blue-700'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5 text-blue-700" />
+            <span>Data Pegawai</span>
           </button>
           <button
             onClick={() => onSelectTab('laporan')}
@@ -132,34 +143,40 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Mobile nav row */}
-      <div className="flex md:hidden overflow-x-auto px-4 py-2 border-t border-slate-100 gap-4 text-xs font-medium text-slate-600 scrollbar-none">
+      <div className="flex lg:hidden overflow-x-auto px-4 py-2 border-t border-slate-100 gap-4 text-xs font-medium text-slate-600 scrollbar-none">
         <button
           onClick={() => onSelectTab('dashboard')}
-          className={`whitespace-nowrap pb-1 ${currentTab === 'dashboard' ? 'text-indigo-900 font-bold border-b-2 border-indigo-900' : ''}`}
+          className={`whitespace-nowrap pb-1 ${currentTab === 'dashboard' ? 'text-blue-900 font-bold border-b-2 border-blue-900' : ''}`}
         >
           Ringkasan
         </button>
         <button
           onClick={() => onSelectTab('register')}
-          className={`whitespace-nowrap pb-1 ${currentTab === 'register' ? 'text-indigo-900 font-bold border-b-2 border-indigo-900' : ''}`}
+          className={`whitespace-nowrap pb-1 ${currentTab === 'register' ? 'text-blue-900 font-bold border-b-2 border-blue-900' : ''}`}
         >
           Register Kasus
         </button>
         <button
           onClick={() => onSelectTab('input')}
-          className={`whitespace-nowrap pb-1 ${currentTab === 'input' ? 'text-indigo-900 font-bold border-b-2 border-indigo-900' : ''}`}
+          className={`whitespace-nowrap pb-1 ${currentTab === 'input' ? 'text-blue-900 font-bold border-b-2 border-blue-900' : ''}`}
         >
           Input Kasus
         </button>
         <button
+          onClick={() => onSelectTab('pegawai')}
+          className={`whitespace-nowrap pb-1 ${currentTab === 'pegawai' ? 'text-blue-900 font-bold border-b-2 border-blue-900' : ''}`}
+        >
+          Data Pegawai
+        </button>
+        <button
           onClick={() => onSelectTab('laporan')}
-          className={`whitespace-nowrap pb-1 ${currentTab === 'laporan' ? 'text-indigo-900 font-bold border-b-2 border-indigo-900' : ''}`}
+          className={`whitespace-nowrap pb-1 ${currentTab === 'laporan' ? 'text-blue-900 font-bold border-b-2 border-blue-900' : ''}`}
         >
           Rekap & Laporan
         </button>
         <button
           onClick={() => onSelectTab('sop')}
-          className={`whitespace-nowrap pb-1 ${currentTab === 'sop' ? 'text-indigo-900 font-bold border-b-2 border-indigo-900' : ''}`}
+          className={`whitespace-nowrap pb-1 ${currentTab === 'sop' ? 'text-blue-900 font-bold border-b-2 border-blue-900' : ''}`}
         >
           SOP & Jejaring
         </button>

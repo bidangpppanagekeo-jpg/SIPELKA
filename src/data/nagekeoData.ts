@@ -1,4 +1,4 @@
-import { KasusKekerasan, KecamatanNagekeo } from '../types';
+import { KasusKekerasan, KecamatanNagekeo, PegawaiSIPELKA } from '../types';
 
 export const DAFTAR_KECAMATAN: { nama: KecamatanNagekeo; ibukota: string; desa: string[] }[] = [
   {
@@ -100,6 +100,161 @@ export const JEJARING_LAYANAN_NAGEKEO = [
     telepon: 'Hotline 129 (Bebas Pulsa) / WhatsApp: 08111-129-129',
     email: 'layanan@kemenpppa.go.id',
     layanan: 'Penerimaan aduan 24 jam skala nasional, koordinasi lintas daerah kasus TPPO & darurat.'
+  }
+];
+
+export const INITIAL_PEGAWAI_DATA: PegawaiSIPELKA[] = [
+  // 1. Data Admin SIPELKA
+  {
+    id: 'PEG-ADM-001',
+    nama: 'Yohanes Sina, S.Sos',
+    nipOrIdentitas: '19880914 201101 1 008',
+    kategori: 'Admin SIPELKA',
+    jabatan: 'Administrator SIPELKA & Pengelola Data SIMFONI PPA',
+    instansi: 'Dinas PMDP3A Kab. Nagekeo',
+    telepon: '0813-3982-1102',
+    email: 'yohanes.sipelka@nagekeokab.go.id',
+    keahlian: 'Sistem Informasi Data Gender & Anak, Pengelola Register Kasus',
+    status: 'Aktif',
+    tanggalBergabung: '2020-02-01'
+  },
+  {
+    id: 'PEG-ADM-002',
+    nama: 'Theresia M. Loda, A.Md.Kom',
+    nipOrIdentitas: '19940315 201903 2 006',
+    kategori: 'Admin SIPELKA',
+    jabatan: 'Operator SIPELKA & Verifikator Berkas Perkara',
+    instansi: 'Dinas PMDP3A Kab. Nagekeo',
+    telepon: '0822-4712-3345',
+    email: 'theresia.loda@nagekeokab.go.id',
+    keahlian: 'Entri Data SIMFONI PPA, Validasi Dokumen Laporan',
+    status: 'Aktif',
+    tanggalBergabung: '2022-01-10'
+  },
+
+  // 2. Kepala Bidang
+  {
+    id: 'PEG-KBD-001',
+    nama: 'Dra. Bernadetha M. Soa, M.Si',
+    nipOrIdentitas: '19740512 200212 2 004',
+    kategori: 'Kepala Bidang',
+    jabatan: 'Kepala Bidang Pemberdayaan Perempuan & Perlindungan Anak',
+    instansi: 'Dinas PMDP3A Kab. Nagekeo',
+    telepon: '0812-3890-5567',
+    email: 'bernadetha.pppa@nagekeokab.go.id',
+    keahlian: 'Pengambil Kebijakan PPPA, Pengesahan SPM PPA, Koordinasi Antar Lembaga',
+    status: 'Aktif',
+    tanggalBergabung: '2018-04-16'
+  },
+
+  // 3. Tenaga Pendamping Bidang PPPA
+  {
+    id: 'PEG-PPA-001',
+    nama: 'Katarina Ose Wea, S.Tr.Sos',
+    nipOrIdentitas: '19920822 201701 2 003',
+    kategori: 'Tenaga Pendamping Bidang PPPA',
+    jabatan: 'Pekerja Sosial Ahli Pertama / Konselor UPTD PPA',
+    instansi: 'Dinas PMDP3A Kab. Nagekeo',
+    telepon: '0812-4688-9912',
+    email: 'katarina.wea@nagekeokab.go.id',
+    keahlian: 'Sertifikasi Asesmen Risiko Bahaya, Trauma Healing, Pendampingan Korban Seksual & Anak',
+    status: 'Aktif',
+    tanggalBergabung: '2019-03-01'
+  },
+  {
+    id: 'PEG-PPA-002',
+    nama: 'Emanuel D. Ndate, S.Psi',
+    nipOrIdentitas: '19901104 201602 1 002',
+    kategori: 'Tenaga Pendamping Bidang PPPA',
+    jabatan: 'Konselor Psikologis & Pendamping Perlindungan Khusus Anak',
+    instansi: 'Dinas PMDP3A Kab. Nagekeo',
+    telepon: '0813-5321-4490',
+    email: 'emanuel.ndate@nagekeokab.go.id',
+    keahlian: 'Konseling Krisis Emosional, Trauma Intervensi, Pendampingan Diversi ABH',
+    status: 'Aktif',
+    tanggalBergabung: '2020-07-15'
+  },
+  {
+    id: 'PEG-PPA-003',
+    nama: 'Maria Goreti Bupu, S.Sos',
+    nipOrIdentitas: '19950619 202102 2 005',
+    kategori: 'Tenaga Pendamping Bidang PPPA',
+    jabatan: 'Petugas Penjangkauan & Pendamping Korban Lapangan',
+    instansi: 'Dinas PMDP3A Kab. Nagekeo',
+    telepon: '0852-3901-8843',
+    email: 'goreti.bupu@nagekeokab.go.id',
+    keahlian: 'Penanganan KDRT Komunitas Desa, Pengawasan Rumah Aman / Shelter',
+    status: 'Aktif',
+    tanggalBergabung: '2021-09-01'
+  },
+
+  // 4. Tenaga Pendamping Unit PPA Polres
+  {
+    id: 'PEG-POL-001',
+    nama: 'Aipda Fransiskus X. Ndolu, S.H.',
+    nipOrIdentitas: '83040921',
+    kategori: 'Tenaga Pendamping Unit PPA Polres',
+    jabatan: 'Kanit Perlindungan Perempuan dan Anak (PPA) Satreskrim',
+    instansi: 'Kepolisian Resor (Polres) Nagekeo',
+    telepon: '0821-4567-8910',
+    email: 'unitppa.polresnagekeo@polri.go.id',
+    keahlian: 'Penyidikan TPKS & Perlindungan Anak, BAP Ramah Anak, Restorative Justice',
+    status: 'Aktif',
+    tanggalBergabung: '2019-01-10'
+  },
+  {
+    id: 'PEG-POL-002',
+    nama: 'Briptu Maria Yuliana Eba, S.H.',
+    nipOrIdentitas: '95080412',
+    kategori: 'Tenaga Pendamping Unit PPA Polres',
+    jabatan: 'Penyidik Pembantu Unit PPA Satreskrim',
+    instansi: 'Kepolisian Resor (Polres) Nagekeo',
+    telepon: '0812-4633-1189',
+    email: 'maria.yuliana@polri.go.id',
+    keahlian: 'Pemeriksaan Khusus Saksi Korban Perempuan & Anak, Pengawalan Kejaksaan',
+    status: 'Aktif',
+    tanggalBergabung: '2021-04-01'
+  },
+
+  // 5. Tenaga Medis Visum
+  {
+    id: 'PEG-MED-001',
+    nama: 'dr. Stefanus W. Rangga, Sp.FM',
+    nipOrIdentitas: '503/SIP-D/DPMPTSP/NGK/2023/044',
+    kategori: 'Tenaga Medis Visum',
+    jabatan: 'Dokter Spesialis Forensik Medikolegal / Tim Visum RSUD Aeramo',
+    instansi: 'RSUD Aeramo Kabupaten Nagekeo',
+    telepon: '0813-5333-8822',
+    email: 'forensik.aeramo@nagekeokab.go.id',
+    keahlian: 'Penerbitan Visum et Repertum (VeR) Fisik & Seksual, Saksi Ahli Medis Pro-Justitia',
+    status: 'Aktif',
+    tanggalBergabung: '2020-03-01'
+  },
+  {
+    id: 'PEG-MED-002',
+    nama: 'dr. Fransiska K. Mite',
+    nipOrIdentitas: '503/SIP-D/DPMPTSP/NGK/2024/018',
+    kategori: 'Tenaga Medis Visum',
+    jabatan: 'Dokter Jaga IGD & Pemeriksa Medis Korban Kekerasan',
+    instansi: 'RSUD Aeramo Kabupaten Nagekeo',
+    telepon: '0812-3900-2211',
+    email: 'fransiska.mite@nagekeokab.go.id',
+    keahlian: 'Penanganan Medis Darurat, Dokumentasi Cidera Fisik & Rujukan Trauma',
+    status: 'Aktif',
+    tanggalBergabung: '2022-08-15'
+  },
+  {
+    id: 'PEG-MED-003',
+    nama: 'dr. Hironimus D. Leko',
+    nipOrIdentitas: '19820516 201001 1 015',
+    kategori: 'Tenaga Medis Visum',
+    jabatan: 'Dokter Pemeriksa Medis Primer & Kepala Puskesmas Danga',
+    instansi: 'Puskesmas Danga Kec. Aesesa',
+    telepon: '0813-3921-1200',
+    email: 'pkm.danga@nagekeokab.go.id',
+    keahlian: 'Pemeriksaan Klinis Awal Tingkat Pertama Kecamatan, Skrining Kesehatan Korban',
+    status: 'Aktif',
+    tanggalBergabung: '2016-11-01'
   }
 ];
 

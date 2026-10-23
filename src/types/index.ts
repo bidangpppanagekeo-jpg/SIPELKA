@@ -55,10 +55,33 @@ export type StatusPenanganan =
 
 export type TingkatUrgensi = 'Darurat' | 'Tinggi' | 'Sedang' | 'Rendah';
 
+export type KategoriPegawai =
+  | 'Admin SIPELKA'
+  | 'Kepala Bidang'
+  | 'Tenaga Pendamping Bidang PPPA'
+  | 'Tenaga Pendamping Unit PPA Polres'
+  | 'Tenaga Medis Visum';
+
+export interface PegawaiSIPELKA {
+  id: string;
+  nama: string;
+  nipOrIdentitas: string; // NIP / NRP / SIP / NIK
+  kategori: KategoriPegawai;
+  jabatan: string;
+  instansi: string;
+  telepon: string;
+  email?: string;
+  keahlian?: string;
+  status: 'Aktif' | 'Non-Aktif';
+  tanggalBergabung?: string;
+}
+
 export interface CatatanPenanganan {
   id: string;
   tanggal: string;
   petugas: string;
+  petugasId?: string;
+  kategoriPetugas?: KategoriPegawai;
   instansi: string;
   tindakan: string;
   hasilDanCatatan: string;
@@ -108,7 +131,19 @@ export interface KasusKekerasan {
   // Penanganan & Urgensi
   tingkatUrgensi: TingkatUrgensi;
   statusPenanganan: StatusPenanganan;
-  petugasPendamping: string;
+  
+  // Sinkronisasi Data Pegawai / Petugas Terpadu
+  petugasPendamping: string; // Nama Tenaga Pendamping Bidang PPPA
+  petugasPendampingId?: string;
+  adminSipelka?: string; // Nama Admin SIPELKA yang menginput
+  adminSipelkaId?: string;
+  kepalaBidang?: string; // Nama Kepala Bidang PPPA yang mengesahkan
+  kepalaBidangId?: string;
+  petugasPolres?: string; // Nama Petugas Unit PPA Polres
+  petugasPolresId?: string;
+  tenagaMedis?: string; // Nama Dokter / Tenaga Medis Visum
+  tenagaMedisId?: string;
+
   layananDibutuhkan: string[]; // ['Visum et Repertum', 'Pendampingan LP Polres', 'Trauma Healing', 'Bantuan Hukum']
   riwayatPenanganan: CatatanPenanganan[];
   keteranganTambahan?: string;
@@ -123,4 +158,5 @@ export interface FilterKasusState {
   tingkatUrgensi: string;
   tahun: string;
   bulan: string;
+  petugasId?: string;
 }

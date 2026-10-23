@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { KasusKekerasan, StatusPenanganan, CatatanPenanganan } from './types';
+import { KasusKekerasan, StatusPenanganan, CatatanPenanganan, PegawaiSIPELKA } from './types';
 import {
   getStoredCases,
   saveCase,
@@ -12,23 +12,30 @@ import {
   addProgressNote,
   getAnonymizedPreference,
   setAnonymizedPreference,
-  resetDefaultCases
+  resetDefaultCases,
+  getStoredPegawai,
+  savePegawai,
+  deletePegawai,
+  resetDefaultPegawai
 } from './services/storageService';
 import { Header } from './components/Header';
 import { DashboardView } from './components/DashboardView';
 import { CaseListView } from './components/CaseListView';
 import { CaseFormView } from './components/CaseFormView';
+import { PegawaiManagementView } from './components/PegawaiManagementView';
 import { OfficialReportView } from './components/OfficialReportView';
 import { SopNetworkView } from './components/SopNetworkView';
 import { CaseDetailModal } from './components/CaseDetailModal';
 import { PrintDocument } from './components/PrintDocument';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'register' | 'input' | 'laporan' | 'sop'>('dashboard');
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai'>('dashboard');
   const [cases, setCases] = useState<KasusKekerasan[]>([]);
+  const [pegawaiList, setPegawaiList] = useState<PegawaiSIPELKA[]>([]);
   const [isAnonymized, setIsAnonymized] = useState<boolean>(false);
   const [selectedCaseForDetail, setSelectedCaseForDetail] = useState<KasusKekerasan | null>(null);
   const [caseToEdit, setCaseToEdit] = useState<KasusKekerasan | null>(null);
+  const [officerFilterQuery, setOfficerFilterQuery] = useState<string>('');
 
   // Printing state
   const [printConfig, setPrintConfig] = useState<{
@@ -43,6 +50,8 @@ export default function App() {
   useEffect(() => {
     const loadedCases = getStoredCases();
     setCases(loadedCases);
+    const loadedPegawai = getStoredPegawai();
+    setPegawaiList(loadedPegawai);
     setIsAnonymized(getAnonymizedPreference());
   }, []);
 
@@ -108,6 +117,32 @@ export default function App() {
     }
   };
 
+  // Pegawai Handlers
+  const handleSavePegawai = (p: PegawaiSIPELKA) => {
+    const updated = savePegawai(p);
+    setPegawaiList(updated);
+    showToast(`Data pegawai ${p.nama} (${p.kategori}) berhasil disimpan.`);
+  };
+
+  const handleDeletePegawai = (id: string) => {
+    const updated = deletePegawai(id);
+    setPegawaiList(updated);
+    showToast('Data pegawai berhasil dihapus.');
+  };
+
+  const handleResetPegawai = () => {
+    if (window.confirm('Muat ulang sampel data pegawai & tim penanganan Nagekeo?')) {
+      const def = resetDefaultPegawai();
+      setPegawaiList(def);
+      showToast('Data pegawai berhasil dimuat ulang ke daftar sampel.');
+    }
+  };
+
+  const handleViewOfficerCases = (officerName: string) => {
+    setOfficerFilterQuery(officerName);
+    setCurrentTab('register');
+  };
+
   const handlePrintCase = (c: KasusKekerasan) => {
     setPrintConfig({
       type: 'berita_acara',
@@ -142,6 +177,9 @@ export default function App() {
           if (tab === 'input' && !caseToEdit) {
             setCaseToEdit(null);
           }
+          if (tab === 'register') {
+            setOfficerFilterQuery('');
+          }
           setCurrentTab(tab);
         }}
         isAnonymized={isAnonymized}
@@ -164,7 +202,7 @@ export default function App() {
             cases={cases}
             isAnonymized={isAnonymized}
             onSelectCase={(c) => setSelectedCaseForDetail(c)}
-            onNavigateToTab={(tab) => setCurrentTab(tab)}
+            onNavigateToTab={(tab) => setCurrentTab(tab as any)}
           />
         )}
 
@@ -172,6 +210,7 @@ export default function App() {
           <CaseListView
             cases={cases}
             isAnonymized={isAnonymized}
+            initialSearchQuery={officerFilterQuery}
             onSelectCase={(c) => setSelectedCaseForDetail(c)}
             onEditCase={handleEditCase}
             onDeleteCase={handleDeleteCase}
@@ -185,6 +224,7 @@ export default function App() {
           <CaseFormView
             initialCase={caseToEdit}
             allCases={cases}
+            pegawaiList={pegawaiList}
             onSaveCase={handleSaveCase}
             onCancel={() => {
               setCaseToEdit(null);
@@ -193,10 +233,22 @@ export default function App() {
           />
         )}
 
+        {currentTab === 'pegawai' && (
+          <PegawaiManagementView
+            pegawaiList={pegawaiList}
+            cases={cases}
+            onSavePegawai={handleSavePegawai}
+            onDeletePegawai={handleDeletePegawai}
+            onResetPegawai={handleResetPegawai}
+            onViewOfficerCases={handleViewOfficerCases}
+          />
+        )}
+
         {currentTab === 'laporan' && (
           <OfficialReportView
             cases={cases}
             isAnonymized={isAnonymized}
+            pegawaiList={pegawaiList}
             onPrintOfficialReport={handlePrintOfficialReport}
           />
         )}
@@ -209,6 +261,7 @@ export default function App() {
         <CaseDetailModal
           kasus={selectedCaseForDetail}
           isAnonymized={isAnonymized}
+          pegawaiList={pegawaiList}
           onClose={() => setSelectedCaseForDetail(null)}
           onEdit={handleEditCase}
           onPrint={handlePrintCase}
@@ -224,6 +277,7 @@ export default function App() {
           daftarKasus={cases}
           periode={printConfig.periode}
           isAnonymized={isAnonymized}
+          pegawaiList={pegawaiList}
         />
       )}
 
@@ -235,7 +289,7 @@ export default function App() {
               SIPELKA Kabupaten Nagekeo
             </span>
             <span>·</span>
-            <span className="font-medium text-purple-900">Dinas PMDP3A</span>
+            <span className="font-medium text-blue-900">Dinas PMDP3A</span>
             <span>·</span>
             <span>Mbay, Flores - NTT</span>
           </div>

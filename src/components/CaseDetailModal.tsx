@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KasusKekerasan, StatusPenanganan, CatatanPenanganan } from '../types';
+import { KasusKekerasan, StatusPenanganan, CatatanPenanganan, PegawaiSIPELKA } from '../types';
 import { DAFTAR_STATUS_PENANGANAN } from '../data/nagekeoData';
 import {
   X,
@@ -13,12 +13,18 @@ import {
   Plus,
   Building,
   CheckCircle,
-  AlertTriangle
+  AlertTriangle,
+  Users,
+  Stethoscope,
+  Gavel,
+  Award,
+  UserCheck
 } from 'lucide-react';
 
 interface CaseDetailModalProps {
   kasus: KasusKekerasan;
   isAnonymized: boolean;
+  pegawaiList?: PegawaiSIPELKA[];
   onClose: () => void;
   onEdit: (c: KasusKekerasan) => void;
   onPrint: (c: KasusKekerasan) => void;
@@ -32,6 +38,7 @@ interface CaseDetailModalProps {
 export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   kasus,
   isAnonymized,
+  pegawaiList = [],
   onClose,
   onEdit,
   onPrint,
@@ -44,6 +51,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   const [noteDate, setNoteDate] = useState(new Date().toISOString().slice(0, 10));
   const [noteOfficer, setNoteOfficer] = useState(kasus.petugasPendamping || 'Staf PPPA');
   const [noteAgency, setNoteAgency] = useState('UPTD PPA Dinas PMDP3A Nagekeo');
+  const [noteOfficerId, setNoteOfficerId] = useState(kasus.petugasPendampingId || '');
   const [noteAction, setNoteAction] = useState('');
   const [noteResult, setNoteResult] = useState('');
   const [noteStatus, setNoteStatus] = useState<StatusPenanganan>(kasus.statusPenanganan);
@@ -57,6 +65,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
       {
         tanggal: noteDate,
         petugas: noteOfficer,
+        petugasId: noteOfficerId || undefined,
         instansi: noteAgency,
         tindakan: noteAction,
         hasilDanCatatan: noteResult
@@ -183,6 +192,66 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                 <div className="text-right sm:border-l sm:border-slate-200 sm:pl-4">
                   <span className="text-[11px] text-slate-500 block">Petugas Penanggung Jawab:</span>
                   <span className="font-semibold text-slate-800">{kasus.petugasPendamping}</span>
+                </div>
+              </div>
+
+              {/* Tim Penanganan Terpadu (Synced Staff) */}
+              <div className="bg-gradient-to-br from-white via-indigo-50/50 to-blue-50/60 p-4 rounded-xl border border-indigo-200 space-y-3">
+                <div className="flex items-center justify-between border-b border-indigo-100 pb-2">
+                  <h3 className="font-bold text-blue-950 flex items-center gap-1.5 text-xs">
+                    <Users className="w-4 h-4 text-indigo-700" />
+                    Tim Penanganan Terpadu & Petugas Terhubung
+                  </h3>
+                  <span className="text-[10px] font-bold text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded">
+                    SIPELKA Nagekeo
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
+                  <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                    <span className="text-[10px] font-bold text-blue-700 flex items-center gap-1 uppercase">
+                      <Shield className="w-3 h-3" />
+                      Admin Pencatat SIPELKA
+                    </span>
+                    <div className="font-semibold text-slate-900 mt-1">{kasus.adminSipelka || 'Yohanes Sina, S.Sos'}</div>
+                    <div className="text-[10px] text-slate-500">Dinas PMDP3A Kab. Nagekeo</div>
+                  </div>
+
+                  <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                    <span className="text-[10px] font-bold text-indigo-700 flex items-center gap-1 uppercase">
+                      <UserCheck className="w-3 h-3" />
+                      Pendamping Utama PPPA
+                    </span>
+                    <div className="font-semibold text-slate-900 mt-1">{kasus.petugasPendamping}</div>
+                    <div className="text-[10px] text-slate-500">UPTD PPA Bidang PPPA</div>
+                  </div>
+
+                  <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                    <span className="text-[10px] font-bold text-teal-700 flex items-center gap-1 uppercase">
+                      <Gavel className="w-3 h-3" />
+                      Unit PPA Polres
+                    </span>
+                    <div className="font-semibold text-slate-900 mt-1">{kasus.petugasPolres || 'Belum ditugaskan'}</div>
+                    <div className="text-[10px] text-slate-500">Polres Nagekeo</div>
+                  </div>
+
+                  <div className="p-2.5 bg-white rounded-lg border border-slate-200">
+                    <span className="text-[10px] font-bold text-emerald-700 flex items-center gap-1 uppercase">
+                      <Stethoscope className="w-3 h-3" />
+                      Tenaga Medis Visum
+                    </span>
+                    <div className="font-semibold text-slate-900 mt-1">{kasus.tenagaMedis || 'Belum ada rujukan visum'}</div>
+                    <div className="text-[10px] text-slate-500">RSUD Aeramo / Puskesmas</div>
+                  </div>
+
+                  <div className="p-2.5 bg-white rounded-lg border border-slate-200 sm:col-span-2">
+                    <span className="text-[10px] font-bold text-amber-700 flex items-center gap-1 uppercase">
+                      <Award className="w-3 h-3" />
+                      Kepala Bidang PPPA (Pengesah)
+                    </span>
+                    <div className="font-semibold text-slate-900 mt-1">{kasus.kepalaBidang || 'Dra. Bernadetha M. Soa, M.Si'}</div>
+                    <div className="text-[10px] text-slate-500">Pejabat Pengesah Berita Acara & Laporan Resmi</div>
+                  </div>
                 </div>
               </div>
 
@@ -384,6 +453,34 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                   className="p-4 bg-indigo-50/50 rounded-xl border border-indigo-200 space-y-3"
                 >
                   <h4 className="font-bold text-indigo-950">Catat Tindakan Baru / Perkembangan Kasus</h4>
+                  {pegawaiList.length > 0 && (
+                    <div className="bg-white p-2.5 rounded-lg border border-indigo-200 space-y-1">
+                      <label className="block text-indigo-950 font-bold text-[11px] flex items-center gap-1">
+                        <Users className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>Pilih Pegawai / Petugas SIPELKA Terdaftar:</span>
+                      </label>
+                      <select
+                        onChange={(e) => {
+                          const selId = e.target.value;
+                          const found = pegawaiList.find((p) => p.id === selId);
+                          if (found) {
+                            setNoteOfficer(found.nama);
+                            setNoteAgency(found.instansi);
+                            setNoteOfficerId(found.id);
+                          }
+                        }}
+                        className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-300 rounded text-xs font-semibold"
+                      >
+                        <option value="">-- Pilih Petugas yang Menangani Tindakan Ini --</option>
+                        {pegawaiList.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            [{p.kategori}] {p.nama} ({p.instansi})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     <div>
                       <label className="block text-slate-700 font-semibold mb-1">Tanggal Tindakan</label>

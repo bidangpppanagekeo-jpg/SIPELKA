@@ -1,22 +1,32 @@
 import React, { useState } from 'react';
-import { KasusKekerasan, KecamatanNagekeo, BentukKekerasan, KategoriKorban } from '../types';
+import { KasusKekerasan, KecamatanNagekeo, BentukKekerasan, KategoriKorban, PegawaiSIPELKA } from '../types';
 import { DAFTAR_KECAMATAN, DAFTAR_BENTUK_KEKERASAN } from '../data/nagekeoData';
 import { exportCasesToCSV } from '../services/storageService';
-import { Printer, FileSpreadsheet, Download, Shield, Calendar, MapPin, BarChart3 } from 'lucide-react';
+import { Printer, FileSpreadsheet, Download, Shield, Calendar, MapPin, BarChart3, Users, Award } from 'lucide-react';
 
 interface OfficialReportViewProps {
   cases: KasusKekerasan[];
   isAnonymized: boolean;
+  pegawaiList?: PegawaiSIPELKA[];
   onPrintOfficialReport: (periode: string) => void;
 }
 
 export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
   cases,
   isAnonymized,
+  pegawaiList = [],
   onPrintOfficialReport
 }) => {
+
   const [selectedTahun, setSelectedTahun] = useState('2026');
   const [selectedBulan, setSelectedBulan] = useState('Semua');
+
+  const activeKabid =
+    pegawaiList.find((p) => p.kategori === 'Kepala Bidang' && p.status === 'Aktif') ||
+    pegawaiList.find((p) => p.kategori === 'Kepala Bidang');
+  const activeAdmin =
+    pegawaiList.find((p) => p.kategori === 'Admin SIPELKA' && p.status === 'Aktif') ||
+    pegawaiList.find((p) => p.kategori === 'Admin SIPELKA');
 
   // Filter cases for the report period
   const filteredCases = cases.filter((c) => {
@@ -292,8 +302,8 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
         </div>
       </div>
 
-      {/* Dokumen Pengesahan & Kop Surat Info */}
-      <div className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-950 text-white p-6 rounded-2xl border border-amber-400/30 shadow-md space-y-3">
+      {/* Dokumen Pengesahan & Kop Surat Info with Synced Signatories */}
+      <div className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-950 text-white p-6 rounded-2xl border border-amber-400/30 shadow-md space-y-4">
         <div className="flex items-start gap-3">
           <Shield className="w-6 h-6 text-amber-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
@@ -303,6 +313,32 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
             <p className="text-xs text-sky-100/90 leading-relaxed">
               Format cetak telah disesuaikan dengan tata naskah dinas Pemerintah Kabupaten Nagekeo, lengkap dengan Kop Surat resmi Dinas PMDP3A (Pemberdayaan Masyarakat dan Desa, Pemberdayaan Perempuan dan Perlindungan Anak), tanggal penetapan di Mbay, serta lembar pengesahan tanda tangan Kepala Bidang PPPA.
             </p>
+          </div>
+        </div>
+
+        <div className="pt-3 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div className="p-3 bg-white/10 rounded-xl border border-white/10">
+            <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
+              Pejabat Pengesah (Kepala Bidang PPPA)
+            </span>
+            <div className="font-bold text-white mt-1">
+              {activeKabid?.nama || 'Dra. Bernadetha M. Soa, M.Si'}
+            </div>
+            <div className="text-[11px] text-sky-200 font-mono mt-0.5">
+              NIP. {activeKabid?.nipOrIdentitas || '19740512 200212 2 004'}
+            </div>
+          </div>
+
+          <div className="p-3 bg-white/10 rounded-xl border border-white/10">
+            <span className="text-[10px] font-bold text-sky-300 uppercase tracking-wider block">
+              Pengelola Data & Operator SIMFONI PPA
+            </span>
+            <div className="font-bold text-white mt-1">
+              {activeAdmin?.nama || 'Yohanes Sina, S.Sos'}
+            </div>
+            <div className="text-[11px] text-sky-200 font-mono mt-0.5">
+              NIP. {activeAdmin?.nipOrIdentitas || '19880914 201101 1 008'}
+            </div>
           </div>
         </div>
       </div>

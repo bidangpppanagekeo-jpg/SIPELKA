@@ -1,5 +1,5 @@
 import React from 'react';
-import { KasusKekerasan } from '../types';
+import { KasusKekerasan, PegawaiSIPELKA } from '../types';
 import sealImg from '../assets/images/nagekeo_pppa_seal_1792727445493.jpg';
 
 interface PrintDocumentProps {
@@ -8,6 +8,7 @@ interface PrintDocumentProps {
   daftarKasus?: KasusKekerasan[];
   periode?: string;
   isAnonymized?: boolean;
+  pegawaiList?: PegawaiSIPELKA[];
 }
 
 export const PrintDocument: React.FC<PrintDocumentProps> = ({
@@ -15,13 +16,29 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
   kasus,
   daftarKasus = [],
   periode = 'Tahun 2026',
-  isAnonymized = false
+  isAnonymized = false,
+  pegawaiList = []
 }) => {
   const currentDate = new Date().toLocaleDateString('id-ID', {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
   });
+
+  // Find synced officers
+  const activeKabid =
+    (kasus?.kepalaBidangId ? pegawaiList.find((p) => p.id === kasus.kepalaBidangId) : undefined) ||
+    pegawaiList.find((p) => p.kategori === 'Kepala Bidang' && p.status === 'Aktif') ||
+    pegawaiList.find((p) => p.kategori === 'Kepala Bidang');
+
+  const activeAdmin =
+    (kasus?.adminSipelkaId ? pegawaiList.find((p) => p.id === kasus.adminSipelkaId) : undefined) ||
+    pegawaiList.find((p) => p.kategori === 'Admin SIPELKA' && p.status === 'Aktif') ||
+    pegawaiList.find((p) => p.kategori === 'Admin SIPELKA');
+
+  const activePendamping =
+    (kasus?.petugasPendampingId ? pegawaiList.find((p) => p.id === kasus.petugasPendampingId) : undefined) ||
+    (kasus?.petugasPendamping ? pegawaiList.find((p) => p.nama === kasus.petugasPendamping) : undefined);
 
   return (
     <div className="print-only hidden p-8 bg-white text-black font-serif text-sm">
@@ -100,48 +117,48 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
             <table className="w-full text-xs border-collapse">
               <tbody>
                 <tr>
-                  <td className="w-48 py-1">Nama Lengkap / Inisial</td>
+                  <td className="w-48 py-1">Nama Korban</td>
                   <td className="w-4">:</td>
-                  <td className="font-semibold">{isAnonymized ? kasus.namaSamaran : kasus.namaKorban}</td>
+                  <td>
+                    {isAnonymized ? `${kasus.namaSamaran} (Privasi Terjaga)` : kasus.namaKorban}
+                  </td>
                 </tr>
                 <tr>
                   <td className="py-1">Jenis Kelamin / Usia</td>
                   <td>:</td>
-                  <td>{kasus.jenisKelaminKorban} / {kasus.usiaKorban} Tahun</td>
-                </tr>
-                <tr>
-                  <td className="py-1">Kategori Korban</td>
-                  <td>:</td>
-                  <td>{kasus.kategoriKorban}</td>
-                </tr>
-                <tr>
-                  <td className="py-1">Status Disabilitas</td>
-                  <td>:</td>
-                  <td>{kasus.disabilitas ? `Ya (${kasus.jenisDisabilitas || 'Rentan'})` : 'Tidak'}</td>
-                </tr>
-                <tr>
-                  <td className="py-1">Pekerjaan / Pendidikan</td>
-                  <td>:</td>
-                  <td>{kasus.pekerjaanKorban} / {kasus.pendidikanKorban}</td>
+                  <td>
+                    {kasus.jenisKelaminKorban} / {kasus.usiaKorban} Tahun ({kasus.kategoriKorban})
+                  </td>
                 </tr>
                 <tr>
                   <td className="py-1">Alamat Domisili</td>
                   <td>:</td>
-                  <td>{kasus.alamatKorban}, Kec. {kasus.kecamatanKorban}, Kab. Nagekeo</td>
+                  <td>
+                    {kasus.alamatKorban}, Kec. {kasus.kecamatanKorban}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-1">Penyandang Disabilitas</td>
+                  <td>:</td>
+                  <td>
+                    {kasus.disabilitas ? `Ya (${kasus.jenisDisabilitas || 'Ada'})` : 'Tidak Ada'}
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
 
-          {/* III. Data Terlapor */}
+          {/* III. Data Terduga Pelaku & Peristiwa */}
           <div className="mb-4">
-            <h4 className="font-bold underline mb-1">III. DATA TERLAPOR / TERDUGA PELAKU</h4>
+            <h4 className="font-bold underline mb-1">III. PERISTIWA & TERDUGA PELAKU</h4>
             <table className="w-full text-xs border-collapse">
               <tbody>
                 <tr>
-                  <td className="w-48 py-1">Nama Terlapor</td>
+                  <td className="w-48 py-1">Nama Terduga Pelaku</td>
                   <td className="w-4">:</td>
-                  <td>{isAnonymized ? 'Terlapor (' + kasus.hubunganPelaku + ')' : kasus.namaPelaku}</td>
+                  <td>
+                    {isAnonymized ? `Terlapor (${kasus.hubunganPelaku})` : kasus.namaPelaku}
+                  </td>
                 </tr>
                 <tr>
                   <td className="py-1">Hubungan dengan Korban</td>
@@ -149,53 +166,73 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
                   <td>{kasus.hubunganPelaku}</td>
                 </tr>
                 <tr>
-                  <td className="py-1">Domisili Terlapor</td>
+                  <td className="py-1">Waktu Kejadian</td>
                   <td>:</td>
-                  <td>{kasus.domisiliPelaku || '-'}</td>
+                  <td>{kasus.tanggalKejadian}</td>
                 </tr>
-              </tbody>
-            </table>
-          </div>
-
-          {/* IV. Uraian Kejadian */}
-          <div className="mb-4">
-            <h4 className="font-bold underline mb-1">IV. PERISTIWA & BENTUK KEKERASAN</h4>
-            <table className="w-full text-xs border-collapse mb-2">
-              <tbody>
                 <tr>
-                  <td className="w-48 py-1">Tanggal & Tempat Kejadian</td>
-                  <td className="w-4">:</td>
-                  <td>{kasus.tanggalKejadian} di {kasus.desaKelurahanTKP}, Kec. {kasus.kecamatanTKP} ({kasus.tempatKejadian})</td>
+                  <td className="py-1">Tempat Kejadian (TKP)</td>
+                  <td>:</td>
+                  <td>
+                    {kasus.tempatKejadian} - Desa/Kel. {kasus.desaKelurahanTKP}, Kec. {kasus.kecamatanTKP}
+                  </td>
                 </tr>
                 <tr>
                   <td className="py-1">Bentuk Kekerasan</td>
                   <td>:</td>
-                  <td className="font-semibold">{kasus.bentukKekerasan.join(', ')}</td>
+                  <td>{kasus.bentukKekerasan.join(', ')}</td>
                 </tr>
                 <tr>
-                  <td className="py-1">Tingkat Urgensi Kasus</td>
+                  <td className="py-1">Tingkat Urgensi</td>
                   <td>:</td>
                   <td>{kasus.tingkatUrgensi}</td>
                 </tr>
               </tbody>
             </table>
-            <div className="p-3 border border-black text-xs leading-relaxed italic bg-slate-50">
-              &quot;{kasus.ringkasanKronologi}&quot;
-            </div>
           </div>
 
-          {/* V. Rencana Pendampingan */}
+          {/* IV. Tim Penanganan Terpadu (Synced Staff) */}
+          <div className="mb-4">
+            <h4 className="font-bold underline mb-1">IV. TIM PENANGANAN TERPADU KASUS</h4>
+            <table className="w-full text-xs border-collapse">
+              <tbody>
+                <tr>
+                  <td className="w-48 py-1">Admin SIPELKA (Pencatat)</td>
+                  <td className="w-4">:</td>
+                  <td>{kasus.adminSipelka || activeAdmin?.nama || 'Yohanes Sina, S.Sos'}</td>
+                </tr>
+                <tr>
+                  <td className="py-1">Tenaga Pendamping Utama PPPA</td>
+                  <td>:</td>
+                  <td>{kasus.petugasPendamping || activePendamping?.nama || 'Katarina Ose Wea, S.Tr.Sos'}</td>
+                </tr>
+                {kasus.petugasPolres && (
+                  <tr>
+                    <td className="py-1">Penyidik Unit PPA Polres</td>
+                    <td>:</td>
+                    <td>{kasus.petugasPolres}</td>
+                  </tr>
+                )}
+                {kasus.tenagaMedis && (
+                  <tr>
+                    <td className="py-1">Tenaga Medis Visum (VeR)</td>
+                    <td>:</td>
+                    <td>{kasus.tenagaMedis}</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* V. Ringkasan Kronologi */}
           <div className="mb-6">
-            <h4 className="font-bold underline mb-1">V. REKOMENDASI & TINDAK LANJUT LAYANAN</h4>
-            <p className="text-xs mb-1">
-              Layanan yang disepakati bersama korban/pelapor: <strong>{kasus.layananDibutuhkan.join(', ')}</strong>
-            </p>
-            <p className="text-xs">
-              Petugas Pendamping Lapangan: <strong>{kasus.petugasPendamping}</strong>
+            <h4 className="font-bold underline mb-1">V. RINGKASAN KRONOLOGI</h4>
+            <p className="text-xs text-justify leading-relaxed p-2 bg-slate-50 border border-slate-300">
+              {kasus.ringkasanKronologi}
             </p>
           </div>
 
-          {/* Tanda Tangan */}
+          {/* Penandatangan Berita Acara */}
           <div className="mt-8 flex justify-between text-xs text-center font-sans">
             <div>
               <p className="mb-14">Pelapor / Korban,</p>
@@ -204,8 +241,12 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
             <div>
               <p>Mbay, {currentDate}</p>
               <p className="mb-14">Petugas Penerima Laporan Bidang PPPA,</p>
-              <p className="font-bold underline">({kasus.petugasPendamping || 'Staf Pelaksana PPPA'})</p>
-              <p className="text-[10px] text-slate-600">NIP. ..............................................</p>
+              <p className="font-bold underline">
+                ({activePendamping?.nama || kasus.petugasPendamping || 'Katarina Ose Wea, S.Tr.Sos'})
+              </p>
+              <p className="text-[10px] text-slate-600">
+                NIP. {activePendamping?.nipOrIdentitas || '19920822 201701 2 003'}
+              </p>
             </div>
           </div>
         </div>
@@ -234,6 +275,7 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
                 <th className="border border-black p-1 text-left">Kecamatan</th>
                 <th className="border border-black p-1 text-left">Bentuk Kekerasan</th>
                 <th className="border border-black p-1 text-left">Hub. Pelaku</th>
+                <th className="border border-black p-1 text-left">Pendamping PPPA</th>
                 <th className="border border-black p-1 text-left">Status Layanan</th>
               </tr>
             </thead>
@@ -250,6 +292,7 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
                   <td className="border border-black p-1">{item.kecamatanTKP}</td>
                   <td className="border border-black p-1">{item.bentukKekerasan.join(', ')}</td>
                   <td className="border border-black p-1">{item.hubunganPelaku}</td>
+                  <td className="border border-black p-1">{item.petugasPendamping || '-'}</td>
                   <td className="border border-black p-1">{item.statusPenanganan}</td>
                 </tr>
               ))}
@@ -260,14 +303,22 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
             <div>
               <p>Mengetahui,</p>
               <p className="mb-14">Kepala Bidang Pemberdayaan Perempuan dan Perlindungan Anak</p>
-              <p className="font-bold underline">Dra. Bernadetha M. Soa, M.Si</p>
-              <p className="text-[10px] text-slate-600">NIP. 19740512 200212 2 004</p>
+              <p className="font-bold underline">
+                {activeKabid?.nama || 'Dra. Bernadetha M. Soa, M.Si'}
+              </p>
+              <p className="text-[10px] text-slate-600">
+                NIP. {activeKabid?.nipOrIdentitas || '19740512 200212 2 004'}
+              </p>
             </div>
             <div>
               <p>Mbay, {currentDate}</p>
               <p className="mb-14">Pengelola Data SIMFONI PPA Nagekeo,</p>
-              <p className="font-bold underline">Yohanes Sina, S.Sos</p>
-              <p className="text-[10px] text-slate-600">NIP. 19880914 201101 1 008</p>
+              <p className="font-bold underline">
+                {activeAdmin?.nama || 'Yohanes Sina, S.Sos'}
+              </p>
+              <p className="text-[10px] text-slate-600">
+                NIP. {activeAdmin?.nipOrIdentitas || '19880914 201101 1 008'}
+              </p>
             </div>
           </div>
         </div>

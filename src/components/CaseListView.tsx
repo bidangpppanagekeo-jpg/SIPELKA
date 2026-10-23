@@ -18,6 +18,7 @@ import {
 interface CaseListViewProps {
   cases: KasusKekerasan[];
   isAnonymized: boolean;
+  initialSearchQuery?: string;
   onSelectCase: (c: KasusKekerasan) => void;
   onEditCase: (c: KasusKekerasan) => void;
   onDeleteCase: (id: string) => void;
@@ -29,6 +30,7 @@ interface CaseListViewProps {
 export const CaseListView: React.FC<CaseListViewProps> = ({
   cases,
   isAnonymized,
+  initialSearchQuery = '',
   onSelectCase,
   onEditCase,
   onDeleteCase,
@@ -37,7 +39,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
   onResetData
 }) => {
   const [filters, setFilters] = useState<FilterKasusState>({
-    searchQuery: '',
+    searchQuery: initialSearchQuery || '',
     kecamatan: '',
     kategoriKorban: '',
     bentukKekerasan: '',
@@ -47,12 +49,19 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
     bulan: ''
   });
 
+  // Keep in sync if initialSearchQuery changes
+  React.useEffect(() => {
+    if (initialSearchQuery !== undefined) {
+      setFilters((prev) => ({ ...prev, searchQuery: initialSearchQuery }));
+    }
+  }, [initialSearchQuery]);
+
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Filter logic
   const filteredCases = useMemo(() => {
     return cases.filter((c) => {
-      // Search query matches No. Reg, Nama Korban, Terlapor, Ringkasan, Desa
+      // Search query matches No. Reg, Nama Korban, Terlapor, Ringkasan, Desa, Petugas
       if (filters.searchQuery.trim()) {
         const query = filters.searchQuery.toLowerCase();
         const matchReg = c.nomorRegistrasi.toLowerCase().includes(query);
@@ -60,8 +69,13 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
         const matchPelaku = c.namaPelaku.toLowerCase().includes(query);
         const matchDesa = c.desaKelurahanTKP.toLowerCase().includes(query);
         const matchKronologi = c.ringkasanKronologi.toLowerCase().includes(query);
+        const matchPetugas =
+          (c.petugasPendamping && c.petugasPendamping.toLowerCase().includes(query)) ||
+          (c.petugasPolres && c.petugasPolres.toLowerCase().includes(query)) ||
+          (c.tenagaMedis && c.tenagaMedis.toLowerCase().includes(query)) ||
+          (c.adminSipelka && c.adminSipelka.toLowerCase().includes(query));
 
-        if (!matchReg && !matchKorban && !matchPelaku && !matchDesa && !matchKronologi) {
+        if (!matchReg && !matchKorban && !matchPelaku && !matchDesa && !matchKronologi && !matchPetugas) {
           return false;
         }
       }
@@ -398,6 +412,12 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                           }`}
                         >
                           Urgensi: {item.tingkatUrgensi}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-1 font-medium flex items-center gap-1">
+                        <span className="text-slate-400">Tim:</span>
+                        <span className="truncate max-w-[130px] font-semibold text-slate-700" title={item.petugasPendamping}>
+                          {item.petugasPendamping}
                         </span>
                       </div>
                     </td>

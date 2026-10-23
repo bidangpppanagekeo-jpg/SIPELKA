@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { KasusKekerasan, KecamatanNagekeo, BentukKekerasan, TingkatUrgensi, StatusPenanganan, TempatKejadian, HubunganPelaku } from '../types';
+import {
+  KasusKekerasan,
+  KecamatanNagekeo,
+  BentukKekerasan,
+  TingkatUrgensi,
+  StatusPenanganan,
+  TempatKejadian,
+  HubunganPelaku,
+  PegawaiSIPELKA
+} from '../types';
 import { DAFTAR_KECAMATAN, DAFTAR_BENTUK_KEKERASAN, DAFTAR_STATUS_PENANGANAN } from '../data/nagekeoData';
 import { generateRegistrationNumber } from '../services/storageService';
-import { ArrowLeft, Save, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Save, Check, AlertCircle, Shield, UserCheck, Gavel, Stethoscope, Award, Users } from 'lucide-react';
 
 interface CaseFormViewProps {
   initialCase?: KasusKekerasan | null;
   allCases: KasusKekerasan[];
+  pegawaiList: PegawaiSIPELKA[];
   onSaveCase: (savedCase: KasusKekerasan) => void;
   onCancel: () => void;
 }
@@ -46,10 +56,21 @@ const LAYANAN_OPTIONS = [
 export const CaseFormView: React.FC<CaseFormViewProps> = ({
   initialCase,
   allCases,
+  pegawaiList,
   onSaveCase,
   onCancel
 }) => {
   const isEditing = Boolean(initialCase);
+
+  const adminPegawai = pegawaiList.filter((p) => p.kategori === 'Admin SIPELKA');
+  const kabidPegawai = pegawaiList.filter((p) => p.kategori === 'Kepala Bidang');
+  const pppaPegawai = pegawaiList.filter((p) => p.kategori === 'Tenaga Pendamping Bidang PPPA');
+  const polresPegawai = pegawaiList.filter((p) => p.kategori === 'Tenaga Pendamping Unit PPA Polres');
+  const medisPegawai = pegawaiList.filter((p) => p.kategori === 'Tenaga Medis Visum');
+
+  const defaultAdmin = adminPegawai.find((p) => p.status === 'Aktif') || adminPegawai[0];
+  const defaultKabid = kabidPegawai.find((p) => p.status === 'Aktif') || kabidPegawai[0];
+  const defaultPppa = pppaPegawai.find((p) => p.status === 'Aktif') || pppaPegawai[0];
 
   const [formData, setFormData] = useState<Partial<KasusKekerasan>>({
     id: initialCase?.id || `KASUS-${Date.now()}`,
@@ -90,7 +111,19 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
 
     tingkatUrgensi: initialCase?.tingkatUrgensi || 'Sedang',
     statusPenanganan: initialCase?.statusPenanganan || 'Pengaduan Masuk',
-    petugasPendamping: initialCase?.petugasPendamping || 'Staf Pendamping PPPA',
+    
+    // Sinkronisasi Pegawai & Tim Penanganan
+    petugasPendamping: initialCase?.petugasPendamping || defaultPppa?.nama || 'Katarina Ose Wea, S.Tr.Sos',
+    petugasPendampingId: initialCase?.petugasPendampingId || defaultPppa?.id || '',
+    adminSipelka: initialCase?.adminSipelka || defaultAdmin?.nama || 'Yohanes Sina, S.Sos',
+    adminSipelkaId: initialCase?.adminSipelkaId || defaultAdmin?.id || '',
+    kepalaBidang: initialCase?.kepalaBidang || defaultKabid?.nama || 'Dra. Bernadetha M. Soa, M.Si',
+    kepalaBidangId: initialCase?.kepalaBidangId || defaultKabid?.id || '',
+    petugasPolres: initialCase?.petugasPolres || '',
+    petugasPolresId: initialCase?.petugasPolresId || '',
+    tenagaMedis: initialCase?.tenagaMedis || '',
+    tenagaMedisId: initialCase?.tenagaMedisId || '',
+
     layananDibutuhkan: initialCase?.layananDibutuhkan || ['Konseling & Trauma Healing Psikologis'],
     riwayatPenanganan: initialCase?.riwayatPenanganan || [],
     keteranganTambahan: initialCase?.keteranganTambahan || ''
@@ -794,6 +827,171 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 placeholder="Contoh: Saksi adalah tetangga samping rumah; korban membutuhkan juru bahasa isyarat"
                 className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 5: Tim Penanganan Terpadu & Sinkronisasi Petugas SIPELKA (Vibrant Indigo/Blue) */}
+        <div className="bg-gradient-to-br from-white via-indigo-50/70 to-blue-50/80 p-6 sm:p-7 rounded-3xl border-2 border-indigo-200/90 shadow-sm space-y-4">
+          <div className="border-b border-indigo-200 pb-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-indigo-700 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                05
+              </div>
+              <div>
+                <h2 className="text-sm font-extrabold text-blue-950 uppercase tracking-wide flex items-center gap-2">
+                  <Users className="w-4 h-4 text-indigo-700" />
+                  5. Penugasan Tim Penanganan Terpadu & Sinkronisasi Petugas
+                </h2>
+                <p className="text-xs text-indigo-900/80">
+                  Data petugas yang dipilih akan tersinkron otomatis ke lembar penanganan, berita acara, dan riwayat kasus
+                </p>
+              </div>
+            </div>
+            <span className="hidden sm:inline-flex text-[10px] font-bold text-indigo-800 bg-indigo-100 px-2.5 py-1 rounded-full border border-indigo-200">
+              Sinkronisasi SIPELKA
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+            {/* 1. Admin SIPELKA Pencatat */}
+            <div className="bg-white p-3.5 rounded-xl border border-blue-200 shadow-xs space-y-1.5">
+              <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-blue-700" />
+                <span>Admin SIPELKA (Pencatat) *</span>
+              </label>
+              <select
+                value={formData.adminSipelkaId || ''}
+                onChange={(e) => {
+                  const sel = adminPegawai.find((p) => p.id === e.target.value);
+                  setFormData({
+                    ...formData,
+                    adminSipelkaId: e.target.value,
+                    adminSipelka: sel?.nama || ''
+                  });
+                }}
+                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+              >
+                <option value="">-- Pilih Admin SIPELKA --</option>
+                {adminPegawai.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama} ({p.jabatan})
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] text-slate-500">Petugas yang memverifikasi input perkara.</p>
+            </div>
+
+            {/* 2. Tenaga Pendamping Bidang PPPA */}
+            <div className="bg-white p-3.5 rounded-xl border border-indigo-200 shadow-xs space-y-1.5">
+              <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                <UserCheck className="w-3.5 h-3.5 text-indigo-700" />
+                <span>Tenaga Pendamping PPPA *</span>
+              </label>
+              <select
+                value={formData.petugasPendampingId || ''}
+                onChange={(e) => {
+                  const sel = pppaPegawai.find((p) => p.id === e.target.value);
+                  setFormData({
+                    ...formData,
+                    petugasPendampingId: e.target.value,
+                    petugasPendamping: sel?.nama || ''
+                  });
+                }}
+                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              >
+                <option value="">-- Pilih Pendamping PPPA --</option>
+                {pppaPegawai.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama} - {p.jabatan}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] text-slate-500">Pekerja sosial / konselor pendamping korban.</p>
+            </div>
+
+            {/* 3. Tenaga Pendamping Unit PPA Polres */}
+            <div className="bg-white p-3.5 rounded-xl border border-teal-200 shadow-xs space-y-1.5">
+              <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                <Gavel className="w-3.5 h-3.5 text-teal-700" />
+                <span>Unit PPA Polres (Penyidik)</span>
+              </label>
+              <select
+                value={formData.petugasPolresId || ''}
+                onChange={(e) => {
+                  const sel = polresPegawai.find((p) => p.id === e.target.value);
+                  setFormData({
+                    ...formData,
+                    petugasPolresId: e.target.value,
+                    petugasPolres: sel ? `${sel.nama} (${sel.jabatan})` : ''
+                  });
+                }}
+                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600"
+              >
+                <option value="">-- Tidak Ada / Koordinasi Menyusul --</option>
+                {polresPegawai.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama} ({p.jabatan})
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] text-slate-500">Penyidik pembantu pendamping proses hukum.</p>
+            </div>
+
+            {/* 4. Tenaga Medis Visum */}
+            <div className="bg-white p-3.5 rounded-xl border border-emerald-200 shadow-xs space-y-1.5">
+              <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                <Stethoscope className="w-3.5 h-3.5 text-emerald-700" />
+                <span>Tenaga Medis Visum (VeR)</span>
+              </label>
+              <select
+                value={formData.tenagaMedisId || ''}
+                onChange={(e) => {
+                  const sel = medisPegawai.find((p) => p.id === e.target.value);
+                  setFormData({
+                    ...formData,
+                    tenagaMedisId: e.target.value,
+                    tenagaMedis: sel ? `${sel.nama} (${sel.instansi})` : ''
+                  });
+                }}
+                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600"
+              >
+                <option value="">-- Tidak Ada / Medis Menyusul --</option>
+                {medisPegawai.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama} ({p.instansi})
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] text-slate-500">Dokter pemeriksa luka & Visum et Repertum.</p>
+            </div>
+
+            {/* 5. Kepala Bidang PPPA Pengesah */}
+            <div className="bg-white p-3.5 rounded-xl border border-amber-200 shadow-xs space-y-1.5 sm:col-span-2 lg:col-span-2">
+              <label className="font-bold text-slate-800 flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5 text-amber-700" />
+                <span>Kepala Bidang PPPA (Pejabat Pengesah Laporan Resmi) *</span>
+              </label>
+              <select
+                value={formData.kepalaBidangId || ''}
+                onChange={(e) => {
+                  const sel = kabidPegawai.find((p) => p.id === e.target.value);
+                  setFormData({
+                    ...formData,
+                    kepalaBidangId: e.target.value,
+                    kepalaBidang: sel?.nama || ''
+                  });
+                }}
+                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-600"
+              >
+                <option value="">-- Pilih Kepala Bidang --</option>
+                {kabidPegawai.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama} (NIP: {p.nipOrIdentitas})
+                  </option>
+                ))}
+              </select>
+              <p className="text-[10px] text-slate-500">Nama pejabat yang tercantum pada lembar pengesahan berita acara dan laporan resmi.</p>
             </div>
           </div>
         </div>
