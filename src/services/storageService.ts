@@ -339,11 +339,23 @@ export async function sendDataToGoogleSheetWebhook(
   }
 
   try {
-    await fetch(cfg.webhookUrl, {
+    // Construct URL with query parameters for maximum compatibility with Google Apps Script
+    let targetUrl = cfg.webhookUrl;
+    try {
+      const urlObj = new URL(cfg.webhookUrl);
+      if (payload.action) urlObj.searchParams.set('action', String(payload.action));
+      if (payload.nomorRegistrasi) urlObj.searchParams.set('nomorRegistrasi', String(payload.nomorRegistrasi));
+      if (payload.id) urlObj.searchParams.set('id', String(payload.id));
+      targetUrl = urlObj.toString();
+    } catch {
+      // Fallback if URL constructor fails
+    }
+
+    await fetch(targetUrl, {
       method: 'POST',
       mode: 'no-cors',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'text/plain;charset=utf-8'
       },
       body: JSON.stringify(payload)
     });
