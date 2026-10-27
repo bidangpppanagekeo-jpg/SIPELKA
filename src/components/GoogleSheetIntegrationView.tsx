@@ -113,15 +113,19 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
   try {
     var data = JSON.parse(e.postData.contents);
     var action = data.action || 'SAVE_CASE';
-    var targetReg = data.nomorRegistrasi || '';
+    var targetReg = String(data.nomorRegistrasi || '').trim();
+    var targetId = String(data.id || '').trim();
     
     var rows = sheet.getDataRange().getValues();
     var rowIndex = -1;
     
+    // Search existing row by Nomor Registrasi (Col A) or ID (Col B)
     if (targetReg && targetReg !== 'TEST_PING') {
       for (var i = 1; i < rows.length; i++) {
-        if (rows[i][0] === targetReg) {
-          rowIndex = i + 1; // 1-indexed row number
+        var cellReg = String(rows[i][0] || '').trim();
+        var cellId = String(rows[i][1] || '').trim();
+        if (cellReg === targetReg || cellId === targetId) {
+          rowIndex = i + 1; // 1-indexed row number in sheet
           break;
         }
       }
@@ -130,10 +134,18 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
     if (action === 'DELETE_CASE') {
       if (rowIndex > 0) {
         sheet.deleteRow(rowIndex);
+      } else {
+        for (var j = 1; j < rows.length; j++) {
+          if (String(rows[j][0] || '').trim() === targetId || String(rows[j][1] || '').trim() === targetId) {
+            sheet.deleteRow(j + 1);
+            break;
+          }
+        }
       }
     } else if (action === 'EDIT_CASE' || action === 'SAVE_CASE') {
       var rowData = [
         data.nomorRegistrasi || '',
+        data.id || '',
         data.tanggalLapor || '',
         data.namaKorban || '',
         data.usiaKorban || '',
@@ -146,9 +158,25 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
         data.statusPenanganan || '',
         data.petugasPendamping || ''
       ];
+      
       if (rowIndex > 0) {
+        // UPDATE existing row - strictly updates, never duplicates/adds new row
         sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
+      } else if (action === 'EDIT_CASE') {
+        var foundById = -1;
+        for (var k = 1; k < rows.length; k++) {
+          if (String(rows[k][1] || '').trim() === targetId) {
+            foundById = k + 1;
+            break;
+          }
+        }
+        if (foundById > 0) {
+          sheet.getRange(foundById, 1, 1, rowData.length).setValues([rowData]);
+        } else {
+          sheet.appendRow(rowData);
+        }
       } else {
+        // APPEND new row only if it's a completely new case
         sheet.appendRow(rowData);
       }
     } else if (action === 'SYNC_ALL_CASES' && Array.isArray(data.cases)) {
@@ -158,6 +186,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       data.cases.forEach(function(c) {
         sheet.appendRow([
           c.nomorRegistrasi || '',
+          c.id || '',
           c.tanggalLapor || '',
           c.namaKorban || '',
           c.usiaKorban || '',
@@ -175,6 +204,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       // Test ping
       sheet.appendRow([
         data.nomorRegistrasi || 'TEST_PING',
+        data.id || 'ID-TEST',
         data.tanggalLapor || new Date().toISOString().slice(0, 10),
         data.namaKorban || 'Test Korban',
         data.usiaKorban || '0',
@@ -189,7 +219,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       ]);
     }
     
-    return ContentService.createTextOutput(JSON.stringify({"status": "success", "action": action}))
+    return ContentService.createTextOutput(JSON.stringify({"status": "success", "action": action, "rowIndex": rowIndex}))
       .setMimeType(ContentService.MimeType.JSON);
   } catch(err) {
     return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
@@ -214,16 +244,16 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
-              <span>Integrasi Dua Arah SIPELKA</span>
+              <span>Integrasi Dua Arah Akurat</span>
               <span>·</span>
               <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
               <FileSpreadsheet className="w-6 h-6 text-amber-300" />
-              Integrasi Google Sheet & Webhook (Edit & Hapus Dua Arah)
+              Integrasi Google Sheet & Webhook (Update & Delete Tepat Baris)
             </h1>
             <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
-              Setiap tindakan edit, tambah kasus baru, pembaruan catatan, maupun penghapusan data di web akan langsung disinkronkan secara dua arah ke baris Google Sheet Anda.
+              Skrip Apps Script kini secara presisi mencocokkan Nomor Registrasi agar data yang diedit menimpa baris yang sama (bukan menambah baris baru) dan data yang dihapus terhapus bersih dari Google Sheet.
             </p>
           </div>
 
@@ -368,23 +398,23 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
                 <Database className="w-4 h-4 text-amber-400" />
-                Panduan Google Apps Script Dua Arah (Edit & Hapus)
+                Panduan Google Apps Script (Update Baris / Hapus Baris)
               </h3>
               <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-2.5 py-1 rounded-full border border-amber-400/30">
-                Dua Arah
+                Akurat & Presisi
               </span>
             </div>
 
             <ol className="text-xs text-sky-100 space-y-2 list-decimal list-inside leading-relaxed">
               <li>Buka Google Sheet Anda, klik menu <strong>Extensions &gt; Apps Script</strong>.</li>
-              <li>Hapus kode lama dan tempel kode skrip baru di bawah ini.</li>
-              <li>Klik <strong>Deploy &gt; New deployment</strong> (Pilih Web app, Execute as: Me, Who has access: Anyone).</li>
-              <li>Salin URL Web App dan tempel ke kolom Webhook di samping.</li>
+              <li>Salin dan tempel kode skrip baru di bawah ini untuk menggantikan skrip lama.</li>
+              <li>Klik <strong>Deploy &gt; New deployment</strong> (Web app, Me, Anyone).</li>
+              <li>Pastikan URL Webhook di samping sudah benar.</li>
             </ol>
 
             <div className="relative pt-2">
               <div className="flex items-center justify-between bg-slate-900 px-3 py-1.5 rounded-t-xl border border-slate-700 text-[11px] font-mono text-slate-300">
-                <span>Code.gs (Dua Arah: Save, Edit, Delete)</span>
+                <span>Code.gs (Update & Delete Tepat Baris)</span>
                 <button
                   onClick={handleCopyCode}
                   className="flex items-center gap-1 text-amber-300 hover:text-white transition-colors"
@@ -401,7 +431,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
 
           <div className="pt-3 border-t border-white/10 text-[11px] text-sky-200 flex items-center gap-2">
             <Shield className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Operasi Edit dan Hapus otomatis mencocokkan Nomor Registrasi di baris Google Sheet.</span>
+            <span>Skrip secara cerdas menimpa baris yang ada saat diedit dan menghapus baris saat tombol Hapus ditekan.</span>
           </div>
         </div>
       </div>
