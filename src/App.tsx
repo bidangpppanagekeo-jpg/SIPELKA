@@ -16,7 +16,9 @@ import {
   getStoredPegawai,
   savePegawai,
   deletePegawai,
-  resetDefaultPegawai
+  resetDefaultPegawai,
+  getGoogleSheetConfig,
+  sendDataToGoogleSheetWebhook
 } from './services/storageService';
 import { Header } from './components/Header';
 import { DashboardView } from './components/DashboardView';
@@ -25,11 +27,12 @@ import { CaseFormView } from './components/CaseFormView';
 import { PegawaiManagementView } from './components/PegawaiManagementView';
 import { OfficialReportView } from './components/OfficialReportView';
 import { SopNetworkView } from './components/SopNetworkView';
+import { GoogleSheetIntegrationView } from './components/GoogleSheetIntegrationView';
 import { CaseDetailModal } from './components/CaseDetailModal';
 import { PrintDocument } from './components/PrintDocument';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai'>('dashboard');
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi'>('dashboard');
   const [cases, setCases] = useState<KasusKekerasan[]>([]);
   const [pegawaiList, setPegawaiList] = useState<PegawaiSIPELKA[]>([]);
   const [isAnonymized, setIsAnonymized] = useState<boolean>(false);
@@ -86,6 +89,16 @@ export default function App() {
     setCaseToEdit(null);
     setCurrentTab('register');
     showToast(`Berkas perkara ${savedCase.nomorRegistrasi} berhasil disimpan.`);
+
+    // Auto-sync to Google Sheet webhook if enabled
+    const sheetCfg = getGoogleSheetConfig();
+    if (sheetCfg.autoSync && sheetCfg.webhookUrl) {
+      sendDataToGoogleSheetWebhook({
+        action: 'SAVE_CASE',
+        timestamp: new Date().toISOString(),
+        ...savedCase
+      }).catch((err) => console.error('Auto-sync webhook error:', err));
+    }
   };
 
   const handleDeleteCase = (id: string) => {
@@ -254,6 +267,14 @@ export default function App() {
         )}
 
         {currentTab === 'sop' && <SopNetworkView />}
+
+        {currentTab === 'integrasi' && (
+          <GoogleSheetIntegrationView
+            cases={cases}
+            pegawaiList={pegawaiList}
+            showToast={showToast}
+          />
+        )}
       </main>
 
       {/* Case Detail Modal */}

@@ -293,3 +293,68 @@ export function exportBackupJSON(cases: KasusKekerasan[], pegawaiList?: PegawaiS
   link.click();
   document.body.removeChild(link);
 }
+
+// ===================== GOOGLE SHEET & WEBHOOK INTEGRATION =====================
+
+const GOOGLE_SHEET_CONFIG_KEY = 'sipelka_google_sheet_config_v1';
+
+export interface GoogleSheetConfig {
+  sheetUrl: string;
+  webhookUrl: string;
+  autoSync: boolean;
+  lastSyncedAt?: string;
+}
+
+export function getGoogleSheetConfig(): GoogleSheetConfig {
+  try {
+    const raw = localStorage.getItem(GOOGLE_SHEET_CONFIG_KEY);
+    if (!raw) {
+      return {
+        sheetUrl: '',
+        webhookUrl: '',
+        autoSync: true
+      };
+    }
+    return JSON.parse(raw);
+  } catch {
+    return { sheetUrl: '', webhookUrl: '', autoSync: true };
+  }
+}
+
+export function saveGoogleSheetConfig(config: GoogleSheetConfig): void {
+  try {
+    localStorage.setItem(GOOGLE_SHEET_CONFIG_KEY, JSON.stringify(config));
+  } catch (err) {
+    console.error('Gagal menyimpan konfigurasi Google Sheet:', err);
+  }
+}
+
+export async function sendDataToGoogleSheetWebhook(
+  payload: any,
+  config?: GoogleSheetConfig
+): Promise<{ success: boolean; message: string }> {
+  const cfg = config || getGoogleSheetConfig();
+  if (!cfg.webhookUrl) {
+    return { success: false, message: 'URL Webhook Google Sheet belum dikonfigurasi.' };
+  }
+
+  try {
+    await fetch(cfg.webhookUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const now = new Date().toISOString();
+    saveGoogleSheetConfig({ ...cfg, lastSyncedAt: now });
+
+    return { success: true, message: 'Data berhasil dikirim ke Webhook Google Sheet.' };
+  } catch (err: any) {
+    console.error('Gagal mengirim ke Webhook Google Sheet:', err);
+    return { success: false, message: err?.message || 'Gagal terhubung ke Webhook.' };
+  }
+}
+

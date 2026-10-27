@@ -1,10 +1,10 @@
 import React from 'react';
-import { PlusCircle, Eye, EyeOff, Users } from 'lucide-react';
+import { PlusCircle, Eye, EyeOff, Users, FileSpreadsheet } from 'lucide-react';
 import sealImg from '../assets/images/kabupaten_nagekeo_logo_1792733971363.jpg';
 
 interface HeaderProps {
-  currentTab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai';
-  onSelectTab: (tab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai') => void;
+  currentTab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi';
+  onSelectTab: (tab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi') => void;
   isAnonymized: boolean;
   onToggleAnonymized: () => void;
   onOpenNewCase: () => void;
@@ -104,6 +104,17 @@ export const Header: React.FC<HeaderProps> = ({
           >
             SOP & Jejaring
           </button>
+          <button
+            onClick={() => onSelectTab('integrasi')}
+            className={`whitespace-nowrap shrink-0 transition-all py-1 border-b-2 flex items-center gap-1.5 ${
+              currentTab === 'integrasi'
+                ? 'border-blue-600 text-blue-900 font-bold'
+                : 'border-transparent hover:text-blue-700'
+            }`}
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Integrasi Sheet</span>
+          </button>
         </nav>
 
         {/* Zone 3: Privacy toggle & CTA */}
@@ -179,6 +190,12 @@ export const Header: React.FC<HeaderProps> = ({
           className={`whitespace-nowrap pb-1 ${currentTab === 'sop' ? 'text-blue-900 font-bold border-b-2 border-blue-900' : ''}`}
         >
           SOP & Jejaring
+        </button>
+        <button
+          onClick={() => onSelectTab('integrasi')}
+          className={`whitespace-nowrap pb-1 ${currentTab === 'integrasi' ? 'text-blue-900 font-bold border-b-2 border-blue-900' : ''}`}
+        >
+          Integrasi Sheet
         </button>
       </div>
     </header>
