@@ -21,7 +21,7 @@ import {
   AlertTriangle,
   Trash2,
   Edit,
-  Info
+  Sparkles
 } from 'lucide-react';
 
 interface GoogleSheetIntegrationViewProps {
@@ -94,7 +94,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
     }
 
     const target = cases[0];
-    if (!window.confirm(`Kirim sinyal HAPUS (DELETE_CASE) untuk nomor registrasi ${target.nomorRegistrasi} ke Google Sheet? Baris terkait akan dihapus dari sheet.`)) {
+    if (!window.confirm(`Kirim sinyal HAPUS (DELETE_CASE) untuk ${target.nomorRegistrasi} (${target.namaKorban}) ke Google Sheet? Baris terkait akan langsung terhapus dari Google Sheet.`)) {
       return;
     }
 
@@ -103,13 +103,14 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       action: 'DELETE_CASE',
       timestamp: new Date().toISOString(),
       id: target.id,
-      nomorRegistrasi: target.nomorRegistrasi
+      nomorRegistrasi: target.nomorRegistrasi,
+      namaKorban: target.namaKorban
     }, config);
     setIsTesting(false);
     setTestResult({
       success: res.success,
       message: res.success
-        ? `Sinyal HAPUS untuk ${target.nomorRegistrasi} berhasil dikirim ke Google Sheet.`
+        ? `Sinyal HAPUS untuk ${target.nomorRegistrasi} (${target.namaKorban}) berhasil dikirim ke Google Sheet.`
         : `Gagal mengirim sinyal Hapus: ${res.message}`
     });
     showToast(`Sinyal Hapus ${target.nomorRegistrasi} telah dikirim ke Google Sheet.`);
@@ -130,6 +131,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
     const res = await sendDataToGoogleSheetWebhook({
       action: 'EDIT_CASE',
       timestamp: new Date().toISOString(),
+      originalNomorRegistrasi: target.nomorRegistrasi,
       ...target
     }, config);
     setIsTesting(false);
@@ -148,6 +150,10 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       return;
     }
 
+    if (!window.confirm('Sinkronkan seluruh data kasus ke Google Sheet? Ini akan merapikan tabel dan menghapus baris duplikat yang ada di sheet.')) {
+      return;
+    }
+
     setIsSyncingAll(true);
     try {
       const payload = {
@@ -160,7 +166,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
 
       const res = await sendDataToGoogleSheetWebhook(payload, config);
       if (res.success) {
-        showToast(`Berhasil menyinkronkan ${cases.length} data kasus ke Google Sheet.`);
+        showToast(`Berhasil menyinkronkan & merapikan ${cases.length} data kasus ke Google Sheet.`);
       } else {
         showToast(`Gagal menyinkronkan data: ${res.message}`);
       }
@@ -176,7 +182,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
   try {
     var data = {};
     
-    // 1. Baca payload baik dari e.postData.contents maupun e.parameter
+    // 1. Ekstrak data dari payload JSON
     if (e && e.postData && e.postData.contents) {
       try {
         data = JSON.parse(e.postData.contents);
@@ -185,126 +191,162 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       }
     }
     
-    // Ambil parameter cadangan jika tidak ada di postData
     var action = (data.action || (e && e.parameter && e.parameter.action) || 'SAVE_CASE').toString().trim();
     var targetReg = (data.nomorRegistrasi || (e && e.parameter && e.parameter.nomorRegistrasi) || '').toString().trim();
+    var originalReg = (data.originalNomorRegistrasi || '').toString().trim();
     var targetId = (data.id || (e && e.parameter && e.parameter.id) || '').toString().trim();
     
     var lastRow = sheet.getLastRow();
-    var lastCol = sheet.getLastColumn();
-    var rowIndex = -1;
+    var lastCol = Math.max(sheet.getLastColumn(), 15);
     
-    // 2. Cari baris yang cocok di Google Sheet (berdasarkan Nomor Registrasi atau ID di semua kolom)
-    if (lastRow > 1 && (targetReg || targetId)) {
-      var range = sheet.getRange(1, 1, lastRow, Math.max(lastCol, 16));
-      var values = range.getValues();
-      
-      for (var i = 1; i < values.length; i++) {
-        var rowStr = values[i].join(' ').toUpperCase();
-        var regUpper = targetReg.toUpperCase();
-        var idUpper = targetId.toUpperCase();
-        
-        if (
-          (regUpper && regUpper !== 'TEST_PING' && rowStr.indexOf(regUpper) !== -1) ||
-          (idUpper && rowStr.indexOf(idUpper) !== -1)
-        ) {
-          rowIndex = i + 1; // 1-indexed baris pada sheet
-          break;
-        }
-      }
+    // Ambil seluruh baris sheet dari Baris 1 sampai baris terakhir
+    var values = lastRow > 0 ? sheet.getRange(1, 1, lastRow, lastCol).getValues() : [];
+    
+    // Fungsi pencocokan baris fleksibel (mencari Nomor Registrasi / ID di semua kolom baris)
+    function isRowMatch(rowArray) {
+      var rowText = rowArray.map(function(c) { return String(c || '').trim(); }).join(' ### ');
+      if (targetReg && targetReg !== 'TEST_PING' && rowText.indexOf(targetReg) !== -1) return true;
+      if (originalReg && originalReg !== 'TEST_PING' && rowText.indexOf(originalReg) !== -1) return true;
+      if (targetId && rowText.indexOf(targetId) !== -1) return true;
+      return false;
     }
     
+    // Format Waktu Sekarang (WITA Nagekeo)
+    var waktuSekarang = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || "GMT+8", "yyyy-MM-dd HH:mm:ss");
+    
     // ==========================================
-    // 3. AKSI HAPUS (DELETE_CASE)
-    // JANGAN PERNAH panggil sheet.appendRow() saat hapus!
+    // 1. AKSI HAPUS (DELETE_CASE)
+    // Menghapus baris dari Google Sheet (Mulai dari baris bawah ke atas agar indeks aman)
+    // PENTING: Sama sekali TIDAK memanggil sheet.appendRow()!
     // ==========================================
     if (action === 'DELETE_CASE') {
-      if (rowIndex > 0) {
-        sheet.deleteRow(rowIndex);
-        return ContentService.createTextOutput(JSON.stringify({
-          status: 'success',
-          action: 'DELETE_CASE',
-          message: 'Baris ' + rowIndex + ' berhasil dihapus dari Google Sheet.',
-          deletedRow: rowIndex
-        })).setMimeType(ContentService.MimeType.JSON);
-      } else {
-        return ContentService.createTextOutput(JSON.stringify({
-          status: 'not_found',
-          action: 'DELETE_CASE',
-          message: 'Nomor registrasi/ID tidak ditemukan di sheet, tidak ada baris yang dihapus.'
-        })).setMimeType(ContentService.MimeType.JSON);
+      var deletedRows = 0;
+      for (var r = values.length - 1; r >= 0; r--) {
+        if (isRowMatch(values[r])) {
+          sheet.deleteRow(r + 1); // deleteRow menggunakan indeks 1-based
+          deletedRows++;
+        }
       }
+      return ContentService.createTextOutput(JSON.stringify({
+        status: deletedRows > 0 ? 'success' : 'not_found',
+        action: 'DELETE_CASE',
+        deletedRowsCount: deletedRows,
+        nomorRegistrasi: targetReg
+      })).setMimeType(ContentService.MimeType.JSON);
     }
     
-    // Susun data kolom
+    // Data yang akan ditulis (Sesuai urutan kolom Google Sheet Anda: Kolom A Waktu, Kolom B No. Reg, dst)
     var rowData = [
-      data.nomorRegistrasi || targetReg || '',
-      data.id || targetId || '',
-      data.tanggalLapor || '',
-      data.namaKorban || '',
-      data.usiaKorban || '',
-      data.kategoriKorban || '',
-      data.kecamatanTKP || '',
-      data.bentukKekerasan ? (Array.isArray(data.bentukKekerasan) ? data.bentukKekerasan.join(', ') : data.bentukKekerasan) : '',
-      data.namaPelaku || '',
-      data.hubunganPelaku || '',
-      data.tingkatUrgensi || '',
-      data.statusPenanganan || '',
-      data.petugasPendamping || '',
-      data.petugasPolres || '',
-      data.tenagaMedis || '',
-      data.adminSipelka || ''
+      waktuSekarang,                           // Kolom A: Waktu Input / Update
+      data.nomorRegistrasi || targetReg || '',  // Kolom B: No. Registrasi
+      data.tanggalLapor || '',                  // Kolom C: Tanggal Lapor
+      data.namaKorban || '',                    // Kolom D: Nama Korban
+      data.usiaKorban || '',                    // Kolom E: Usia Korban
+      data.kategoriKorban || '',                // Kolom F: Kategori Korban
+      data.kecamatanTKP || '',                  // Kolom G: Kecamatan TKP
+      data.bentukKekerasan ? (Array.isArray(data.bentukKekerasan) ? data.bentukKekerasan.join(', ') : data.bentukKekerasan) : '', // Kolom H: Bentuk Kekerasan
+      data.namaPelaku || '',                    // Kolom I: Nama Pelaku
+      data.hubunganPelaku || '',                // Kolom J: Hubungan Pelaku
+      data.tingkatUrgensi || '',                // Kolom K: Urgensi
+      data.statusPenanganan || '',              // Kolom L: Status Penanganan
+      data.petugasPendamping || ''              // Kolom M: Petugas Pendamping
     ];
     
     // ==========================================
-    // 4. AKSI EDIT (EDIT_CASE)
-    // Menimpa baris yang ada, JANGAN menambah baris baru!
+    // 2. AKSI EDIT (EDIT_CASE)
+    // Menimpa baris yang ada secara tepat di tempat (TIDAK menambah baris baru!)
     // ==========================================
     if (action === 'EDIT_CASE') {
-      if (rowIndex > 0) {
-        sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
+      var foundRow = -1;
+      
+      // Cari baris pertama yang cocok
+      for (var i = 0; i < values.length; i++) {
+        if (isRowMatch(values[i])) {
+          foundRow = i + 1; // 1-based index
+          // Pertahankan timestamp awal jika ada
+          if (values[i][0]) {
+            rowData[0] = values[i][0];
+          }
+          // Timpa data tepat di baris tersebut
+          sheet.getRange(foundRow, 1, 1, rowData.length).setValues([rowData]);
+          break;
+        }
+      }
+      
+      // Jika sebelumnya ada baris duplikat di bawahnya, bersihkan duplikatnya
+      if (foundRow > 0) {
+        var refreshedValues = sheet.getDataRange().getValues();
+        for (var k = refreshedValues.length - 1; k >= foundRow; k--) {
+          if (isRowMatch(refreshedValues[k])) {
+            sheet.deleteRow(k + 1);
+          }
+        }
         return ContentService.createTextOutput(JSON.stringify({
           status: 'success',
           action: 'EDIT_CASE',
-          message: 'Baris ' + rowIndex + ' berhasil diperbarui di tempat.',
-          updatedRow: rowIndex
-        })).setMimeType(ContentService.MimeType.JSON);
-      } else {
-        return ContentService.createTextOutput(JSON.stringify({
-          status: 'not_found',
-          action: 'EDIT_CASE',
-          message: 'Baris tidak ditemukan untuk ditimpa.'
+          updatedRow: foundRow
         })).setMimeType(ContentService.MimeType.JSON);
       }
-    }
-    
-    // ==========================================
-    // 5. AKSI SIMPAN BARU (SAVE_CASE)
-    // ==========================================
-    if (action === 'SAVE_CASE') {
-      if (rowIndex > 0) {
-        sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
-      } else {
-        sheet.appendRow(rowData);
-      }
+      
+      // Jika baris tidak ditemukan saat edit, JANGAN menambah baris baru!
       return ContentService.createTextOutput(JSON.stringify({
-        status: 'success',
-        action: 'SAVE_CASE',
-        message: 'Data berhasil disimpan.'
+        status: 'not_found',
+        action: 'EDIT_CASE',
+        message: 'Baris tidak ditemukan untuk ditimpa.'
       })).setMimeType(ContentService.MimeType.JSON);
     }
     
     // ==========================================
-    // 6. SINKRONISASI SEMUA DATA (SYNC_ALL_CASES)
+    // 3. AKSI SIMPAN KASUS BARU (SAVE_CASE)
+    // ==========================================
+    if (action === 'SAVE_CASE') {
+      var existingIndex = -1;
+      for (var s = 0; s < values.length; s++) {
+        if (isRowMatch(values[s])) {
+          existingIndex = s + 1;
+          if (values[s][0]) rowData[0] = values[s][0];
+          sheet.getRange(existingIndex, 1, 1, rowData.length).setValues([rowData]);
+          break;
+        }
+      }
+      // Jika belum ada, baru tambahkan baris baru
+      if (existingIndex <= 0) {
+        sheet.appendRow(rowData);
+      }
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        action: 'SAVE_CASE'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    // ==========================================
+    // 4. SINKRONISASI BERSIH SEMUA DATA (SYNC_ALL_CASES)
+    // Membersihkan baris-baris duplikat lama dan merapikan tabel secara utuh
     // ==========================================
     if (action === 'SYNC_ALL_CASES' && Array.isArray(data.cases)) {
-      if (sheet.getLastRow() > 1) {
-        sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).clearContent();
-      }
+      sheet.clearContents();
+      
+      // Tulis Header Kolom di Baris 1
+      sheet.appendRow([
+        'WAKTU INPUT',
+        'NO. REGISTRASI',
+        'TANGGAL LAPOR',
+        'NAMA KORBAN',
+        'USIA',
+        'KATEGORI KORBAN',
+        'KECAMATAN TKP',
+        'BENTUK KEKERASAN',
+        'NAMA PELAKU',
+        'HUBUNGAN PELAKU',
+        'TINGKAT URGENSI',
+        'STATUS PENANGANAN',
+        'PETUGAS PENDAMPING'
+      ]);
+      
       data.cases.forEach(function(c) {
         sheet.appendRow([
+          waktuSekarang,
           c.nomorRegistrasi || '',
-          c.id || '',
           c.tanggalLapor || '',
           c.namaKorban || '',
           c.usiaKorban || '',
@@ -315,20 +357,18 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
           c.hubunganPelaku || '',
           c.tingkatUrgensi || '',
           c.statusPenanganan || '',
-          c.petugasPendamping || '',
-          c.petugasPolres || '',
-          c.tenagaMedis || '',
-          c.adminSipelka || ''
+          c.petugasPendamping || ''
         ]);
       });
+      
       return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
         action: 'SYNC_ALL_CASES',
-        count: data.cases.length
+        total: data.cases.length
       })).setMimeType(ContentService.MimeType.JSON);
     }
     
-    // Abaikan aksi lain tanpa menambah baris
+    // Abaikan aksi lain tanpa menambah data
     return ContentService.createTextOutput(JSON.stringify({
       status: 'ignored',
       action: action
@@ -340,6 +380,11 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       message: err.toString()
     })).setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput("Webhook SIPELKA Nagekeo Aktif & Siap Menerima POST.")
+    .setMimeType(ContentService.MimeType.TEXT);
 }`;
 
   const handleCopyCode = () => {
@@ -359,7 +404,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
-              <span>Sinkronisasi Dua Arah Presisi</span>
+              <span>Sinkronisasi Dua Arah Presisi Baris</span>
               <span>·</span>
               <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
             </div>
@@ -368,7 +413,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
               Integrasi Google Sheet (Hapus & Edit Presisi Baris)
             </h1>
             <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
-              Memastikan data yang <strong>Dihapus</strong> di web benar-benar terhapus dari baris Google Sheet, dan data yang <strong>Diedit</strong> menimpa baris yang sama tanpa menambah baris baru.
+              Memastikan data yang <strong>Dihapus</strong> di web langsung terhapus dari baris Google Sheet, dan data yang <strong>Diedit</strong> menimpa baris yang sama tanpa menambah baris baru.
             </p>
           </div>
 
@@ -380,8 +425,8 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
                 disabled={isSyncingAll}
                 className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 text-xs font-extrabold rounded-xl shadow-md transition-all disabled:opacity-50 ring-1 ring-white/40"
               >
-                <RefreshCw className={`w-4 h-4 ${isSyncingAll ? 'animate-spin' : ''}`} />
-                <span>{isSyncingAll ? 'Menyinkronkan...' : 'Sinkronkan Semua Data'}</span>
+                <Sparkles className={`w-4 h-4 ${isSyncingAll ? 'animate-spin' : ''}`} />
+                <span>{isSyncingAll ? 'Merapikan...' : 'Sinkronkan & Rapikan Google Sheet'}</span>
               </button>
             )}
           </div>
@@ -389,26 +434,33 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       </div>
 
       {/* 2. Critical Instruction Alert Box */}
-      <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 shadow-xs">
+      <div className="bg-amber-50 border-2 border-amber-400/80 rounded-2xl p-5 shadow-xs">
         <div className="flex items-start gap-3.5">
-          <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
             <AlertTriangle className="w-5 h-5" />
           </div>
-          <div className="space-y-2 text-xs text-amber-950">
-            <h3 className="font-extrabold text-sm text-amber-900 flex items-center gap-2">
-              <span>Langkah Wajib Agar Google Sheet Tidak Menambah Baris Baru:</span>
-            </h3>
-            <p className="leading-relaxed">
-              Jika tombol Hapus atau Edit sebelumnya malah <em>menambah baris baru</em> di Google Sheet, penyebab utamanya adalah Google Apps Script masih menjalankan versi lama. Untuk memperbaikinya:
-            </p>
-            <ol className="list-decimal list-inside space-y-1 font-medium bg-white/70 p-3 rounded-xl border border-amber-200">
-              <li>Salin kode skrip terbaru di panel sebelah kanan bawah (klik tombol <strong>Salin Kode</strong>).</li>
-              <li>Buka Google Sheet Anda &gt; menu <strong>Extensions &gt; Apps Script</strong> &gt; tempelkan kode tersebut di <code>Code.gs</code>.</li>
-              <li>Klik tombol <strong>Deploy (Penerapan)</strong> di pojok kanan atas &gt; pilih <strong>Manage deployments (Kelola penerapan)</strong>.</li>
-              <li>Klik ikon <strong>Pensil (Edit)</strong> pada penerapan Web App Anda.</li>
-              <li>Pada menu dropdown <strong>Version (Versi)</strong>, ubah dan pilih <strong className="text-blue-900 bg-blue-100 px-1.5 py-0.5 rounded">New version (Versi baru)</strong>.</li>
-              <li>Klik tombol <strong>Deploy (Terapkan)</strong>. Selesai! Sekarang Hapus dan Edit akan langsung akurat.</li>
-            </ol>
+          <div className="space-y-2.5 text-xs text-amber-950">
+            <div>
+              <h3 className="font-extrabold text-sm text-amber-900">
+                Penyebab Tombol Hapus/Edit Menambah Baris 2 & 3:
+              </h3>
+              <p className="text-xs text-slate-700 mt-1 leading-relaxed">
+                Di Google Sheet Anda, data kasus dimulai langsung dari <strong>Baris 1</strong> (Kolom A adalah Waktu, Kolom B adalah Nomor Registrasi). Skrip lama memeriksa baris mulai dari baris 2 sehingga Baris 1 tidak pernah terdeteksi, lalu mengeksekusi penambahan baris baru.
+              </p>
+            </div>
+
+            <div className="bg-white p-3.5 rounded-xl border border-amber-300 space-y-1.5 font-medium">
+              <strong className="block text-slate-900 font-bold">Cara Memperbaikinya Sekarang (1 Menit):</strong>
+              <ol className="list-decimal list-inside space-y-1 text-slate-800">
+                <li>Klik tombol <strong className="text-blue-900">"Salin Kode"</strong> pada panel <code>Code.gs</code> di sebelah kanan bawah.</li>
+                <li>Buka Google Sheet Anda &gt; menu <strong>Extensions &gt; Apps Script</strong> &gt; ganti seluruh isi skrip dengan kode yang baru disalin.</li>
+                <li>Klik tombol <strong>Deploy (Penerapan)</strong> di pojok kanan atas &gt; pilih <strong>Manage deployments (Kelola penerapan)</strong>.</li>
+                <li>Klik ikon <strong>Pensil (Edit)</strong> pada baris Web App Anda.</li>
+                <li>Pada pilihan <strong>Version (Versi)</strong>, ubah dan pilih <strong className="text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded font-bold">New version (Versi baru)</strong>.</li>
+                <li>Klik tombol <strong>Deploy (Terapkan)</strong>. Selesai!</li>
+                <li><em>(Opsional)</em> Klik tombol kuning <strong>"Sinkronkan & Rapikan Google Sheet"</strong> di atas untuk langsung membersihkan baris duplikat yang ada di sheet Anda.</li>
+              </ol>
+            </div>
           </div>
         </div>
       </div>
@@ -514,8 +566,8 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
             {/* Direct Simulator Testing Area */}
             <div className="pt-3 border-t border-slate-200 space-y-2">
               <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                <Info className="w-4 h-4 text-sky-600" />
-                <span>Uji Simulasi Sinyal Aksi (Verifikasi Langsung ke Sheet):</span>
+                <Shield className="w-4 h-4 text-sky-600" />
+                <span>Uji Langsung Sinyal Aksi ke Google Sheet:</span>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <button
@@ -572,12 +624,12 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
                 Kode Google Apps Script Terbaru (Code.gs)
               </h3>
               <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-2.5 py-1 rounded-full border border-amber-400/30">
-                Anti Duplikasi
+                Cocok Persis Sheet Anda
               </span>
             </div>
 
             <p className="text-xs text-sky-100 leading-relaxed">
-              Skrip ini secara spesifik mengecek <code>DELETE_CASE</code> untuk menghapus baris tanpa <code>appendRow()</code>, dan <code>EDIT_CASE</code> untuk menimpa baris tanpa menambah baris baru.
+              Skrip ini secara spesifik mengecek Nomor Registrasi di Kolom B (mulai dari Baris 1). Saat <strong>DELETE</strong> dieksekusi, baris langsung dihapus. Saat <strong>EDIT</strong> dieksekusi, baris lama ditimpa tanpa menambah baris baru.
             </p>
 
             <div className="relative pt-1">

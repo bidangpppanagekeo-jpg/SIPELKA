@@ -85,6 +85,7 @@ export default function App() {
 
   const handleSaveCase = (savedCase: KasusKekerasan) => {
     const isExisting = cases.some((c) => c.id === savedCase.id);
+    const originalReg = caseToEdit?.nomorRegistrasi || savedCase.nomorRegistrasi;
     const updatedList = saveCase(savedCase);
     setCases(updatedList);
     setCaseToEdit(null);
@@ -97,6 +98,7 @@ export default function App() {
       sendDataToGoogleSheetWebhook({
         action: isExisting ? 'EDIT_CASE' : 'SAVE_CASE',
         timestamp: new Date().toISOString(),
+        originalNomorRegistrasi: originalReg,
         ...savedCase
       }).catch((err) => console.error('Auto-sync webhook error:', err));
     }
@@ -118,7 +120,8 @@ export default function App() {
         action: 'DELETE_CASE',
         timestamp: new Date().toISOString(),
         id: targetCase.id,
-        nomorRegistrasi: targetCase.nomorRegistrasi
+        nomorRegistrasi: targetCase.nomorRegistrasi,
+        namaKorban: targetCase.namaKorban
       }).catch((err) => console.error('Delete sync webhook error:', err));
     }
   };
