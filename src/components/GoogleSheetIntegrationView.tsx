@@ -112,9 +112,49 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   try {
     var data = JSON.parse(e.postData.contents);
+    var action = data.action || 'SAVE_CASE';
+    var targetReg = data.nomorRegistrasi || '';
     
-    if (data.action === 'SYNC_ALL_CASES' && Array.isArray(data.cases)) {
-      // Clear or append all cases
+    var rows = sheet.getDataRange().getValues();
+    var rowIndex = -1;
+    
+    if (targetReg && targetReg !== 'TEST_PING') {
+      for (var i = 1; i < rows.length; i++) {
+        if (rows[i][0] === targetReg) {
+          rowIndex = i + 1; // 1-indexed row number
+          break;
+        }
+      }
+    }
+    
+    if (action === 'DELETE_CASE') {
+      if (rowIndex > 0) {
+        sheet.deleteRow(rowIndex);
+      }
+    } else if (action === 'EDIT_CASE' || action === 'SAVE_CASE') {
+      var rowData = [
+        data.nomorRegistrasi || '',
+        data.tanggalLapor || '',
+        data.namaKorban || '',
+        data.usiaKorban || '',
+        data.kategoriKorban || '',
+        data.kecamatanTKP || '',
+        data.bentukKekerasan ? (Array.isArray(data.bentukKekerasan) ? data.bentukKekerasan.join(', ') : data.bentukKekerasan) : '',
+        data.namaPelaku || '',
+        data.hubunganPelaku || '',
+        data.tingkatUrgensi || '',
+        data.statusPenanganan || '',
+        data.petugasPendamping || ''
+      ];
+      if (rowIndex > 0) {
+        sheet.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
+      } else {
+        sheet.appendRow(rowData);
+      }
+    } else if (action === 'SYNC_ALL_CASES' && Array.isArray(data.cases)) {
+      if (sheet.getLastRow() > 1) {
+        sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).clearContent();
+      }
       data.cases.forEach(function(c) {
         sheet.appendRow([
           c.nomorRegistrasi || '',
@@ -132,16 +172,15 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
         ]);
       });
     } else {
-      // Single record or test ping
+      // Test ping
       sheet.appendRow([
-        new Date(),
         data.nomorRegistrasi || 'TEST_PING',
         data.tanggalLapor || new Date().toISOString().slice(0, 10),
         data.namaKorban || 'Test Korban',
         data.usiaKorban || '0',
         data.kategoriKorban || 'Test',
         data.kecamatanTKP || 'Aesesa',
-        data.bentukKekerasan || 'Uji Koneksi',
+        data.bentukKekerasan || 'Uji Koneksi Bi-directional',
         data.namaPelaku || '-',
         data.hubunganPelaku || '-',
         data.tingkatUrgensi || 'Normal',
@@ -150,7 +189,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       ]);
     }
     
-    return ContentService.createTextOutput(JSON.stringify({"status": "success"}))
+    return ContentService.createTextOutput(JSON.stringify({"status": "success", "action": action}))
       .setMimeType(ContentService.MimeType.JSON);
   } catch(err) {
     return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
@@ -175,16 +214,16 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
-              <span>Integrasi Eksternal SIPELKA</span>
+              <span>Integrasi Dua Arah SIPELKA</span>
               <span>·</span>
               <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
               <FileSpreadsheet className="w-6 h-6 text-amber-300" />
-              Integrasi Google Sheet & Webhook
+              Integrasi Google Sheet & Webhook (Edit & Hapus Dua Arah)
             </h1>
             <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
-              Hubungkan data aplikasi SIPELKA secara real-time ke Google Sheet milik Anda dengan menanamkan URL Google Sheet dan Webhook URL (Google Apps Script).
+              Setiap tindakan edit, tambah kasus baru, pembaruan catatan, maupun penghapusan data di web akan langsung disinkronkan secara dua arah ke baris Google Sheet Anda.
             </p>
           </div>
 
@@ -257,7 +296,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
                 />
               </div>
               <p className="text-[11px] text-slate-500 mt-1">
-                Endpoint URL yang menerima method POST berformat JSON dari aplikasi SIPELKA.
+                Endpoint URL yang menerima method POST berformat JSON (mendukung EDIT_CASE, SAVE_CASE, DELETE_CASE).
               </p>
             </div>
 
@@ -269,7 +308,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
                   onChange={(e) => setConfig({ ...config, autoSync: e.target.checked })}
                   className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span>Kirim data otomatis saat kasus dicatat / diperbarui</span>
+                <span>Kirim data otomatis saat kasus dicatat, diedit, atau dihapus</span>
               </label>
 
               {config.sheetUrl && (
@@ -329,24 +368,23 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
                 <Database className="w-4 h-4 text-amber-400" />
-                Panduan Google Apps Script Webhook
+                Panduan Google Apps Script Dua Arah (Edit & Hapus)
               </h3>
               <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-2.5 py-1 rounded-full border border-amber-400/30">
-                Setup 1 Menit
+                Dua Arah
               </span>
             </div>
 
             <ol className="text-xs text-sky-100 space-y-2 list-decimal list-inside leading-relaxed">
               <li>Buka Google Sheet Anda, klik menu <strong>Extensions &gt; Apps Script</strong>.</li>
-              <li>Hapus kode bawaan dan tempel kode skrip di bawah ini.</li>
-              <li>Klik <strong>Deploy &gt; New deployment</strong>, pilih jenis <strong>Web app</strong>.</li>
-              <li>Set <em>Execute as</em> ke <strong>Me</strong> dan <em>Who has access</em> ke <strong>Anyone</strong>.</li>
-              <li>Salin URL Web App yang dihasilkan dan tempel ke kolom Webhook di samping.</li>
+              <li>Hapus kode lama dan tempel kode skrip baru di bawah ini.</li>
+              <li>Klik <strong>Deploy &gt; New deployment</strong> (Pilih Web app, Execute as: Me, Who has access: Anyone).</li>
+              <li>Salin URL Web App dan tempel ke kolom Webhook di samping.</li>
             </ol>
 
             <div className="relative pt-2">
               <div className="flex items-center justify-between bg-slate-900 px-3 py-1.5 rounded-t-xl border border-slate-700 text-[11px] font-mono text-slate-300">
-                <span>Code.gs (Google Apps Script)</span>
+                <span>Code.gs (Dua Arah: Save, Edit, Delete)</span>
                 <button
                   onClick={handleCopyCode}
                   className="flex items-center gap-1 text-amber-300 hover:text-white transition-colors"
@@ -363,7 +401,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
 
           <div className="pt-3 border-t border-white/10 text-[11px] text-sky-200 flex items-center gap-2">
             <Shield className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Kerahasiaan data instansi Dinas PMDP3A Nagekeo terjaga dalam Google Sheet pribadi Anda.</span>
+            <span>Operasi Edit dan Hapus otomatis mencocokkan Nomor Registrasi di baris Google Sheet.</span>
           </div>
         </div>
       </div>

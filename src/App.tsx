@@ -84,6 +84,7 @@ export default function App() {
   };
 
   const handleSaveCase = (savedCase: KasusKekerasan) => {
+    const isExisting = cases.some((c) => c.id === savedCase.id);
     const updatedList = saveCase(savedCase);
     setCases(updatedList);
     setCaseToEdit(null);
@@ -94,7 +95,7 @@ export default function App() {
     const sheetCfg = getGoogleSheetConfig();
     if (sheetCfg.autoSync && sheetCfg.webhookUrl) {
       sendDataToGoogleSheetWebhook({
-        action: 'SAVE_CASE',
+        action: isExisting ? 'EDIT_CASE' : 'SAVE_CASE',
         timestamp: new Date().toISOString(),
         ...savedCase
       }).catch((err) => console.error('Auto-sync webhook error:', err));
@@ -102,12 +103,24 @@ export default function App() {
   };
 
   const handleDeleteCase = (id: string) => {
+    const targetCase = cases.find((c) => c.id === id);
     const updatedList = deleteCase(id);
     setCases(updatedList);
     if (selectedCaseForDetail?.id === id) {
       setSelectedCaseForDetail(null);
     }
     showToast('Data berkas perkara berhasil dihapus dari register.');
+
+    // Sync deletion to Google Sheet webhook if enabled
+    const sheetCfg = getGoogleSheetConfig();
+    if (sheetCfg.autoSync && sheetCfg.webhookUrl && targetCase) {
+      sendDataToGoogleSheetWebhook({
+        action: 'DELETE_CASE',
+        timestamp: new Date().toISOString(),
+        id: targetCase.id,
+        nomorRegistrasi: targetCase.nomorRegistrasi
+      }).catch((err) => console.error('Delete sync webhook error:', err));
+    }
   };
 
   const handleAddProgressNote = (
@@ -120,6 +133,16 @@ export default function App() {
     const updatedCase = updatedList.find((c) => c.id === caseId) || null;
     setSelectedCaseForDetail(updatedCase);
     showToast('Catatan tindakan pendampingan berhasil ditambahkan.');
+
+    // Sync progress note / edit update to Google Sheet webhook if enabled
+    const sheetCfg = getGoogleSheetConfig();
+    if (sheetCfg.autoSync && sheetCfg.webhookUrl && updatedCase) {
+      sendDataToGoogleSheetWebhook({
+        action: 'EDIT_CASE',
+        timestamp: new Date().toISOString(),
+        ...updatedCase
+      }).catch((err) => console.error('Progress note sync webhook error:', err));
+    }
   };
 
   const handleResetData = () => {
