@@ -1,5 +1,6 @@
 import { CatatanPenanganan, KasusKekerasan, PegawaiSIPELKA } from '../types';
 import { INITIAL_KASUS_DATA, INITIAL_PEGAWAI_DATA } from '../data/nagekeoData';
+import { sanitizeObjectData } from './securityService';
 
 const STORAGE_KEY = 'sipelka_nagekeo_cases_v1';
 const PEGAWAI_STORAGE_KEY = 'sipelka_nagekeo_pegawai_v1';
@@ -27,14 +28,15 @@ export function getStoredCases(): KasusKekerasan[] {
 
 export function saveCase(caseData: KasusKekerasan): KasusKekerasan[] {
   const current = getStoredCases();
-  const existsIndex = current.findIndex((c) => c.id === caseData.id);
+  const sanitized = sanitizeObjectData(caseData);
+  const existsIndex = current.findIndex((c) => c.id === sanitized.id);
 
   let updated: KasusKekerasan[];
   if (existsIndex >= 0) {
     updated = [...current];
-    updated[existsIndex] = caseData;
+    updated[existsIndex] = sanitized;
   } else {
-    updated = [caseData, ...current];
+    updated = [sanitized, ...current];
   }
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
@@ -59,8 +61,9 @@ export function addProgressNote(
   if (targetIndex === -1) return current;
 
   const target = current[targetIndex];
+  const sanitizedNote = sanitizeObjectData(note);
   const newNote: CatatanPenanganan = {
-    ...note,
+    ...sanitizedNote,
     id: 'CAT-' + Date.now().toString()
   };
 
@@ -131,14 +134,15 @@ export function getStoredPegawai(): PegawaiSIPELKA[] {
 
 export function savePegawai(pegawaiData: PegawaiSIPELKA): PegawaiSIPELKA[] {
   const current = getStoredPegawai();
-  const existsIndex = current.findIndex((p) => p.id === pegawaiData.id);
+  const sanitized = sanitizeObjectData(pegawaiData);
+  const existsIndex = current.findIndex((p) => p.id === sanitized.id);
 
   let updated: PegawaiSIPELKA[];
   if (existsIndex >= 0) {
     updated = [...current];
-    updated[existsIndex] = pegawaiData;
+    updated[existsIndex] = sanitized;
   } else {
-    updated = [pegawaiData, ...current];
+    updated = [sanitized, ...current];
   }
 
   localStorage.setItem(PEGAWAI_STORAGE_KEY, JSON.stringify(updated));
@@ -340,12 +344,13 @@ export async function sendDataToGoogleSheetWebhook(
 
   try {
     // Construct URL with query parameters for maximum compatibility with Google Apps Script
+    const sanitizedPayload = sanitizeObjectData(payload);
     let targetUrl = cfg.webhookUrl;
     try {
       const urlObj = new URL(cfg.webhookUrl);
-      if (payload.action) urlObj.searchParams.set('action', String(payload.action));
-      if (payload.nomorRegistrasi) urlObj.searchParams.set('nomorRegistrasi', String(payload.nomorRegistrasi));
-      if (payload.id) urlObj.searchParams.set('id', String(payload.id));
+      if (sanitizedPayload.action) urlObj.searchParams.set('action', String(sanitizedPayload.action));
+      if (sanitizedPayload.nomorRegistrasi) urlObj.searchParams.set('nomorRegistrasi', String(sanitizedPayload.nomorRegistrasi));
+      if (sanitizedPayload.id) urlObj.searchParams.set('id', String(sanitizedPayload.id));
       targetUrl = urlObj.toString();
     } catch {
       // Fallback if URL constructor fails
@@ -357,7 +362,7 @@ export async function sendDataToGoogleSheetWebhook(
       headers: {
         'Content-Type': 'text/plain;charset=utf-8'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(sanitizedPayload)
     });
 
     const now = new Date().toISOString();

@@ -20,6 +20,7 @@ import {
   getGoogleSheetConfig,
   sendDataToGoogleSheetWebhook
 } from './services/storageService';
+import { enableClientSecurityShield } from './services/securityService';
 import { Header } from './components/Header';
 import { DashboardView } from './components/DashboardView';
 import { CaseListView } from './components/CaseListView';
@@ -56,6 +57,15 @@ export default function App() {
     const loadedPegawai = getStoredPegawai();
     setPegawaiList(loadedPegawai);
     setIsAnonymized(getAnonymizedPreference());
+
+    // Aktifkan Cyber Security & Data Protection Shield
+    const cleanupSecurity = enableClientSecurityShield((alertMsg) => {
+      showToast(alertMsg);
+    });
+
+    return () => {
+      cleanupSecurity();
+    };
   }, []);
 
   const showToast = (msg: string) => {

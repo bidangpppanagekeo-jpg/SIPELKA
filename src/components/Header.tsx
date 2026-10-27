@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlusCircle, Eye, EyeOff, Users, FileSpreadsheet } from 'lucide-react';
+import { PlusCircle, Eye, EyeOff, Users, FileSpreadsheet, ShieldCheck } from 'lucide-react';
 import sealImg from '../assets/images/kabupaten_nagekeo_logo_1792733971363.jpg';
 
 interface HeaderProps {
@@ -141,6 +141,15 @@ export const Header: React.FC<HeaderProps> = ({
               </>
             )}
           </button>
+
+          {/* Cyber Security Status Indicator */}
+          <div
+            title="Keamanan Siber Aktif: Proteksi Anti-SQL Injection, Anti-Scraping Data, dan Proteksi Inspeksi Aktif"
+            className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-300 shadow-xs cursor-default select-none"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="hidden xl:inline text-[11px] font-bold text-emerald-800">Keamanan Aktif</span>
+          </div>
 
           <button
             type="button"

@@ -11,6 +11,7 @@ import {
 } from '../types';
 import { DAFTAR_KECAMATAN, DAFTAR_BENTUK_KEKERASAN, DAFTAR_STATUS_PENANGANAN } from '../data/nagekeoData';
 import { generateRegistrationNumber } from '../services/storageService';
+import { sanitizeObjectData, detectSecurityThreat } from '../services/securityService';
 import { ArrowLeft, Save, Check, AlertCircle, Shield, UserCheck, Gavel, Stethoscope, Award, Users } from 'lucide-react';
 
 interface CaseFormViewProps {
@@ -202,8 +203,27 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
       return;
     }
 
+    // Cyber Security Check: Pindai seluruh isian terhadap SQL Injection & XSS
+    const fieldsToCheck = [
+      formData.namaKorban || '',
+      formData.namaPelapor || '',
+      formData.namaPelaku || '',
+      formData.ringkasanKronologi || '',
+      formData.keteranganTambahan || '',
+      formData.nikKorban || ''
+    ];
+
+    for (const text of fieldsToCheck) {
+      const threat = detectSecurityThreat(text);
+      if (threat.isMalicious) {
+        console.warn('Peringatan Keamanan: Terdeteksi upaya payload tidak aman:', threat.reason);
+      }
+    }
+
+    const sanitizedFormData = sanitizeObjectData(formData);
+
     const payload: KasusKekerasan = {
-      ...(formData as KasusKekerasan),
+      ...(sanitizedFormData as KasusKekerasan),
       riwayatPenanganan:
         formData.riwayatPenanganan && formData.riwayatPenanganan.length > 0
           ? formData.riwayatPenanganan
@@ -305,18 +325,85 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               />
             </div>
 
+            {/* Petugas Pendamping Utama - Terkoneksi ke Data Pegawai Tenaga Pendamping Bidang PPPA */}
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
-                Petugas Pendamping Utama
-              </label>
-              <input
-                type="text"
-                value={formData.petugasPendamping}
-                onChange={(e) => setFormData({ ...formData, petugasPendamping: e.target.value })}
-                placeholder="Nama staf UPTD / PPA"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+              <div className="flex items-center justify-between mb-1">
+                <label className="block font-semibold text-slate-800">
+                  Petugas Pendamping Utama *
+                </label>
+                <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
+                  Data Pegawai PPPA
+                </span>
+              </div>
+              <select
+                value={
+                  formData.petugasPendampingId ||
+                  pppaPegawai.find((p) => p.nama === formData.petugasPendamping)?.id ||
+                  (pppaPegawai.some((p) => p.nama === formData.petugasPendamping) ? '' : formData.petugasPendamping ? 'custom' : '')
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === 'custom') {
+                    // Biarkan manual jika custom
+                    return;
+                  }
+                  const sel = pppaPegawai.find((p) => p.id === val);
+                  if (sel) {
+                    setFormData({
+                      ...formData,
+                      petugasPendampingId: sel.id,
+                      petugasPendamping: sel.nama
+                    });
+                  } else {
+                    setFormData({
+                      ...formData,
+                      petugasPendampingId: '',
+                      petugasPendamping: ''
+                    });
+                  }
+                }}
+                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
                 required
-              />
+              >
+                <option value="">-- Pilih Tenaga Pendamping Bidang PPPA --</option>
+                {pppaPegawai.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.nama} — {p.jabatan} {p.status === 'Aktif' ? '(Aktif)' : `(${p.status})`}
+                  </option>
+                ))}
+                {formData.petugasPendamping && !pppaPegawai.some((p) => p.nama === formData.petugasPendamping) && (
+                  <option value="custom">
+                    {formData.petugasPendamping} (Data Kustom / Manual)
+                  </option>
+                )}
+              </select>
+
+              {/* Info ringkas pegawai yang terpilih */}
+              {(() => {
+                const currentPppa = pppaPegawai.find(
+                  (p) => p.id === formData.petugasPendampingId || p.nama === formData.petugasPendamping
+                );
+                if (currentPppa) {
+                  return (
+                    <div className="mt-1.5 p-2 bg-indigo-50/70 border border-indigo-200/80 rounded-lg text-[11px] text-indigo-950 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                      <span className="font-bold text-indigo-900">{currentPppa.jabatan}</span>
+                      <span>·</span>
+                      <span className="text-slate-600">{currentPppa.instansi}</span>
+                      {currentPppa.telepon && (
+                        <>
+                          <span>·</span>
+                          <span className="font-mono text-emerald-700 font-semibold">WA: {currentPppa.telepon}</span>
+                        </>
+                      )}
+                    </div>
+                  );
+                }
+                return (
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Pilih pegawai dari kategori Tenaga Pendamping Bidang PPPA.
+                  </p>
+                );
+              })()}
             </div>
 
             <div>

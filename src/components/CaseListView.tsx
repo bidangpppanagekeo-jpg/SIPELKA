@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { KasusKekerasan, FilterKasusState } from '../types';
 import { DAFTAR_KECAMATAN, DAFTAR_BENTUK_KEKERASAN, DAFTAR_STATUS_PENANGANAN } from '../data/nagekeoData';
 import { exportCasesToCSV, exportBackupJSON } from '../services/storageService';
+import { sanitizeInput } from '../services/securityService';
 import {
   Search,
   Filter,
@@ -63,7 +64,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
     return cases.filter((c) => {
       // Search query matches No. Reg, Nama Korban, Terlapor, Ringkasan, Desa, Petugas
       if (filters.searchQuery.trim()) {
-        const query = filters.searchQuery.toLowerCase();
+        const query = sanitizeInput(filters.searchQuery).toLowerCase();
         const matchReg = c.nomorRegistrasi.toLowerCase().includes(query);
         const matchKorban = c.namaKorban.toLowerCase().includes(query) || c.namaSamaran.toLowerCase().includes(query);
         const matchPelaku = c.namaPelaku.toLowerCase().includes(query);
