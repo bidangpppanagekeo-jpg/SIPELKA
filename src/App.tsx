@@ -90,17 +90,29 @@ export default function App() {
     setCases(updatedList);
     setCaseToEdit(null);
     setCurrentTab('register');
-    showToast(`Berkas perkara ${savedCase.nomorRegistrasi} berhasil disimpan.`);
 
     // Auto-sync to Google Sheet webhook if enabled
     const sheetCfg = getGoogleSheetConfig();
     if (sheetCfg.autoSync && sheetCfg.webhookUrl) {
+      showToast(isExisting 
+        ? `Memperbarui ${savedCase.nomorRegistrasi} di Web & Google Sheet...`
+        : `Menyimpan ${savedCase.nomorRegistrasi} ke Web & Google Sheet...`
+      );
       sendDataToGoogleSheetWebhook({
         action: isExisting ? 'EDIT_CASE' : 'SAVE_CASE',
         timestamp: new Date().toISOString(),
         originalNomorRegistrasi: originalReg,
         ...savedCase
+      }).then((res) => {
+        if (res.success) {
+          showToast(isExisting 
+            ? `Berkas ${savedCase.nomorRegistrasi} berhasil diperbarui di Web & Google Sheet.`
+            : `Berkas ${savedCase.nomorRegistrasi} berhasil disimpan ke Web & Google Sheet.`
+          );
+        }
       }).catch((err) => console.error('Auto-sync webhook error:', err));
+    } else {
+      showToast(`Berkas perkara ${savedCase.nomorRegistrasi} berhasil disimpan.`);
     }
   };
 
@@ -111,18 +123,24 @@ export default function App() {
     if (selectedCaseForDetail?.id === id) {
       setSelectedCaseForDetail(null);
     }
-    showToast('Data berkas perkara berhasil dihapus dari register.');
 
     // Sync deletion to Google Sheet webhook if enabled
     const sheetCfg = getGoogleSheetConfig();
     if (sheetCfg.autoSync && sheetCfg.webhookUrl && targetCase) {
+      showToast(`Menghapus ${targetCase.nomorRegistrasi} dari Web dan Google Sheet...`);
       sendDataToGoogleSheetWebhook({
         action: 'DELETE_CASE',
         timestamp: new Date().toISOString(),
         id: targetCase.id,
         nomorRegistrasi: targetCase.nomorRegistrasi,
         namaKorban: targetCase.namaKorban
+      }).then((res) => {
+        if (res.success) {
+          showToast(`Berkas ${targetCase.nomorRegistrasi} berhasil dihapus dari Web & Google Sheet.`);
+        }
       }).catch((err) => console.error('Delete sync webhook error:', err));
+    } else {
+      showToast('Data berkas perkara berhasil dihapus dari register.');
     }
   };
 
