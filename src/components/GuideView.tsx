@@ -201,7 +201,7 @@ export const GuideView: React.FC<GuideViewProps> = ({
     },
     {
       q: 'Bagaimana keamanan akun login dan cara keluar (logout) dari aplikasi?',
-      a: 'Aplikasi SIPELKA dilindungi otentikasi ketat sehingga hanya Administrator Bidang PPPA yang dapat masuk (Username default: admin, Password: sipelka2026). Setelah selesai bekerja, selalu klik tombol "Keluar Aplikasi (Logout)" pada menu samping atau tombol pintu keluar di bilah atas untuk menutup sesi aman.'
+      a: 'Aplikasi SIPELKA dilindungi otentikasi ketat sehingga hanya Administrator Bidang PPPA yang memiliki kredensial resmi yang dapat masuk ke dalam sistem. Setelah selesai bekerja, selalu klik tombol "Keluar Aplikasi (Logout)" pada menu samping atau tombol pintu keluar di bilah atas untuk menutup sesi aman.'
     }
   ];
 

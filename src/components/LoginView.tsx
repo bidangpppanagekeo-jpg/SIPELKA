@@ -7,10 +7,7 @@ import {
   ShieldCheck,
   LogIn,
   AlertCircle,
-  KeyRound,
-  ShieldAlert,
-  PhoneCall,
-  CheckCircle2
+  ShieldAlert
 } from 'lucide-react';
 import { loginAdmin, checkLockout } from '../services/authService';
 import { AdminUser } from '../types';
@@ -26,8 +23,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
   onLoginSuccess,
   showToast
 }) => {
-  const [username, setUsername] = useState<string>('admin');
-  const [password, setPassword] = useState<string>('sipelka2026');
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(true);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -69,12 +66,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
         setErrorMessage(result.message);
       }
     }, 400);
-  };
-
-  const handleFillSample = () => {
-    setUsername('admin');
-    setPassword('sipelka2026');
-    setErrorMessage(null);
   };
 
   return (
@@ -240,37 +231,12 @@ export const LoginView: React.FC<LoginViewProps> = ({
             </button>
           </form>
 
-          {/* Quick Credential Box for Authorized Officers & Testing */}
-          <div className="mt-6 p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 text-xs">
-            <div className="flex items-center justify-between mb-1.5">
-              <div className="flex items-center gap-1.5 font-bold text-blue-950">
-                <KeyRound className="w-3.5 h-3.5 text-blue-700" />
-                <span>Akun Administrator Terdaftar:</span>
-              </div>
-              <button
-                type="button"
-                onClick={handleFillSample}
-                className="text-[11px] font-bold text-blue-700 hover:text-blue-900 underline underline-offset-2"
-                title="Isi otomatis data akun admin"
-              >
-                Isi Otomatis
-              </button>
-            </div>
-
-            <div className="space-y-1 font-mono text-[11px] text-slate-700 bg-white/70 p-2 rounded-lg border border-blue-100">
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-sans">Username:</span>
-                <span className="font-bold text-slate-900">admin</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-sans">Password:</span>
-                <span className="font-bold text-slate-900">sipelka2026</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500 font-sans">Email Resmi:</span>
-                <span className="text-slate-700">bidangpppanagekeo@gmail.com</span>
-              </div>
-            </div>
+          {/* Confidential Notice */}
+          <div className="mt-6 p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs flex items-center gap-2.5 text-slate-500">
+            <ShieldAlert className="w-4 h-4 text-blue-900 shrink-0" />
+            <span className="text-[11px] leading-relaxed">
+              Kredensial akun bersifat rahasia khusus Administrator Bidang PPPA Dinas PMDP3A.
+            </span>
           </div>
         </div>
       </main>
