@@ -1,6 +1,7 @@
 import React from 'react';
 import { PlusCircle, Eye, EyeOff, Users, FileSpreadsheet, ShieldCheck, BookOpen } from 'lucide-react';
-import sealImg from '../assets/images/kabupaten_nagekeo_logo_1792733971363.jpg';
+
+const LOGO_NAGEKEO = '/assets/aistudio/Logo-Kabupaten-Nagekeo11-removebg-preview_44ae2cef.png';
 
 interface HeaderProps {
   currentTab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi' | 'panduan';
@@ -26,9 +27,9 @@ export const Header: React.FC<HeaderProps> = ({
           className="flex items-center gap-3 text-left group focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 rounded-md"
         >
           <img
-            src={sealImg}
-            alt="Emblem Dinas PMDP3A Nagekeo"
-            className="w-10 h-10 rounded-full object-cover border-2 border-amber-400 shadow-xs shrink-0"
+            src={LOGO_NAGEKEO}
+            alt="Logo Kabupaten Nagekeo"
+            className="w-10 h-10 object-contain shrink-0 drop-shadow-xs"
             referrerPolicy="no-referrer"
           />
           <div className="flex flex-col">

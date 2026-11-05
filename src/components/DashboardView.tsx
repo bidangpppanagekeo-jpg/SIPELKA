@@ -1,7 +1,8 @@
 import React from 'react';
 import { KasusKekerasan, KecamatanNagekeo, BentukKekerasan } from '../types';
 import { DAFTAR_KECAMATAN } from '../data/nagekeoData';
-import sealImg from '../assets/images/kabupaten_nagekeo_logo_1792733971363.jpg';
+
+const LOGO_NAGEKEO = '/assets/aistudio/Logo-Kabupaten-Nagekeo11-removebg-preview_44ae2cef.png';
 import {
   AlertTriangle,
   FolderOpen,
@@ -157,9 +158,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="flex items-start gap-4">
               <img
-                src={sealImg}
-                alt="Emblem Dinas PMDP3A Kabupaten Nagekeo"
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-amber-400 shadow-md object-cover bg-white shrink-0"
+                src={LOGO_NAGEKEO}
+                alt="Logo Kabupaten Nagekeo"
+                className="w-14 h-14 sm:w-16 sm:h-16 object-contain drop-shadow-md shrink-0"
                 referrerPolicy="no-referrer"
               />
               <div className="space-y-1">

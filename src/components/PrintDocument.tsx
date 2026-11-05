@@ -1,6 +1,7 @@
 import React from 'react';
 import { KasusKekerasan, PegawaiSIPELKA } from '../types';
-import sealImg from '../assets/images/kabupaten_nagekeo_logo_1792733971363.jpg';
+
+const LOGO_NAGEKEO = '/assets/aistudio/Logo-Kabupaten-Nagekeo11-removebg-preview_44ae2cef.png';
 
 interface PrintDocumentProps {
   type: 'berita_acara' | 'lembar_kasus' | 'laporan_bulanan';
@@ -46,9 +47,9 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
       <div className="border-b-4 border-double border-black pb-3 mb-6 text-center relative">
         <div className="flex items-center justify-center gap-4 mb-1">
           <img
-            src={sealImg}
-            alt="Lambang PPPA Nagekeo"
-            className="w-20 h-20 object-contain rounded-full border border-slate-300"
+            src={LOGO_NAGEKEO}
+            alt="Lambang Daerah Kabupaten Nagekeo"
+            className="w-20 h-20 object-contain shrink-0"
             referrerPolicy="no-referrer"
           />
           <div>
