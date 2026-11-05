@@ -18,14 +18,15 @@ import {
   FileSpreadsheet,
   PlusCircle,
   Sparkles,
-  Info
+  Info,
+  BookOpen
 } from 'lucide-react';
 
 interface DashboardViewProps {
   cases: KasusKekerasan[];
   isAnonymized: boolean;
   onSelectCase: (c: KasusKekerasan) => void;
-  onNavigateToTab: (tab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop') => void;
+  onNavigateToTab: (tab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi' | 'panduan') => void;
 }
 
 const OFFICIAL_BANNER_SRC = '/assets/aistudio/Screenshot_2026-10-23_123646_9a98d16d.png';
@@ -195,14 +196,52 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               </button>
 
               <button
+                onClick={() => onNavigateToTab('panduan')}
+                className="px-4 py-2.5 bg-gradient-to-r from-amber-400/25 to-yellow-400/25 hover:from-amber-400/35 hover:to-yellow-400/35 text-amber-200 hover:text-white text-xs font-bold rounded-xl border border-amber-300/40 transition-colors flex items-center gap-2"
+              >
+                <BookOpen className="w-4 h-4 text-amber-300" />
+                <span>Panduan Penginputan & Pemakaian</span>
+              </button>
+
+              <button
                 onClick={() => onNavigateToTab('sop')}
                 className="px-4 py-2.5 bg-sky-700/60 hover:bg-sky-600/70 text-sky-100 text-xs font-semibold rounded-xl border border-sky-400/40 transition-colors"
               >
-                Panduan SOP & Helpline
+                SOP & Helpline
               </button>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Guide & Orientation Quick Access Banner */}
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-sky-900 rounded-2xl p-4 sm:p-5 text-white shadow-sm border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-md">
+            <BookOpen className="w-5 h-5 text-slate-950" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs sm:text-sm font-black text-white">
+                Panduan Resmi Penginputan & Pemakaian Aplikasi SIPELKA
+              </h3>
+              <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full border border-amber-400/30 hidden md:inline">
+                5 Bagian Input Lengkap
+              </span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-sky-100 mt-0.5 max-w-2xl">
+              Pelajari tata cara input nomor registrasi, identitas korban/terlapor, asesmen urgensi, sinkronisasi pegawai, hingga integrasi dua arah Google Sheet.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => onNavigateToTab('panduan')}
+          className="px-4 py-2 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 text-xs font-extrabold rounded-xl shadow-md transition-all shrink-0 flex items-center gap-2"
+        >
+          <span>Buka Buku Panduan</span>
+          <ArrowRight className="w-3.5 h-3.5 text-slate-950" />
+        </button>
       </div>
 
       {/* 2. FIVE COLORFUL VIBRANT METRIC CARDS */}

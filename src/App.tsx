@@ -29,11 +29,12 @@ import { PegawaiManagementView } from './components/PegawaiManagementView';
 import { OfficialReportView } from './components/OfficialReportView';
 import { SopNetworkView } from './components/SopNetworkView';
 import { GoogleSheetIntegrationView } from './components/GoogleSheetIntegrationView';
+import { GuideView } from './components/GuideView';
 import { CaseDetailModal } from './components/CaseDetailModal';
 import { PrintDocument } from './components/PrintDocument';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi'>('dashboard');
+  const [currentTab, setCurrentTab] = useState<'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi' | 'panduan'>('dashboard');
   const [cases, setCases] = useState<KasusKekerasan[]>([]);
   const [pegawaiList, setPegawaiList] = useState<PegawaiSIPELKA[]>([]);
   const [isAnonymized, setIsAnonymized] = useState<boolean>(false);
@@ -297,6 +298,7 @@ export default function App() {
               setCaseToEdit(null);
               setCurrentTab('register');
             }}
+            onOpenGuide={() => setCurrentTab('panduan')}
           />
         )}
 
@@ -327,6 +329,13 @@ export default function App() {
             cases={cases}
             pegawaiList={pegawaiList}
             showToast={showToast}
+          />
+        )}
+
+        {currentTab === 'panduan' && (
+          <GuideView
+            onNavigateToTab={(tab) => setCurrentTab(tab)}
+            onOpenNewCase={handleOpenNewCase}
           />
         )}
       </main>

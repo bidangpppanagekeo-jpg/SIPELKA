@@ -1,10 +1,10 @@
 import React from 'react';
-import { PlusCircle, Eye, EyeOff, Users, FileSpreadsheet, ShieldCheck } from 'lucide-react';
+import { PlusCircle, Eye, EyeOff, Users, FileSpreadsheet, ShieldCheck, BookOpen } from 'lucide-react';
 import sealImg from '../assets/images/kabupaten_nagekeo_logo_1792733971363.jpg';
 
 interface HeaderProps {
-  currentTab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi';
-  onSelectTab: (tab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi') => void;
+  currentTab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi' | 'panduan';
+  onSelectTab: (tab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi' | 'panduan') => void;
   isAnonymized: boolean;
   onToggleAnonymized: () => void;
   onOpenNewCase: () => void;
@@ -115,6 +115,17 @@ export const Header: React.FC<HeaderProps> = ({
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600" />
             <span>Integrasi Sheet</span>
           </button>
+          <button
+            onClick={() => onSelectTab('panduan')}
+            className={`whitespace-nowrap shrink-0 transition-all py-1 border-b-2 flex items-center gap-1.5 ${
+              currentTab === 'panduan'
+                ? 'border-amber-500 text-amber-900 font-bold'
+                : 'border-transparent text-amber-800 hover:text-amber-950 hover:border-amber-300'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-600" />
+            <span className="font-bold">Panduan Aplikasi</span>
+          </button>
         </nav>
 
         {/* Zone 3: Privacy toggle & CTA */}
@@ -205,6 +216,12 @@ export const Header: React.FC<HeaderProps> = ({
           className={`whitespace-nowrap pb-1 ${currentTab === 'integrasi' ? 'text-blue-900 font-bold border-b-2 border-blue-900' : ''}`}
         >
           Integrasi Sheet
+        </button>
+        <button
+          onClick={() => onSelectTab('panduan')}
+          className={`whitespace-nowrap pb-1 font-bold ${currentTab === 'panduan' ? 'text-amber-800 border-b-2 border-amber-600' : 'text-amber-700'}`}
+        >
+          📖 Panduan
         </button>
       </div>
     </header>

@@ -12,7 +12,23 @@ import {
 import { DAFTAR_KECAMATAN, DAFTAR_BENTUK_KEKERASAN, DAFTAR_STATUS_PENANGANAN } from '../data/nagekeoData';
 import { generateRegistrationNumber } from '../services/storageService';
 import { sanitizeObjectData, detectSecurityThreat } from '../services/securityService';
-import { ArrowLeft, Save, Check, AlertCircle, Shield, UserCheck, Gavel, Stethoscope, Award, Users } from 'lucide-react';
+import {
+  ArrowLeft,
+  Save,
+  Check,
+  AlertCircle,
+  Shield,
+  UserCheck,
+  Gavel,
+  Stethoscope,
+  Award,
+  Users,
+  BookOpen,
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
+  Sparkles
+} from 'lucide-react';
 
 interface CaseFormViewProps {
   initialCase?: KasusKekerasan | null;
@@ -20,6 +36,7 @@ interface CaseFormViewProps {
   pegawaiList: PegawaiSIPELKA[];
   onSaveCase: (savedCase: KasusKekerasan) => void;
   onCancel: () => void;
+  onOpenGuide?: () => void;
 }
 
 const TEMPAT_KEJADIAN_OPTIONS: TempatKejadian[] = [
@@ -59,7 +76,8 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
   allCases,
   pegawaiList,
   onSaveCase,
-  onCancel
+  onCancel,
+  onOpenGuide
 }) => {
   const isEditing = Boolean(initialCase);
 
@@ -132,6 +150,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
 
   const [dampakInput, setDampakInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [showQuickGuide, setShowQuickGuide] = useState(false);
 
   // Auto-generate initials for namaSamaran when namaKorban changes if not manually set
   useEffect(() => {
@@ -280,6 +299,73 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
           <span>{errorMessage}</span>
         </div>
       )}
+
+      {/* Quick Guide & Instructions Alert */}
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-sky-900 rounded-2xl p-4 sm:p-5 text-white shadow-sm border border-blue-200 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-xs">
+              <BookOpen className="w-5 h-5 text-slate-950" />
+            </div>
+            <div>
+              <h3 className="text-xs sm:text-sm font-black text-white flex items-center gap-2">
+                <span>Panduan Cepat Pengisian Berkas Kasus (5 Bagian)</span>
+              </h3>
+              <p className="text-[11px] text-sky-100">
+                Isi data secara berurutan: Pelapor &rarr; Korban &rarr; Pelaku &rarr; Kronologi/Asesmen &rarr; Tim Petugas
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+            <button
+              type="button"
+              onClick={() => setShowQuickGuide(!showQuickGuide)}
+              className="px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-bold rounded-lg border border-white/30 transition-colors flex items-center gap-1.5"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-amber-300" />
+              <span>{showQuickGuide ? 'Tutup Tips' : 'Lihat Tips Pengisian'}</span>
+              {showQuickGuide ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+
+            {onOpenGuide && (
+              <button
+                type="button"
+                onClick={onOpenGuide}
+                className="px-3 py-1.5 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-slate-950 text-xs font-extrabold rounded-lg shadow-sm transition-colors flex items-center gap-1"
+              >
+                <span>Buku Panduan Lengkap</span>
+                <Sparkles className="w-3.5 h-3.5 text-slate-950" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {showQuickGuide && (
+          <div className="pt-3 border-t border-white/15 grid grid-cols-1 md:grid-cols-5 gap-2.5 text-[11px] animate-fade-in">
+            <div className="bg-white/10 p-2.5 rounded-xl border border-white/10 space-y-1">
+              <strong className="text-amber-300 block font-bold">1. Pelapor</strong>
+              <span className="text-sky-100 block">Nomor registrasi otomatis, pilih Petugas Pendamping Utama PPPA.</span>
+            </div>
+            <div className="bg-white/10 p-2.5 rounded-xl border border-white/10 space-y-1">
+              <strong className="text-amber-300 block font-bold">2. Korban</strong>
+              <span className="text-sky-100 block">NIK 16 digit, usia, domisili kecamatan, dan inisial samaran privasi.</span>
+            </div>
+            <div className="bg-white/10 p-2.5 rounded-xl border border-white/10 space-y-1">
+              <strong className="text-amber-300 block font-bold">3. Pelaku</strong>
+              <span className="text-sky-100 block">Identitas terlapor & hubungan dengan korban (KDRT, tetangga, dll).</span>
+            </div>
+            <div className="bg-white/10 p-2.5 rounded-xl border border-white/10 space-y-1">
+              <strong className="text-amber-300 block font-bold">4. Kronologi</strong>
+              <span className="text-sky-100 block">Centang bentuk kekerasan, uraikan fakta kejadian & tingkat urgensi.</span>
+            </div>
+            <div className="bg-white/10 p-2.5 rounded-xl border border-white/10 space-y-1">
+              <strong className="text-amber-300 block font-bold">5. Tim Petugas</strong>
+              <span className="text-sky-100 block">Pilih petugas Unit PPA Polres, Dokter Forensik VeR, & Admin Pencatat.</span>
+            </div>
+          </div>
+        )}
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* SECTION 1: Nomor Registrasi & Pelapor (Soft Sky Blue) */}
