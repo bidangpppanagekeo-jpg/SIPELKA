@@ -6,7 +6,8 @@ import {
   EyeOff,
   ShieldCheck,
   ChevronRight,
-  BookOpen
+  BookOpen,
+  LogOut
 } from 'lucide-react';
 import { AppTab } from './Sidebar';
 
@@ -17,6 +18,7 @@ interface HeaderProps {
   onToggleAnonymized: () => void;
   onOpenNewCase: () => void;
   onToggleMobileSidebar: () => void;
+  onLogout?: () => void;
 }
 
 const TAB_META: Record<AppTab, { title: string; subtitle: string; category: string }> = {
@@ -68,7 +70,8 @@ export const Header: React.FC<HeaderProps> = ({
   isAnonymized,
   onToggleAnonymized,
   onOpenNewCase,
-  onToggleMobileSidebar
+  onToggleMobileSidebar,
+  onLogout
 }) => {
   const currentMeta = TAB_META[currentTab] || {
     title: 'SIPELKA Nagekeo',
@@ -172,6 +175,19 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="hidden xs:inline">+ Catat Kasus Baru</span>
             <span className="xs:hidden">Catat Kasus</span>
           </button>
+
+          {/* Quick Logout Button */}
+          {onLogout && (
+            <button
+              type="button"
+              onClick={onLogout}
+              title="Keluar dari Aplikasi (Logout)"
+              className="p-2 text-slate-500 hover:text-rose-700 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-xl transition-all shadow-2xs shrink-0"
+              aria-label="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
     </header>

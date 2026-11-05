@@ -160,3 +160,22 @@ export interface FilterKasusState {
   bulan: string;
   petugasId?: string;
 }
+
+export interface AdminUser {
+  id: string;
+  username: string;
+  nama: string;
+  email: string;
+  role: 'superadmin' | 'admin_pppa';
+  instansi: string;
+  jabatan: string;
+  nipOrIdentitas?: string;
+  lastLogin?: string;
+}
+
+export interface AuthSession {
+  isAuthenticated: boolean;
+  user: AdminUser | null;
+  token?: string;
+  loginTime?: string;
+}

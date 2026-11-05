@@ -11,8 +11,10 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
+import { AdminUser } from '../types';
 
 const LOGO_NAGEKEO = '/assets/aistudio/Logo-Kabupaten-Nagekeo11-removebg-preview_44ae2cef.png';
 
@@ -36,6 +38,8 @@ interface SidebarProps {
   isCollapsed: boolean;
   onToggleCollapsed: () => void;
   isSheetSynced?: boolean;
+  currentUser?: AdminUser | null;
+  onLogout: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -47,7 +51,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCloseMobile,
   isCollapsed,
   onToggleCollapsed,
-  isSheetSynced = true
+  isSheetSynced = true,
+  currentUser,
+  onLogout
 }) => {
   const handleNav = (tab: AppTab) => {
     onSelectTab(tab);
@@ -292,17 +298,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
               {/* Officer Account Card */}
               <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-900 font-bold flex items-center justify-center text-xs shrink-0 border border-blue-200">
-                  PPPA
+                  ADM
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-[11px] font-bold text-slate-800 truncate">
-                    Operator SIPELKA
+                    {currentUser?.nama || 'Administrator Bidang PPPA'}
                   </div>
                   <div className="text-[10px] text-slate-500 truncate font-mono">
-                    bidangpppanagekeo@gmail.com
+                    {currentUser?.email || 'bidangpppanagekeo@gmail.com'}
                   </div>
                 </div>
               </div>
+
+              {/* Logout Button */}
+              <button
+                type="button"
+                onClick={onLogout}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 hover:text-rose-800 border border-rose-200 rounded-xl transition-all shadow-2xs group"
+                title="Keluar dari sesi administrator"
+              >
+                <LogOut className="w-3.5 h-3.5 text-rose-600 group-hover:scale-110 transition-transform" />
+                <span>Keluar Aplikasi (Logout)</span>
+              </button>
 
               {/* Security & Sync Mini Status */}
               <div className="flex items-center justify-between px-1 text-[10px] text-slate-500 font-medium">
@@ -327,7 +344,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </button>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2.5">
+              <button
+                type="button"
+                onClick={onLogout}
+                className="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 flex items-center justify-center border border-rose-200 transition-colors"
+                title="Keluar Aplikasi (Logout)"
+              >
+                <LogOut className="w-4 h-4 text-rose-600" />
+              </button>
               <button
                 onClick={onToggleCollapsed}
                 className="hidden lg:flex p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg transition-colors"

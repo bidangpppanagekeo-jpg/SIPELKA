@@ -198,6 +198,10 @@ export const GuideView: React.FC<GuideViewProps> = ({
     {
       q: 'Mengapa klik kanan dan tombol F12 / inspect diblokir?',
       a: 'Aplikasi SIPELKA dilengkapi fitur Cyber Security Shield aktif untuk melindungi kerahasiaan identitas korban dari upaya peretasan, scraping masal, atau pencurian data melalui inspect element peramban.'
+    },
+    {
+      q: 'Bagaimana keamanan akun login dan cara keluar (logout) dari aplikasi?',
+      a: 'Aplikasi SIPELKA dilindungi otentikasi ketat sehingga hanya Administrator Bidang PPPA yang dapat masuk (Username default: admin, Password: sipelka2026). Setelah selesai bekerja, selalu klik tombol "Keluar Aplikasi (Logout)" pada menu samping atau tombol pintu keluar di bilah atas untuk menutup sesi aman.'
     }
   ];
 

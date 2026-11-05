@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { KasusKekerasan, StatusPenanganan, CatatanPenanganan, PegawaiSIPELKA } from './types';
+import { KasusKekerasan, StatusPenanganan, CatatanPenanganan, PegawaiSIPELKA, AdminUser, AuthSession } from './types';
 import {
   getStoredCases,
   saveCase,
@@ -21,8 +21,10 @@ import {
   sendDataToGoogleSheetWebhook
 } from './services/storageService';
 import { enableClientSecurityShield } from './services/securityService';
+import { getAuthSession, logoutAdmin } from './services/authService';
 import { Header } from './components/Header';
 import { Sidebar, AppTab } from './components/Sidebar';
+import { LoginView } from './components/LoginView';
 import { DashboardView } from './components/DashboardView';
 import { CaseListView } from './components/CaseListView';
 import { CaseFormView } from './components/CaseFormView';
@@ -35,6 +37,7 @@ import { CaseDetailModal } from './components/CaseDetailModal';
 import { PrintDocument } from './components/PrintDocument';
 
 export default function App() {
+  const [authSession, setAuthSession] = useState<AuthSession>(() => getAuthSession());
   const [currentTab, setCurrentTab] = useState<AppTab>('dashboard');
   const [cases, setCases] = useState<KasusKekerasan[]>([]);
   const [pegawaiList, setPegawaiList] = useState<PegawaiSIPELKA[]>([]);
@@ -234,6 +237,33 @@ export default function App() {
     }, 150);
   };
 
+  const handleLoginSuccess = (user: AdminUser) => {
+    setAuthSession({ isAuthenticated: true, user });
+  };
+
+  const handleLogout = () => {
+    if (window.confirm('Keluar dari aplikasi SIPELKA? Sesi administrator Anda akan diakhiri.')) {
+      logoutAdmin();
+      setAuthSession({ isAuthenticated: false, user: null });
+      showToast('Anda telah berhasil keluar dari sistem SIPELKA.');
+    }
+  };
+
+  // Gerbang Keamanan: Hanya Administrator yang telah login yang dapat mengakses SIPELKA
+  if (!authSession.isAuthenticated || !authSession.user) {
+    return (
+      <>
+        <LoginView onLoginSuccess={handleLoginSuccess} showToast={showToast} />
+        {toastMessage && (
+          <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 animate-fade-in flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/70 via-sky-50/50 to-indigo-50/40 flex font-sans relative text-slate-800">
       {/* Background subtle light ambient effects */}
@@ -258,6 +288,8 @@ export default function App() {
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapsed={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        currentUser={authSession.user}
+        onLogout={handleLogout}
       />
 
       {/* Main Content Area on the Right */}
@@ -278,6 +310,7 @@ export default function App() {
           onToggleAnonymized={handleToggleAnonymized}
           onOpenNewCase={handleOpenNewCase}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+          onLogout={handleLogout}
         />
 
         {/* Toast Notification */}
