@@ -22,6 +22,7 @@ import {
 } from './services/storageService';
 import { enableClientSecurityShield } from './services/securityService';
 import { Header } from './components/Header';
+import { Sidebar, AppTab } from './components/Sidebar';
 import { DashboardView } from './components/DashboardView';
 import { CaseListView } from './components/CaseListView';
 import { CaseFormView } from './components/CaseFormView';
@@ -34,13 +35,15 @@ import { CaseDetailModal } from './components/CaseDetailModal';
 import { PrintDocument } from './components/PrintDocument';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi' | 'panduan'>('dashboard');
+  const [currentTab, setCurrentTab] = useState<AppTab>('dashboard');
   const [cases, setCases] = useState<KasusKekerasan[]>([]);
   const [pegawaiList, setPegawaiList] = useState<PegawaiSIPELKA[]>([]);
   const [isAnonymized, setIsAnonymized] = useState<boolean>(false);
   const [selectedCaseForDetail, setSelectedCaseForDetail] = useState<KasusKekerasan | null>(null);
   const [caseToEdit, setCaseToEdit] = useState<KasusKekerasan | null>(null);
   const [officerFilterQuery, setOfficerFilterQuery] = useState<string>('');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
 
   // Printing state
   const [printConfig, setPrintConfig] = useState<{
@@ -232,14 +235,13 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/70 via-sky-50/60 to-indigo-50/50 flex flex-col font-sans relative">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/70 via-sky-50/50 to-indigo-50/40 flex font-sans relative text-slate-800">
       {/* Background subtle light ambient effects */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-sky-200/25 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-amber-100/35 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="fixed top-1/2 right-10 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-sky-200/20 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-amber-100/30 rounded-full blur-3xl pointer-events-none -z-10" />
 
-      {/* Top Header */}
-      <Header
+      {/* Modern Sidebar Navigation on the Left */}
+      <Sidebar
         currentTab={currentTab}
         onSelectTab={(tab) => {
           if (tab === 'input' && !caseToEdit) {
@@ -250,18 +252,41 @@ export default function App() {
           }
           setCurrentTab(tab);
         }}
-        isAnonymized={isAnonymized}
-        onToggleAnonymized={handleToggleAnonymized}
-        onOpenNewCase={handleOpenNewCase}
+        caseCount={cases.length}
+        pegawaiCount={pegawaiList.length}
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapsed={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
 
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-lg shadow-lg border border-slate-700 animate-fade-in flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
+      {/* Main Content Area on the Right */}
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen">
+        {/* Top Header Bar */}
+        <Header
+          currentTab={currentTab}
+          onSelectTab={(tab) => {
+            if (tab === 'input' && !caseToEdit) {
+              setCaseToEdit(null);
+            }
+            if (tab === 'register') {
+              setOfficerFilterQuery('');
+            }
+            setCurrentTab(tab);
+          }}
+          isAnonymized={isAnonymized}
+          onToggleAnonymized={handleToggleAnonymized}
+          onOpenNewCase={handleOpenNewCase}
+          onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+        />
+
+        {/* Toast Notification */}
+        {toastMessage && (
+          <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white text-xs px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 animate-fade-in flex items-center gap-2.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
 
       {/* Main Container */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
@@ -365,28 +390,29 @@ export default function App() {
         />
       )}
 
-      {/* Quiet Government Footer */}
-      <footer className="mt-auto border-t border-slate-200 bg-white py-6 text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-800">
-              SIPELKA Kabupaten Nagekeo
-            </span>
-            <span>·</span>
-            <span className="font-medium text-blue-900">Dinas PMDP3A</span>
-            <span>·</span>
-            <span>Mbay, Flores - NTT</span>
-          </div>
+        {/* Quiet Government Footer */}
+        <footer className="mt-auto border-t border-slate-200 bg-white py-6 text-xs text-slate-500">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-slate-800">
+                SIPELKA Kabupaten Nagekeo
+              </span>
+              <span>·</span>
+              <span className="font-medium text-blue-900">Dinas PMDP3A</span>
+              <span>·</span>
+              <span>Mbay, Flores - NTT</span>
+            </div>
 
-          <div className="flex items-center gap-4 text-slate-500">
-            <span>UPTD PPA: 0812-3789-9821</span>
-            <span>·</span>
-            <span>Unit PPA Polres: 0821-4567-8910</span>
-            <span>·</span>
-            <span>SAPA 129</span>
+            <div className="flex items-center gap-4 text-slate-500">
+              <span>UPTD PPA: 0812-3789-9821</span>
+              <span>·</span>
+              <span>Unit PPA Polres: 0821-4567-8910</span>
+              <span>·</span>
+              <span>SAPA 129</span>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }
