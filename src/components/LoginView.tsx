@@ -220,12 +220,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
       {/* Footer Credentials & Confidentiality Guarantee */}
       <footer className="max-w-4xl w-full mx-auto py-3 text-center text-xs text-slate-400 relative z-10 border-t border-white/10 space-y-1">
-        <div className="flex flex-wrap items-center justify-center gap-3 text-slate-300 font-medium text-[11px]">
-          <span>UPTD PPA: 0812-3789-9821</span>
-          <span>·</span>
-          <span>Unit PPA Polres Nagekeo: 0821-4567-8910</span>
-          <span>·</span>
-          <span>Layanan SAPA 129</span>
+        <div className="flex flex-wrap items-center justify-center gap-2 text-slate-300 font-medium text-[11px]">
+          <span>Layanan Sahabat Perempuan & Anak (SAPA 129)</span>
         </div>
         <p className="text-[10px] text-slate-400">
           © 2026 Bidang Pemberdayaan Perempuan & Perlindungan Anak - Dinas PMDP3A Kabupaten Nagekeo, Nusa Tenggara Timur.

@@ -65,40 +65,30 @@ export const JEJARING_LAYANAN_NAGEKEO = [
     kategori: 'Instansi Utama & Perlindungan',
     nama: 'Bidang PPPA & UPTD PPA Dinas PMDP3A Kab. Nagekeo',
     alamat: 'Kompleks Civic Center Mbay, Jl. Soekarno-Hatta, Kec. Aesesa, Kab. Nagekeo, NTT',
-    telepon: '0812-3789-9821 / (0386) 21102',
-    email: 'bidangpppanagekeo@gmail.com',
     layanan: 'Penerimaan aduan, asesmen korban, pendampingan terpadu, rujukan, rumah aman sementara.'
   },
   {
     kategori: 'Penegakan Hukum & Keamanan',
     nama: 'Unit PPA Satuan Reskrim Kepolisian Resor (Polres) Nagekeo',
     alamat: 'Jl. Trans Flores, Mbay, Kec. Aesesa, Kab. Nagekeo, NTT',
-    telepon: '0821-4567-8910 / Call Center 110',
-    email: 'satreskrim.polresnagekeo@polri.go.id',
     layanan: 'Penerimaan Laporan Polisi (LP), penyidikan tindak pidana perempuan & anak, pengamanan darurat, diversi anak.'
   },
   {
     kategori: 'Layanan Medis & Forensik',
     nama: 'RSUD Aeramo Kabupaten Nagekeo',
     alamat: 'Jl. Aeramo - Marapokot, Kel. Aeramo, Kec. Aesesa, Kab. Nagekeo',
-    telepon: '(0386) 222345 / IGD 24 Jam: 0813-5333-8822',
-    email: 'rsud.aeramo@nagekeokab.go.id',
     layanan: 'Pemeriksaan medis darurat, pengobatan cedera, Visum et Repertum (VeR), rujukan psikiatri.'
   },
   {
     kategori: 'Layanan Medis Primer',
     nama: 'Puskesmas Danga & 6 Puskesmas se-Kabupaten Nagekeo',
     alamat: 'Tersebar di 7 Kecamatan (Danga, Boawae, Mauponggo, Nangaroro, Keo Tengah, Wolowae, Aesesa Sel.)',
-    telepon: 'Hotline Dinkes Nagekeo: 0813-3921-1200',
-    email: 'dinkes@nagekeokab.go.id',
     layanan: 'Pertolongan pertama medis di tingkat kecamatan, koordinasi rujukan ke RSUD Aeramo.'
   },
   {
     kategori: 'Pusat Layanan Nasional',
     nama: 'Layanan Sahabat Perempuan dan Anak (SAPA 129 KemenPPPA)',
     alamat: 'Kementerian Pemberdayaan Perempuan dan Perlindungan Anak RI, Jakarta',
-    telepon: 'Hotline 129 (Bebas Pulsa) / WhatsApp: 08111-129-129',
-    email: 'layanan@kemenpppa.go.id',
     layanan: 'Penerimaan aduan 24 jam skala nasional, koordinasi lintas daerah kasus TPPO & darurat.'
   }
 ];

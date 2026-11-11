@@ -436,12 +436,8 @@ export default function App() {
               <span>Mbay, Flores - NTT</span>
             </div>
 
-            <div className="flex items-center gap-4 text-slate-500">
-              <span>UPTD PPA: 0812-3789-9821</span>
-              <span>·</span>
-              <span>Unit PPA Polres: 0821-4567-8910</span>
-              <span>·</span>
-              <span>SAPA 129</span>
+            <div className="flex items-center gap-2 text-slate-500">
+              <span>Layanan Sahabat Perempuan & Anak (SAPA 129)</span>
             </div>
           </div>
         </footer>

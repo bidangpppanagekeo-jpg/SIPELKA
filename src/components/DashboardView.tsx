@@ -455,16 +455,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-blue-900 via-blue-800 to-sky-900 text-white border-2 border-amber-400/40 shadow-sm space-y-2">
             <div className="flex items-center gap-2 text-xs font-black text-amber-300">
               <PhoneCall className="w-4 h-4 text-amber-300" />
-              <span>Kontak Cepat Layanan PPPA Kabupaten Nagekeo</span>
+              <span>Pusat Layanan Terpadu PPPA Kabupaten Nagekeo</span>
             </div>
             <div className="text-xs text-sky-100 space-y-1">
               <div className="flex items-center justify-between">
-                <span>UPTD PPA Dinas PMDP3A:</span>
-                <strong className="font-mono text-white">0812-3789-9821</strong>
+                <span>Dinas PMDP3A Kabupaten Nagekeo:</span>
+                <strong className="text-white">Kompleks Civic Center Mbay</strong>
               </div>
               <div className="flex items-center justify-between">
-                <span>Unit PPA Polres Nagekeo:</span>
-                <strong className="font-mono text-white">0821-4567-8910 (Call 110)</strong>
+                <span>Layanan Hotline Nasional:</span>
+                <strong className="font-mono text-white">SAPA 129</strong>
               </div>
             </div>
           </div>

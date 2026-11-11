@@ -7,9 +7,7 @@ import {
   ShieldCheck,
   ChevronRight,
   BookOpen,
-  LogOut,
-  Share2,
-  Check
+  LogOut
 } from 'lucide-react';
 import { AppTab } from './Sidebar';
 
@@ -75,21 +73,6 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleMobileSidebar,
   onLogout
 }) => {
-  const [copiedLink, setCopiedLink] = React.useState(false);
-
-  const handleShareLink = () => {
-    const url = window.location.href.includes('localhost')
-      ? 'https://ais-pre-r5uv2pp4ysaj6ryuz5mmih-368993699692.asia-northeast1.run.app'
-      : window.location.href.split('?')[0];
-
-    navigator.clipboard.writeText(url).then(() => {
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2500);
-    }).catch(() => {
-      setCopiedLink(true);
-    });
-  };
-
   const currentMeta = TAB_META[currentTab] || {
     title: 'SIPELKA Nagekeo',
     subtitle: 'Dinas PMDP3A Kabupaten Nagekeo',
@@ -169,26 +152,6 @@ export const Header: React.FC<HeaderProps> = ({
               Keamanan Aktif
             </span>
           </div>
-
-          {/* Share Link Button */}
-          <button
-            type="button"
-            onClick={handleShareLink}
-            title="Salin tautan aplikasi SIPELKA untuk dibagikan ke email / rekan kerja lain"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-sky-800 bg-sky-50 hover:bg-sky-100 border border-sky-200 rounded-xl transition-all shadow-2xs"
-          >
-            {copiedLink ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-700 font-bold">Link Disalin!</span>
-              </>
-            ) : (
-              <>
-                <Share2 className="w-3.5 h-3.5 text-sky-600" />
-                <span className="hidden md:inline">Bagikan Link</span>
-              </>
-            )}
-          </button>
 
           {/* Guide Quick Button */}
           {currentTab !== 'panduan' && (

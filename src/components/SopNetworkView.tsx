@@ -14,7 +14,6 @@ import {
   HeartHandshake,
   CheckCircle2,
   ExternalLink,
-  Mail,
   Award
 } from 'lucide-react';
 
@@ -226,7 +225,7 @@ export const SopNetworkView: React.FC = () => {
               Direktori Jejaring Layanan Rujukan Terpadu Kabupaten Nagekeo
             </h2>
             <p className="text-xs text-slate-600 mt-0.5">
-              Kontak dan lokasi instansi mitra penanganan cepat darurat di Mbay dan sekitarnya
+              Daftar instansi dan lokasi mitra penanganan rujukan di Mbay dan sekitarnya
             </p>
           </div>
           <span className="self-start sm:self-auto text-[11px] font-bold text-emerald-800 bg-emerald-100/80 px-3 py-1 rounded-full border border-emerald-200">
@@ -245,10 +244,6 @@ export const SopNetworkView: React.FC = () => {
                   <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${getKategoriBadgeColor(j.kategori)}`}>
                     {j.kategori}
                   </span>
-                  <div className="flex items-center gap-1.5 font-mono font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                    <Phone className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{j.telepon}</span>
-                  </div>
                 </div>
 
                 <h3 className="text-sm font-bold text-slate-900">{j.nama}</h3>
@@ -257,13 +252,6 @@ export const SopNetworkView: React.FC = () => {
                   <MapPin className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
                   <span className="text-[11px] leading-relaxed">{j.alamat}</span>
                 </div>
-
-                {j.email && (
-                  <div className="flex items-center gap-1.5 text-slate-500 text-[11px]">
-                    <Mail className="w-3 h-3 text-slate-400 shrink-0" />
-                    <span className="font-mono">{j.email}</span>
-                  </div>
-                )}
               </div>
 
               <div className="mt-2 text-slate-600 bg-blue-50/50 p-3 rounded-xl border border-blue-100/80 leading-relaxed text-[11px]">

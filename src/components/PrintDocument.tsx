@@ -66,7 +66,7 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
               Kompleks Perkantoran Civic Center Mbay, Jl. Soekarno-Hatta, Kec. Aesesa, Kab. Nagekeo, Nusa Tenggara Timur
             </p>
             <p className="text-xs text-slate-600 font-sans">
-              Email: bidangpppanagekeo@gmail.com | Layanan Terpadu PPA Nagekeo: 0812-3789-9821
+              Email: bidangpppanagekeo@gmail.com | Mbay, Kabupaten Nagekeo, NTT
             </p>
           </div>
         </div>
