@@ -319,7 +319,7 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
         <div className="pt-3 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
           <div className="p-3 bg-white/10 rounded-xl border border-white/10">
             <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
-              Pejabat Pengesah (Kepala Bidang PPPA)
+              {activeKabid?.jabatan || 'Kepala Bidang PPPA'}
             </span>
             <div className="font-bold text-white mt-1">
               {activeKabid?.nama || 'Dra. Bernadetha M. Soa, M.Si'}
@@ -331,7 +331,7 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
 
           <div className="p-3 bg-white/10 rounded-xl border border-white/10">
             <span className="text-[10px] font-bold text-sky-300 uppercase tracking-wider block">
-              Pengelola Data & Operator SIMFONI PPA
+              {activeAdmin?.jabatan || 'Pengelola Data SIMFONI PPA'}
             </span>
             <div className="font-bold text-white mt-1">
               {activeAdmin?.nama || 'Yohanes Sina, S.Sos'}

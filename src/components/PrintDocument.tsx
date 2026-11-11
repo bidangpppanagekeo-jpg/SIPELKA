@@ -241,7 +241,7 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
             </div>
             <div>
               <p>Mbay, {currentDate}</p>
-              <p className="mb-14">Petugas Penerima Laporan Bidang PPPA,</p>
+              <p className="mb-14">{activePendamping?.jabatan || 'Petugas Penerima Laporan Bidang PPPA'},</p>
               <p className="font-bold underline">
                 ({activePendamping?.nama || kasus.petugasPendamping || 'Katarina Ose Wea, S.Tr.Sos'})
               </p>
@@ -303,7 +303,7 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
           <div className="mt-8 flex justify-between text-xs text-center font-sans">
             <div>
               <p>Mengetahui,</p>
-              <p className="mb-14">Kepala Bidang Pemberdayaan Perempuan dan Perlindungan Anak</p>
+              <p className="mb-14">{activeKabid?.jabatan || 'Kepala Bidang Pemberdayaan Perempuan dan Perlindungan Anak'}</p>
               <p className="font-bold underline">
                 {activeKabid?.nama || 'Dra. Bernadetha M. Soa, M.Si'}
               </p>
@@ -313,7 +313,7 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
             </div>
             <div>
               <p>Mbay, {currentDate}</p>
-              <p className="mb-14">Pengelola Data SIMFONI PPA Nagekeo,</p>
+              <p className="mb-14">{activeAdmin?.jabatan || 'Pengelola Data SIMFONI PPA Nagekeo'},</p>
               <p className="font-bold underline">
                 {activeAdmin?.nama || 'Yohanes Sina, S.Sos'}
               </p>
