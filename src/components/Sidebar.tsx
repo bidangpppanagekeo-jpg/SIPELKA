@@ -297,12 +297,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="space-y-3">
               {/* Officer Account Card */}
               <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-900 font-bold flex items-center justify-center text-xs shrink-0 border border-blue-200">
-                  ADM
+                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-900 font-bold flex items-center justify-center text-xs shrink-0 border border-blue-200 uppercase">
+                  {currentUser?.nama
+                    ? currentUser.nama
+                        .split(' ')
+                        .filter(Boolean)
+                        .slice(0, 2)
+                        .map((n) => n[0])
+                        .join('')
+                    : 'OP'}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-[11px] font-bold text-slate-800 truncate">
-                    {currentUser?.nama || 'Administrator Bidang PPPA'}
+                    {currentUser?.nama || 'Petugas SIPELKA'}
                   </div>
                   <div className="text-[10px] text-slate-500 truncate font-mono">
                     {currentUser?.email || 'bidangpppanagekeo@gmail.com'}

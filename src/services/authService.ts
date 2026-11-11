@@ -31,11 +31,10 @@ interface LockoutState {
 }
 
 /**
- * Mendapatkan status sesi login saat ini
+ * Mendapatkan status sesi login saat ini (Hanya mengizinkan sesi Admin resmi)
  */
 export function getAuthSession(): AuthSession {
   try {
-    // Periksa localStorage (remember me) terlebih dahulu, kemudian sessionStorage
     const stored =
       localStorage.getItem(AUTH_STORAGE_KEY) ||
       sessionStorage.getItem(AUTH_STORAGE_KEY);
@@ -46,8 +45,19 @@ export function getAuthSession(): AuthSession {
 
     const session: AuthSession = JSON.parse(stored);
     if (session && session.isAuthenticated && session.user) {
-      return session;
+      // Validasi bahwa sesi adalah admin resmi Nagekeo
+      const validIdentities = ['admin', 'bidangpppanagekeo@gmail.com'];
+      const userIdent = (session.user.username || session.user.email || '').toLowerCase();
+      const isOfficial = validIdentities.some(id => userIdent.includes(id)) || session.user.role === 'superadmin';
+
+      if (isOfficial) {
+        return session;
+      }
     }
+    
+    // Hapus sesi tidak sah jika ada sisa versi lama
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
     return { isAuthenticated: false, user: null };
   } catch (err) {
     console.error('Gagal membaca sesi otentikasi:', err);
@@ -90,41 +100,66 @@ export function checkLockout(): { isLocked: boolean; remainingSeconds: number } 
 }
 
 /**
- * Memproses Login Admin SIPELKA
+ * Memproses Login SIPELKA
+ * HANYA BISA DIAKSES OLEH ADMINISTRATOR RESMI DENGAN EMAIL DINAS:
+ * Username: admin (atau email dinas: bidangpppanagekeo@gmail.com)
+ * Password: sipelka2026
  */
 export function loginAdmin(
-  usernameInput: string,
-  passwordInput: string,
+  usernameOrEmailInput: string,
+  passwordInput: string = '',
   rememberMe: boolean = true
 ): { success: boolean; message: string; user?: AdminUser } {
-  // 1. Periksa Lockout Brute-Force
+  // 1. Sanitasi input dari serangan SQL Injection / Script Injection
+  const cleanInput = sanitizeInput(usernameOrEmailInput || '').trim();
+  const cleanPassword = (passwordInput || '').trim();
+
+  if (!cleanInput) {
+    return {
+      success: false,
+      message: 'Silakan masukkan Username (admin) atau Email Dinas.'
+    };
+  }
+
+  if (!cleanPassword) {
+    return {
+      success: false,
+      message: 'Silakan masukkan Kata Sandi administrator.'
+    };
+  }
+
+  // 2. Proteksi Brute-Force
   const lockout = checkLockout();
   if (lockout.isLocked) {
     return {
       success: false,
-      message: `Terlalu banyak percobaan gagal. Akses ditangguhkan sementara selama ${lockout.remainingSeconds} detik demi keamanan sistem.`
+      message: `Terlalu banyak percobaan login gagal. Mohon tunggu ${lockout.remainingSeconds} detik lagi demi keamanan.`
     };
   }
 
-  // 2. Sanitasi input dari serangan SQL Injection / Script Injection
-  const cleanUsername = sanitizeInput(usernameInput || '').toLowerCase().trim();
-  const cleanPassword = (passwordInput || '').trim();
+  const normalizedInput = cleanInput.toLowerCase();
+  const isAuthorizedIdentity =
+    normalizedInput === 'admin' ||
+    normalizedInput === 'bidangpppanagekeo@gmail.com' ||
+    normalizedInput === 'admin.pppa' ||
+    normalizedInput === 'adminpppa';
 
-  if (!cleanUsername || !cleanPassword) {
+  if (!isAuthorizedIdentity) {
+    // Catat percobaan gagal
+    const state = getLockoutState();
+    const newAttempts = state.attempts + 1;
+    saveLockoutState({
+      attempts: newAttempts,
+      lockoutUntil: newAttempts >= 5 ? Date.now() + 60000 : 0
+    });
+
     return {
       success: false,
-      message: 'Username dan kata sandi wajib diisi.'
+      message: 'Akses ditolak. Username atau Email tidak terdaftar sebagai Administrator Dinas PMDP3A.'
     };
   }
 
-  // 3. Validasi Username (mendukung 'admin', 'admin.pppa', atau email resmi)
-  const isValidUsername =
-    cleanUsername === 'admin' ||
-    cleanUsername === 'admin.pppa' ||
-    cleanUsername === 'adminpppa' ||
-    cleanUsername === 'bidangpppanagekeo@gmail.com';
-
-  // 4. Validasi Kata Sandi
+  // 3. Verifikasi Kata Sandi
   let customCredentials: StoredCredentials | null = null;
   try {
     const rawCreds = localStorage.getItem(CREDENTIALS_KEY);
@@ -136,68 +171,59 @@ export function loginAdmin(
   }
 
   const isValidPassword =
-    (customCredentials && customCredentials.passwordHash === cleanPassword) ||
     cleanPassword === DEFAULT_PASSWORD ||
-    ALTERNATIVE_PASSWORDS.includes(cleanPassword);
+    ALTERNATIVE_PASSWORDS.includes(cleanPassword) ||
+    (customCredentials && customCredentials.passwordHash === cleanPassword);
 
-  if (isValidUsername && isValidPassword) {
-    // Reset failed attempts
-    saveLockoutState({ attempts: 0, lockoutUntil: 0 });
-
-    const sessionUser: AdminUser = {
-      ...DEFAULT_ADMIN,
-      lastLogin: new Date().toLocaleString('id-ID', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    };
-
-    const session: AuthSession = {
-      isAuthenticated: true,
-      user: sessionUser,
-      token: 'SIPELKA-TOKEN-' + Math.random().toString(36).substring(2) + '-' + Date.now(),
-      loginTime: new Date().toISOString()
-    };
-
-    // Simpan ke storage sesuai pilihan remember me
-    if (rememberMe) {
-      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
-      sessionStorage.removeItem(AUTH_STORAGE_KEY);
-    } else {
-      sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-    }
-
-    return {
-      success: true,
-      message: 'Login berhasil. Selamat datang di SIPELKA Kabupaten Nagekeo.',
-      user: sessionUser
-    };
-  } else {
-    // Tingkatkan hitungan gagal
+  if (!isValidPassword) {
     const state = getLockoutState();
     const newAttempts = state.attempts + 1;
-    let lockoutUntil = 0;
+    saveLockoutState({
+      attempts: newAttempts,
+      lockoutUntil: newAttempts >= 5 ? Date.now() + 60000 : 0
+    });
 
-    if (newAttempts >= 5) {
-      // Kunci selama 30 detik jika gagal 5 kali berturut-turut
-      lockoutUntil = Date.now() + 30 * 1000;
-    }
-
-    saveLockoutState({ attempts: newAttempts, lockoutUntil });
-
-    const remainingAttempts = Math.max(0, 5 - newAttempts);
     return {
       success: false,
-      message:
-        remainingAttempts > 0
-          ? `Username atau kata sandi tidak valid. Sisa percobaan: ${remainingAttempts} kali.`
-          : 'Terlalu banyak percobaan gagal. Akses ditangguhkan selama 30 detik untuk perlindungan keamanan.'
+      message: 'Kata sandi salah! Pastikan memasukkan kata sandi administrator yang sesuai.'
     };
   }
+
+  // 4. Login Berhasil - Buat sesi Administrator Dinas PPPA
+  saveLockoutState({ attempts: 0, lockoutUntil: 0 });
+
+  const sessionUser: AdminUser = {
+    ...DEFAULT_ADMIN,
+    email: normalizedInput === 'admin' ? DEFAULT_ADMIN.email : normalizedInput,
+    lastLogin: new Date().toLocaleString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  };
+
+  const session: AuthSession = {
+    isAuthenticated: true,
+    user: sessionUser,
+    token: 'SIPELKA-TOKEN-' + Math.random().toString(36).substring(2) + '-' + Date.now(),
+    loginTime: new Date().toISOString()
+  };
+
+  if (rememberMe) {
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
+  } else {
+    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+  }
+
+  return {
+    success: true,
+    message: `Login berhasil! Selamat datang, ${sessionUser.nama}.`,
+    user: sessionUser
+  };
 }
 
 /**

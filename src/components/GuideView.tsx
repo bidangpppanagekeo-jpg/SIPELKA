@@ -200,8 +200,8 @@ export const GuideView: React.FC<GuideViewProps> = ({
       a: 'Aplikasi SIPELKA dilengkapi fitur Cyber Security Shield aktif untuk melindungi kerahasiaan identitas korban dari upaya peretasan, scraping masal, atau pencurian data melalui inspect element peramban.'
     },
     {
-      q: 'Bagaimana keamanan akun login dan cara keluar (logout) dari aplikasi?',
-      a: 'Aplikasi SIPELKA dilindungi otentikasi ketat sehingga hanya Administrator Bidang PPPA yang memiliki kredensial resmi yang dapat masuk ke dalam sistem. Setelah selesai bekerja, selalu klik tombol "Keluar Aplikasi (Logout)" pada menu samping atau tombol pintu keluar di bilah atas untuk menutup sesi aman.'
+      q: 'Siapa saja yang memiliki hak akses login ke dalam aplikasi SIPELKA?',
+      a: 'Aplikasi SIPELKA dilindungi dan dibatasi khusus untuk Administrator resmi Bidang PPPA Dinas PMDP3A Kabupaten Nagekeo menggunakan Username: admin (atau Email Dinas: bidangpppanagekeo@gmail.com) dan Kata Sandi: sipelka2026. Pembatasan ini diterapkan secara ketat demi menjamin keamanan dan kerahasiaan identitas korban, rekam medis visum, serta berkas hukum perkara.'
     }
   ];
 
