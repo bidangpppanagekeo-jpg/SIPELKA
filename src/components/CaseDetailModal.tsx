@@ -47,6 +47,22 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   const [activeTab, setActiveTab] = useState<'kronologi' | 'identitas' | 'riwayat'>('kronologi');
   const [showAddNoteForm, setShowAddNoteForm] = useState(false);
 
+  const activeKabid =
+    (kasus.kepalaBidangId ? pegawaiList.find((p) => p.id === kasus.kepalaBidangId) : undefined) ||
+    pegawaiList.find((p) => p.kategori === 'Kepala Bidang' && p.status === 'Aktif') ||
+    pegawaiList.find((p) => p.kategori === 'Kepala Bidang') ||
+    pegawaiList.find((p) => p.nama === kasus.kepalaBidang);
+
+  const activeAdmin =
+    (kasus.adminSipelkaId ? pegawaiList.find((p) => p.id === kasus.adminSipelkaId) : undefined) ||
+    pegawaiList.find((p) => p.kategori === 'Admin SIPELKA' && p.status === 'Aktif') ||
+    pegawaiList.find((p) => p.kategori === 'Admin SIPELKA') ||
+    pegawaiList.find((p) => p.nama === kasus.adminSipelka);
+
+  const activePendamping =
+    (kasus.petugasPendampingId ? pegawaiList.find((p) => p.id === kasus.petugasPendampingId) : undefined) ||
+    pegawaiList.find((p) => p.nama === kasus.petugasPendamping);
+
   // Form state for adding progress note
   const [noteDate, setNoteDate] = useState(new Date().toISOString().slice(0, 10));
   const [noteOfficer, setNoteOfficer] = useState(kasus.petugasPendamping || 'Staf PPPA');
@@ -213,8 +229,8 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                       <Shield className="w-3 h-3" />
                       Admin Pencatat SIPELKA
                     </span>
-                    <div className="font-semibold text-slate-900 mt-1">{kasus.adminSipelka || 'Yohanes Sina, S.Sos'}</div>
-                    <div className="text-[10px] text-slate-500">Dinas PMDP3A Kab. Nagekeo</div>
+                    <div className="font-semibold text-slate-900 mt-1">{activeAdmin?.nama || kasus.adminSipelka || 'Yohanes Sina, S.Sos'}</div>
+                    <div className="text-[10px] font-mono text-slate-500">NIP. {activeAdmin?.nipOrIdentitas || '19880914 201101 1 008'}</div>
                   </div>
 
                   <div className="p-2.5 bg-white rounded-lg border border-slate-200">
@@ -222,8 +238,8 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                       <UserCheck className="w-3 h-3" />
                       Pendamping Utama PPPA
                     </span>
-                    <div className="font-semibold text-slate-900 mt-1">{kasus.petugasPendamping}</div>
-                    <div className="text-[10px] text-slate-500">UPTD PPA Bidang PPPA</div>
+                    <div className="font-semibold text-slate-900 mt-1">{activePendamping?.nama || kasus.petugasPendamping}</div>
+                    <div className="text-[10px] font-mono text-slate-500">{activePendamping?.nipOrIdentitas ? `NIP. ${activePendamping.nipOrIdentitas}` : 'UPTD PPA Bidang PPPA'}</div>
                   </div>
 
                   <div className="p-2.5 bg-white rounded-lg border border-slate-200">
@@ -249,8 +265,8 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                       <Award className="w-3 h-3" />
                       Kepala Bidang PPPA (Pengesah)
                     </span>
-                    <div className="font-semibold text-slate-900 mt-1">{kasus.kepalaBidang || 'Dra. Bernadetha M. Soa, M.Si'}</div>
-                    <div className="text-[10px] text-slate-500">Pejabat Pengesah Berita Acara & Laporan Resmi</div>
+                    <div className="font-semibold text-slate-900 mt-1">{activeKabid?.nama || kasus.kepalaBidang || 'Dra. Bernadetha M. Soa, M.Si'}</div>
+                    <div className="text-[10px] font-mono text-slate-500">NIP. {activeKabid?.nipOrIdentitas || '19740512 200212 2 004'}</div>
                   </div>
                 </div>
               </div>
