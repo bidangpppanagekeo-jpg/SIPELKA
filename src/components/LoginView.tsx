@@ -24,7 +24,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
   onLoginSuccess,
   showToast
 }) => {
-  const [usernameOrEmail, setUsernameOrEmail] = useState<string>('admin');
+  const [usernameOrEmail, setUsernameOrEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(true);
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -47,20 +47,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
         setErrorMessage(result.message);
       }
     }, 250);
-  };
-
-  const handleFillAdminCredentials = () => {
-    setUsernameOrEmail('admin');
-    setPassword('sipelka2026');
-    setErrorMessage(null);
-    showToast('Kredensial administrator telah terisi.');
-  };
-
-  const handleFillEmailDinas = () => {
-    setUsernameOrEmail('bidangpppanagekeo@gmail.com');
-    setPassword('sipelka2026');
-    setErrorMessage(null);
-    showToast('Kredensial email dinas telah terisi.');
   };
 
   return (
@@ -147,13 +133,10 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   disabled={isLoading}
                   value={usernameOrEmail}
                   onChange={(e) => setUsernameOrEmail(e.target.value)}
-                  placeholder="admin atau email dinas"
+                  placeholder="Masukkan username atau email dinas"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all placeholder:text-slate-400 font-medium"
                 />
               </div>
-              <p className="text-[10px] text-slate-500 mt-1">
-                Gunakan username <span className="font-semibold text-slate-700">admin</span> atau email dinas <span className="font-semibold text-slate-700">bidangpppanagekeo@gmail.com</span>
-              </p>
             </div>
 
             {/* Password Field */}
@@ -173,7 +156,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   disabled={isLoading}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Masukkan kata sandi (sipelka2026)"
+                  placeholder="Masukkan kata sandi"
                   className="w-full pl-10 pr-11 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all placeholder:text-slate-400 font-mono"
                 />
                 <button
@@ -227,41 +210,10 @@ export const LoginView: React.FC<LoginViewProps> = ({
             </button>
           </form>
 
-          {/* Preset Admin Credentials Helper */}
-          <div className="mt-5 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 font-bold text-slate-800">
-                <ShieldAlert className="w-4 h-4 text-amber-600" />
-                <span>Kredensial Akses Dinas</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleFillAdminCredentials}
-                  className="text-[11px] font-bold text-blue-700 hover:text-blue-900 hover:underline"
-                  title="Isi otomatis user: admin & password: sipelka2026"
-                >
-                  Isi Otomatis
-                </button>
-              </div>
-            </div>
-            <div className="bg-white p-2.5 rounded-xl border border-slate-200 text-[11px] font-mono text-slate-700 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-slate-500 font-sans">Username:</span>
-                <span className="font-bold text-blue-900">admin</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-500 font-sans">Email Dinas:</span>
-                <span className="font-bold text-slate-800">bidangpppanagekeo@gmail.com</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-500 font-sans">Password:</span>
-                <span className="font-bold text-amber-700">sipelka2026</span>
-              </div>
-            </div>
-            <p className="text-[10px] text-slate-500 leading-relaxed">
-              Demi keamanan data identitas korban dan dokumen hukum perkara, hanya Administrator resmi Bidang PPPA Dinas PMDP3A Kabupaten Nagekeo yang memiliki hak akses ke sistem ini.
-            </p>
+          {/* Confidentiality Notice */}
+          <div className="mt-6 pt-5 border-t border-slate-200/80 flex items-center justify-center gap-2 text-slate-500 text-[11px] text-center">
+            <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>Sistem Informasi ini dilindungi dan hanya untuk pihak berwenang.</span>
           </div>
         </div>
       </main>
