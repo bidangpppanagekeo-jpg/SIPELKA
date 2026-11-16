@@ -268,29 +268,29 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* 1. Colorful Official Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white p-6 sm:p-7 rounded-3xl border border-blue-200 shadow-md relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
+      {/* 1. Colorful Official Header Banner (Biru Muda) */}
+      <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 p-6 sm:p-7 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-cyan-400 to-amber-400" />
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
               <span>Formulir Asesmen Terpadu SIMFONI PPA</span>
               <span>·</span>
-              <span className="text-white">Dinas PMDP3A Nagekeo</span>
+              <span className="text-blue-950">Dinas PMDP3A Nagekeo</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-sky-950 tracking-tight">
               {isEditing ? `Ubah Berkas Kasus: ${formData.nomorRegistrasi}` : 'Formulir Penerimaan & Registrasi Kasus PPPA'}
             </h1>
-            <p className="text-xs sm:text-sm text-sky-100">
+            <p className="text-xs sm:text-sm text-slate-700 font-medium">
               Pencatatan data pengaduan kekerasan perempuan dan anak sesuai standar Kementerian PPPA Republik Indonesia.
             </p>
           </div>
 
           <button
             onClick={onCancel}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-blue-950 bg-white hover:bg-sky-50 rounded-xl transition-all shadow-sm shrink-0 self-start sm:self-center"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-sky-950 bg-white hover:bg-sky-50 border border-sky-300 rounded-xl transition-all shadow-xs shrink-0 self-start sm:self-center"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali ke Register</span>
@@ -305,18 +305,18 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
         </div>
       )}
 
-      {/* Quick Guide & Instructions Alert */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-sky-900 rounded-2xl p-4 sm:p-5 text-white shadow-sm border border-blue-200 space-y-3">
+      {/* Quick Guide & Instructions Alert (Biru Muda) */}
+      <div className="bg-gradient-to-r from-sky-100 via-blue-100 to-cyan-100 rounded-2xl p-4 sm:p-5 text-sky-950 shadow-xs border border-sky-300 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shrink-0 shadow-xs">
               <BookOpen className="w-5 h-5 text-slate-950" />
             </div>
             <div>
-              <h3 className="text-xs sm:text-sm font-black text-white flex items-center gap-2">
+              <h3 className="text-xs sm:text-sm font-black text-sky-950 flex items-center gap-2">
                 <span>Panduan Cepat Pengisian Berkas Kasus (5 Bagian)</span>
               </h3>
-              <p className="text-[11px] text-sky-100">
+              <p className="text-[11px] text-slate-700 font-medium">
                 Isi data secara berurutan: Pelapor &rarr; Korban &rarr; Pelaku &rarr; Kronologi/Asesmen &rarr; Tim Petugas
               </p>
             </div>
@@ -326,9 +326,9 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
             <button
               type="button"
               onClick={() => setShowQuickGuide(!showQuickGuide)}
-              className="px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-bold rounded-lg border border-white/30 transition-colors flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-white/90 hover:bg-white text-sky-950 text-xs font-bold rounded-lg border border-sky-300 transition-colors flex items-center gap-1.5 shadow-2xs"
             >
-              <HelpCircle className="w-3.5 h-3.5 text-amber-300" />
+              <HelpCircle className="w-3.5 h-3.5 text-sky-700" />
               <span>{showQuickGuide ? 'Tutup Tips' : 'Lihat Tips Pengisian'}</span>
               {showQuickGuide ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>

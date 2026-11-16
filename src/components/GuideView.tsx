@@ -207,23 +207,23 @@ export const GuideView: React.FC<GuideViewProps> = ({
 
   return (
     <div className="space-y-8 pb-10">
-      {/* 1. Colorful Official Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white p-6 sm:p-8 rounded-3xl border border-blue-200 shadow-md relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-96 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
+      {/* 1. Colorful Official Header Banner (Biru Muda) */}
+      <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 p-6 sm:p-8 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-96 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-cyan-400 to-amber-400" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
               <span>Buku Panduan & Petunjuk Teknis Operasional</span>
               <span>·</span>
-              <span className="text-white">Dinas PMDP3A Nagekeo</span>
+              <span className="text-blue-950">Dinas PMDP3A Nagekeo</span>
             </div>
-            <h1 className="text-xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
-              <BookOpen className="w-7 h-7 text-amber-300" />
+            <h1 className="text-xl sm:text-3xl font-black text-sky-950 tracking-tight flex items-center gap-3">
+              <BookOpen className="w-7 h-7 text-sky-700" />
               Panduan Penginputan & Pemakaian Aplikasi SIPELKA
             </h1>
-            <p className="text-xs sm:text-sm text-sky-100 max-w-3xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-700 font-medium max-w-3xl leading-relaxed">
               Panduan praktis langkah demi langkah pencatatan data pengaduan kasus kekerasan perempuan dan anak, manajemen buku register, sinkronisasi Google Sheet, pencetakan berita acara, serta protokol keamanan data.
             </p>
           </div>
@@ -241,14 +241,14 @@ export const GuideView: React.FC<GuideViewProps> = ({
       </div>
 
       {/* 2. Quick Navigation Badges & Search Filter */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-blue-200/90 shadow-xs space-y-4">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border-2 border-sky-200/90 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none text-xs">
             <button
               onClick={() => setActiveCategory('semua')}
               className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
                 activeCategory === 'semua'
-                  ? 'bg-blue-900 text-white shadow-xs'
+                  ? 'bg-sky-500 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -258,7 +258,7 @@ export const GuideView: React.FC<GuideViewProps> = ({
               onClick={() => setActiveCategory('input')}
               className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
                 activeCategory === 'input'
-                  ? 'bg-blue-900 text-white shadow-xs'
+                  ? 'bg-sky-500 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -268,7 +268,7 @@ export const GuideView: React.FC<GuideViewProps> = ({
               onClick={() => setActiveCategory('register')}
               className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
                 activeCategory === 'register'
-                  ? 'bg-blue-900 text-white shadow-xs'
+                  ? 'bg-sky-500 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -278,7 +278,7 @@ export const GuideView: React.FC<GuideViewProps> = ({
               onClick={() => setActiveCategory('pegawai')}
               className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
                 activeCategory === 'pegawai'
-                  ? 'bg-blue-900 text-white shadow-xs'
+                  ? 'bg-sky-500 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -288,7 +288,7 @@ export const GuideView: React.FC<GuideViewProps> = ({
               onClick={() => setActiveCategory('sheet')}
               className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
                 activeCategory === 'sheet'
-                  ? 'bg-blue-900 text-white shadow-xs'
+                  ? 'bg-sky-500 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -298,7 +298,7 @@ export const GuideView: React.FC<GuideViewProps> = ({
               onClick={() => setActiveCategory('faq')}
               className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
                 activeCategory === 'faq'
-                  ? 'bg-blue-900 text-white shadow-xs'
+                  ? 'bg-sky-500 text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -324,26 +324,26 @@ export const GuideView: React.FC<GuideViewProps> = ({
         <div className="bg-white rounded-3xl border-2 border-blue-200 shadow-sm overflow-hidden">
           <div
             onClick={() => toggleSection('langkah-input')}
-            className="p-5 sm:p-6 bg-gradient-to-r from-blue-950 via-blue-900 to-indigo-950 text-white flex items-center justify-between cursor-pointer select-none"
+            className="p-5 sm:p-6 bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 border-b border-sky-300 flex items-center justify-between cursor-pointer select-none"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 font-black text-sm flex items-center justify-center shadow-md">
+              <div className="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 font-black text-sm flex items-center justify-center shadow-xs">
                 1
               </div>
               <div>
-                <h2 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                <h2 className="text-base sm:text-lg font-black text-sky-950 flex items-center gap-2 flex-wrap">
                   <span>Panduan Langkah Demi Langkah Input Kasus Baru (5 Bagian)</span>
-                  <span className="text-[10px] font-extrabold text-amber-300 bg-amber-400/20 px-2 py-0.5 rounded-full border border-amber-400/30">
+                  <span className="text-[10px] font-extrabold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
                     Standar SIMFONI PPA
                   </span>
                 </h2>
-                <p className="text-xs text-sky-200 mt-0.5">
+                <p className="text-xs text-slate-700 font-medium mt-0.5">
                   Ikuti urutan 5 bagian formulir agar data kasus tercatat lengkap, valid, dan tersinkronisasi.
                 </p>
               </div>
             </div>
 
-            <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-sky-200">
+            <div className="w-8 h-8 rounded-xl bg-white/80 border border-sky-300 flex items-center justify-center text-sky-900">
               {expandedSection === 'langkah-input' ? (
                 <ChevronDown className="w-5 h-5" />
               ) : (
@@ -398,7 +398,7 @@ export const GuideView: React.FC<GuideViewProps> = ({
                 </div>
                 <button
                   onClick={onOpenNewCase}
-                  className="px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold rounded-xl shadow-xs transition-colors shrink-0 whitespace-nowrap"
+                  className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold rounded-xl shadow-xs transition-colors shrink-0 whitespace-nowrap"
                 >
                   Buka Formulir Input &rarr;
                 </button>

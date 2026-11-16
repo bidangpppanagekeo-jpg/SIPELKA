@@ -129,23 +129,23 @@ export const SopNetworkView: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* 1. Colorful Official Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white p-6 sm:p-7 rounded-3xl border border-blue-200 shadow-md relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
+      {/* 1. Colorful Official Header Banner (Biru Muda) */}
+      <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 p-6 sm:p-7 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-cyan-400 to-amber-400" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
               <span>SOP & SPM Terpadu</span>
               <span>·</span>
-              <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
+              <span className="text-blue-950">Dinas PMDP3A Kabupaten Nagekeo</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
-              <Shield className="w-6 h-6 text-amber-300" />
+            <h1 className="text-xl sm:text-2xl font-black text-sky-950 tracking-tight flex items-center gap-2.5">
+              <Shield className="w-6 h-6 text-sky-700" />
               SOP Alur Penanganan Kasus & Jejaring Rujukan
             </h1>
-            <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-700 font-medium max-w-2xl leading-relaxed">
               Standar Operasional Prosedur 6 Layanan Minimal penanganan kekerasan perempuan dan anak serta panduan rujukan terpadu di Kabupaten Nagekeo.
             </p>
           </div>
@@ -158,8 +158,8 @@ export const SopNetworkView: React.FC = () => {
               <Phone className="w-4 h-4 text-blue-950" />
               <span>Hotline Bebas Pulsa: 129</span>
             </a>
-            <div className="px-3.5 py-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-xs text-sky-100 font-medium flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div className="px-3.5 py-2 bg-white/85 backdrop-blur-sm border border-sky-300 rounded-xl text-xs text-sky-950 font-semibold flex items-center gap-2 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>Layanan Darurat Aktif 24 Jam</span>
             </div>
           </div>

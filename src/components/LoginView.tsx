@@ -59,7 +59,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
         referrerPolicy="no-referrer"
         className="absolute inset-0 w-full h-full object-cover object-center opacity-70 brightness-110 saturate-110 pointer-events-none"
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-950/60 via-sky-900/40 to-blue-950/65 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-sky-900/35 via-sky-500/20 to-blue-900/35 pointer-events-none" />
 
       {/* Background ambient lighting */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-sky-600/15 rounded-full blur-3xl pointer-events-none" />
@@ -97,7 +97,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
         <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 p-6 sm:p-8 text-slate-800">
           {/* Logo & Card Header */}
           <div className="text-center mb-6">
-            <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-blue-900 to-sky-900 shadow-md mb-3 ring-4 ring-amber-400/20">
+            <div className="inline-flex p-3 rounded-2xl bg-gradient-to-br from-sky-200 to-blue-200 border border-sky-300 shadow-sm mb-3 ring-4 ring-sky-200/50">
               <img
                 src={LOGO_NAGEKEO}
                 alt="Logo Kabupaten Nagekeo"
@@ -204,7 +204,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold text-white shadow-md flex items-center justify-center gap-2 transition-all ring-1 ring-amber-400/40 bg-gradient-to-r from-blue-900 via-sky-700 to-blue-800 hover:from-blue-950 hover:to-sky-800 hover:shadow-lg active:scale-[0.99] cursor-pointer"
+              className="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-bold text-white shadow-md flex items-center justify-center gap-2 transition-all ring-1 ring-sky-300 bg-gradient-to-r from-sky-500 via-sky-400 to-blue-500 hover:from-sky-400 hover:to-blue-400 hover:shadow-lg active:scale-[0.99] cursor-pointer"
             >
               {isLoading ? (
                 <>

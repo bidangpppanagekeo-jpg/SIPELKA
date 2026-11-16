@@ -278,23 +278,23 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 1. Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white p-6 sm:p-7 rounded-3xl border border-blue-200 shadow-md relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
+      {/* 1. Header Banner (Biru Muda) */}
+      <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 p-6 sm:p-7 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-cyan-400 to-amber-400" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
               <span>Data Pegawai & Petugas Terpadu</span>
               <span>·</span>
-              <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
+              <span className="text-blue-950">Dinas PMDP3A Kabupaten Nagekeo</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
-              <Users className="w-6 h-6 text-amber-300" />
+            <h1 className="text-xl sm:text-2xl font-black text-sky-950 tracking-tight flex items-center gap-2.5">
+              <Users className="w-6 h-6 text-sky-700" />
               Kelola Data Pegawai & Tim Penanganan PPPA
             </h1>
-            <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-700 font-medium max-w-2xl leading-relaxed">
               Pencatatan data Admin SIPELKA, Kepala Bidang, Tenaga Pendamping PPPA, Tenaga Pendamping Unit PPA Polres, dan Tenaga Medis Visum. Data tersinkronisasi otomatis dengan register perkara dan riwayat penanganan.
             </p>
           </div>
@@ -303,7 +303,7 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
             <button
               onClick={handleSyncAllPegawaiToSheet}
               disabled={isSyncingSheet}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/20 transition-all backdrop-blur-xs disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white/85 hover:bg-white text-sky-950 font-bold text-xs rounded-xl border border-sky-300 transition-all shadow-xs disabled:opacity-50"
               title={
                 sheetConfig.webhookUrl
                   ? 'Sinkronkan seluruh data pegawai ke tab "Data Pegawai" di Google Sheet'
@@ -311,15 +311,15 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
               }
             >
               <RefreshCw
-                className={`w-4 h-4 text-sky-300 ${isSyncingSheet ? 'animate-spin' : ''}`}
+                className={`w-4 h-4 text-sky-700 ${isSyncingSheet ? 'animate-spin' : ''}`}
               />
               <span>{isSyncingSheet ? 'Menyinkronkan...' : 'Sinkronkan ke Sheet'}</span>
             </button>
             <button
               onClick={() => exportPegawaiToCSV(pegawaiList)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/20 transition-all backdrop-blur-xs"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white/85 hover:bg-white text-sky-950 font-bold text-xs rounded-xl border border-sky-300 transition-all shadow-xs"
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
               <span>Ekspor CSV</span>
             </button>
             <button
@@ -407,8 +407,8 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
               onClick={() => setSelectedKategori('Semua')}
               className={`px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition-all ${
                 selectedKategori === 'Semua'
-                  ? 'bg-blue-900 text-white shadow-xs'
-                  : 'bg-white/80 text-slate-700 hover:bg-white border border-blue-100'
+                  ? 'bg-sky-500 text-white shadow-xs'
+                  : 'bg-white/80 text-slate-700 hover:bg-white border border-sky-200'
               }`}
             >
               Semua ({pegawaiList.length})
@@ -421,8 +421,8 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
                   onClick={() => setSelectedKategori(kat)}
                   className={`px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition-all ${
                     selectedKategori === kat
-                      ? 'bg-blue-900 text-white shadow-xs'
-                      : 'bg-white/80 text-slate-700 hover:bg-white border border-blue-100'
+                      ? 'bg-sky-500 text-white shadow-xs'
+                      : 'bg-white/80 text-slate-700 hover:bg-white border border-sky-200'
                   }`}
                 >
                   {kat} ({count})
@@ -615,19 +615,19 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
           <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
-            {/* Modal Header */}
-            <div className="p-5 sm:p-6 bg-gradient-to-r from-blue-950 via-blue-900 to-sky-950 text-white flex items-center justify-between">
+            {/* Modal Header (Biru Muda) */}
+            <div className="p-5 sm:p-6 bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 border-b border-sky-300 flex items-center justify-between">
               <div>
-                <h3 className="font-extrabold text-base sm:text-lg">
+                <h3 className="font-extrabold text-base sm:text-lg text-sky-950">
                   {editingPegawai ? 'Edit Data Pegawai & Petugas' : 'Tambah Pegawai & Petugas Baru'}
                 </h3>
-                <p className="text-xs text-sky-200 mt-0.5">
+                <p className="text-xs text-slate-700 font-medium mt-0.5">
                   Input data resmi untuk disinkronkan dengan riwayat kasus SIPELKA
                 </p>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+                className="p-2 text-sky-900 hover:text-sky-950 hover:bg-white/60 rounded-xl transition-colors"
               >
                 <XCircle className="w-5 h-5" />
               </button>
@@ -777,7 +777,7 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-gradient-to-r from-blue-900 to-sky-700 hover:from-blue-800 hover:to-sky-600 text-white font-black rounded-xl shadow-md transition-all"
+                  className="px-5 py-2.5 bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-400 hover:to-blue-400 text-white font-black rounded-xl shadow-md transition-all"
                 >
                   {editingPegawai ? 'Simpan Perubahan' : 'Daftarkan Pegawai'}
                 </button>

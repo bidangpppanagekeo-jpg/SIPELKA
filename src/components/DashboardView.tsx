@@ -131,21 +131,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 1. Colorful Official Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white p-6 sm:p-7 rounded-3xl border border-blue-200 shadow-md relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
+      {/* 1. Colorful Official Header Banner (Biru Muda) */}
+      <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 p-6 sm:p-7 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-cyan-400 to-amber-400" />
 
         <div className="relative z-10 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
             <span>Ringkasan Data Terpadu</span>
             <span>·</span>
-            <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
+            <span className="text-blue-950">Dinas PMDP3A Kabupaten Nagekeo</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black text-sky-950 tracking-tight">
             Dashboard Ringkasan Kasus PPPA Nagekeo
           </h1>
-          <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-700 font-medium max-w-2xl leading-relaxed">
             Rekapitulasi statistik laporan, grafik sebaran kasus di 7 kecamatan, klasifikasi kekerasan, dan pemantauan penanganan kasus aktif se-Kabupaten Nagekeo.
           </p>
         </div>

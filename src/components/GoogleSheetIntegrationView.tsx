@@ -620,23 +620,23 @@ function doGet(e) {
 
   return (
     <div className="space-y-6">
-      {/* 1. Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white p-6 sm:p-7 rounded-3xl border border-blue-200 shadow-md relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
+      {/* 1. Header Banner (Biru Muda) */}
+      <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 p-6 sm:p-7 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-cyan-400 to-amber-400" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
               <span>Sinkronisasi Dua Arah Presisi Baris</span>
               <span>·</span>
-              <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
+              <span className="text-blue-950">Dinas PMDP3A Kabupaten Nagekeo</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
-              <FileSpreadsheet className="w-6 h-6 text-amber-300" />
+            <h1 className="text-xl sm:text-2xl font-black text-sky-950 tracking-tight flex items-center gap-2.5">
+              <FileSpreadsheet className="w-6 h-6 text-sky-700" />
               Integrasi Google Sheet (Data Kasus &amp; Data Pegawai)
             </h1>
-            <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-700 font-medium max-w-2xl leading-relaxed">
               Menghubungkan <strong>Data Kasus PPPA</strong> (Sheet Utama) dan <strong>Data Pegawai &amp; Tim PPPA</strong> (Tab <code>Data Pegawai</code>) ke dalam <strong>1 Google Spreadsheet yang sama</strong> secara otomatis.
             </p>
           </div>
@@ -648,9 +648,9 @@ function doGet(e) {
                   type="button"
                   onClick={handleSyncAllPegawai}
                   disabled={isSyncingPegawai}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white text-xs font-extrabold rounded-xl shadow-sm transition-all disabled:opacity-50 border border-white/30"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white/85 hover:bg-white text-sky-950 text-xs font-extrabold rounded-xl shadow-xs transition-all disabled:opacity-50 border border-sky-300"
                 >
-                  <Users className={`w-4 h-4 text-amber-300 ${isSyncingPegawai ? 'animate-pulse' : ''}`} />
+                  <Users className={`w-4 h-4 text-sky-700 ${isSyncingPegawai ? 'animate-pulse' : ''}`} />
                   <span>{isSyncingPegawai ? 'Menyinkronkan...' : `Sinkronkan Data Pegawai (${pegawaiList.length})`}</span>
                 </button>
                 <button
@@ -852,7 +852,7 @@ function doGet(e) {
             <div className="pt-3 border-t border-slate-200 flex items-center justify-end">
               <button
                 type="submit"
-                className="px-5 py-2.5 bg-gradient-to-r from-blue-900 to-sky-700 hover:from-blue-800 hover:to-sky-600 text-white font-black rounded-xl shadow-md transition-all"
+                className="px-5 py-2.5 bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-400 hover:to-blue-400 text-white font-black rounded-xl shadow-md transition-all"
               >
                 Simpan Konfigurasi
               </button>
@@ -860,20 +860,20 @@ function doGet(e) {
           </form>
         </div>
 
-        {/* 4. Guide & Apps Script Template */}
-        <div className="lg:col-span-5 bg-gradient-to-br from-blue-950 via-blue-900 to-sky-950 text-white p-6 sm:p-7 rounded-3xl border border-amber-400/30 shadow-sm space-y-4 flex flex-col justify-between">
+        {/* 4. Guide & Apps Script Template (Biru Muda) */}
+        <div className="lg:col-span-5 bg-gradient-to-br from-sky-100 via-blue-100 to-sky-200 text-sky-950 p-6 sm:p-7 rounded-3xl border-2 border-sky-300 shadow-sm space-y-4 flex flex-col justify-between">
           <div className="space-y-3">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
-                <Database className="w-4 h-4 text-amber-400" />
+            <div className="flex items-center justify-between border-b border-sky-300 pb-3">
+              <h3 className="font-extrabold text-sm text-sky-950 flex items-center gap-2">
+                <Database className="w-4 h-4 text-sky-700" />
                 Kode Google Apps Script Terpadu (Code.gs)
               </h3>
-              <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-2.5 py-1 rounded-full border border-amber-400/30">
+              <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-2.5 py-1 rounded-full border border-amber-300">
                 Kasus &amp; Pegawai
               </span>
             </div>
 
-            <p className="text-xs text-sky-100 leading-relaxed">
+            <p className="text-xs text-slate-700 font-medium leading-relaxed">
               Skrip ini memisahkan sheet secara otomatis: <strong>Data Kasus</strong> disimpan di sheet utama, sedangkan <strong>Data Pegawai &amp; Tim PPPA</strong> otomatis dibuat dan direkam di tab <code>Data Pegawai</code> dalam Spreadsheet yang sama.
             </p>
 
@@ -894,8 +894,8 @@ function doGet(e) {
             </div>
           </div>
 
-          <div className="pt-3 border-t border-white/10 text-[11px] text-sky-200 flex items-center gap-2">
-            <Shield className="w-4 h-4 text-amber-400 shrink-0" />
+          <div className="pt-3 border-t border-sky-300 text-[11px] text-sky-900 font-medium flex items-center gap-2">
+            <Shield className="w-4 h-4 text-sky-700 shrink-0" />
             <span>Mendukung input, edit, hapus presisi baris, serta sinkronisasi penuh untuk Data Kasus dan Data Pegawai.</span>
           </div>
         </div>

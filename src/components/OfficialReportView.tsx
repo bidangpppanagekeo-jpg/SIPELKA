@@ -85,22 +85,22 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 1. Colorful Official Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white p-6 sm:p-7 rounded-3xl border border-blue-200 shadow-md relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
+      {/* 1. Colorful Official Header Banner (Biru Muda) */}
+      <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 p-6 sm:p-7 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-cyan-400 to-amber-400" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
               <span>Pelaporan Terpadu SIMFONI PPA</span>
               <span>·</span>
-              <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
+              <span className="text-blue-950">Dinas PMDP3A Kabupaten Nagekeo</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-sky-950 tracking-tight">
               Rekapitulasi & Pelaporan Resmi Data Kasus PPPA
             </h1>
-            <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-700 font-medium max-w-2xl leading-relaxed">
               Format instrumen baku Sistem Informasi Online Perlindungan Perempuan dan Anak (SIMFONI PPA) Kementerian PPPA Republik Indonesia.
             </p>
           </div>
@@ -116,7 +116,7 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
 
             <button
               onClick={() => exportCasesToCSV(filteredCases, isAnonymized)}
-              className="flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-bold text-blue-950 bg-white hover:bg-sky-50 rounded-xl transition-all shadow-sm"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-bold text-sky-950 bg-white hover:bg-sky-50 border border-sky-300 rounded-xl transition-all shadow-xs"
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
               <span>Ekspor Excel</span>
@@ -188,19 +188,19 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
         <div className="overflow-x-auto rounded-2xl border border-blue-200">
           <table className="w-full text-xs border-collapse">
             <thead>
-              <tr className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white font-bold">
-                <th className="py-3 px-3.5 text-left border-r border-blue-700/50 text-sky-100">
+              <tr className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 border-b-2 border-sky-300 font-extrabold">
+                <th className="py-3 px-3.5 text-left border-r border-sky-300 text-sky-950">
                   Bentuk Kekerasan
                 </th>
                 {kategoriList.map((kat) => (
                   <th
                     key={kat}
-                    className="py-3 px-3.5 text-center border-r border-blue-700/50 font-bold text-sky-100"
+                    className="py-3 px-3.5 text-center border-r border-sky-300 font-bold text-sky-950"
                   >
                     {kat}
                   </th>
                 ))}
-                <th className="py-3 px-3.5 text-center bg-blue-950 font-black text-amber-300">
+                <th className="py-3 px-3.5 text-center bg-sky-300/70 font-black text-sky-950">
                   Total
                 </th>
               </tr>
@@ -302,41 +302,41 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
         </div>
       </div>
 
-      {/* Dokumen Pengesahan & Kop Surat Info with Synced Signatories */}
-      <div className="bg-gradient-to-r from-blue-950 via-blue-900 to-sky-950 text-white p-6 rounded-2xl border border-amber-400/30 shadow-md space-y-4">
+      {/* Dokumen Pengesahan & Kop Surat Info with Synced Signatories (Biru Muda) */}
+      <div className="bg-gradient-to-r from-sky-100 via-blue-100 to-sky-200 text-sky-950 p-6 rounded-2xl border-2 border-sky-300 shadow-sm space-y-4">
         <div className="flex items-start gap-3">
-          <Shield className="w-6 h-6 text-amber-400 shrink-0 mt-0.5" />
+          <Shield className="w-6 h-6 text-sky-700 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <h3 className="font-bold text-sm text-white">
+            <h3 className="font-bold text-sm text-sky-950">
               Sistem Validasi dan Pengesahan Laporan Resmi Pemkab Nagekeo
             </h3>
-            <p className="text-xs text-sky-100/90 leading-relaxed">
+            <p className="text-xs text-slate-700 font-medium leading-relaxed">
               Format cetak telah disesuaikan dengan tata naskah dinas Pemerintah Kabupaten Nagekeo, lengkap dengan Kop Surat resmi Dinas PMDP3A (Pemberdayaan Masyarakat dan Desa, Pemberdayaan Perempuan dan Perlindungan Anak), tanggal penetapan di Mbay, serta lembar pengesahan tanda tangan Kepala Bidang PPPA.
             </p>
           </div>
         </div>
 
-        <div className="pt-3 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div className="p-3 bg-white/10 rounded-xl border border-white/10">
-            <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
+        <div className="pt-3 border-t border-sky-300/80 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div className="p-3 bg-white/85 rounded-xl border border-sky-300 shadow-2xs">
+            <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider block">
               {activeKabid?.jabatan || 'Kepala Bidang PPPA'}
             </span>
-            <div className="font-bold text-white mt-1">
+            <div className="font-bold text-slate-900 mt-1">
               {activeKabid?.nama || 'Dra. Bernadetha M. Soa, M.Si'}
             </div>
-            <div className="text-[11px] text-sky-200 font-mono mt-0.5">
+            <div className="text-[11px] text-slate-600 font-mono mt-0.5">
               NIP. {activeKabid?.nipOrIdentitas || '19740512 200212 2 004'}
             </div>
           </div>
 
-          <div className="p-3 bg-white/10 rounded-xl border border-white/10">
-            <span className="text-[10px] font-bold text-sky-300 uppercase tracking-wider block">
+          <div className="p-3 bg-white/85 rounded-xl border border-sky-300 shadow-2xs">
+            <span className="text-[10px] font-bold text-sky-800 uppercase tracking-wider block">
               {activeAdmin?.jabatan || 'Pengelola Data SIMFONI PPA'}
             </span>
-            <div className="font-bold text-white mt-1">
+            <div className="font-bold text-slate-900 mt-1">
               {activeAdmin?.nama || 'Yohanes Sina, S.Sos'}
             </div>
-            <div className="text-[11px] text-sky-200 font-mono mt-0.5">
+            <div className="text-[11px] text-slate-600 font-mono mt-0.5">
               NIP. {activeAdmin?.nipOrIdentitas || '19880914 201101 1 008'}
             </div>
           </div>

@@ -124,30 +124,30 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* 1. Colorful Official Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white p-6 sm:p-7 rounded-3xl border border-blue-200 shadow-md relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
+      {/* 1. Colorful Official Header Banner (Biru Muda) */}
+      <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 p-6 sm:p-7 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-cyan-400 to-amber-400" />
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
               <span>Buku Catatan Register Resmi</span>
               <span>·</span>
-              <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
+              <span className="text-blue-950">Dinas PMDP3A Kabupaten Nagekeo</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black text-sky-950 tracking-tight">
               Buku Register Kasus Kekerasan PPPA Nagekeo
             </h1>
-            <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-700 font-medium max-w-2xl leading-relaxed">
               Daftar rekapitulasi perkara, administrasi berkas perkara terpadu, pemantauan riwayat intervensi korban, dan status rujukan hukum/medis se-Kabupaten Nagekeo.
             </p>
 
             <div className="flex items-center gap-2 pt-1 flex-wrap text-xs">
-              <span className="bg-white/20 px-3 py-1 rounded-full font-bold text-white">
+              <span className="bg-white/85 px-3 py-1 rounded-full font-bold text-sky-950 border border-sky-300 shadow-2xs">
                 Total: {cases.length} Kasus
               </span>
-              <span className="bg-amber-400/30 text-amber-200 px-3 py-1 rounded-full font-bold border border-amber-300/40">
+              <span className="bg-amber-100 text-amber-900 px-3 py-1 rounded-full font-bold border border-amber-300 shadow-2xs">
                 Aktif: {cases.filter((c) => c.statusPenanganan !== 'Kasus Selesai').length} Perkara
               </span>
               {isAnonymized && (
@@ -161,7 +161,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
           <div className="flex items-center gap-2 flex-wrap shrink-0">
             <button
               onClick={() => exportCasesToCSV(filteredCases, isAnonymized)}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-blue-950 bg-white hover:bg-sky-50 rounded-xl transition-all shadow-sm"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-sky-950 bg-white hover:bg-sky-50 border border-sky-300 rounded-xl transition-all shadow-xs"
               title="Download berkas tabel Excel/CSV"
             >
               <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
@@ -170,10 +170,10 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
 
             <button
               onClick={() => exportBackupJSON(cases)}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-white/15 hover:bg-white/25 border border-white/30 rounded-xl transition-all backdrop-blur-xs"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-sky-950 bg-white/85 hover:bg-white border border-sky-300 rounded-xl transition-all shadow-xs"
               title="Cadangkan database lokal"
             >
-              <Download className="w-4 h-4 text-sky-200" />
+              <Download className="w-4 h-4 text-sky-700" />
               <span>Backup JSON</span>
             </button>
           </div>
@@ -287,14 +287,14 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white font-bold uppercase tracking-wider text-[11px]">
-                <th className="py-3.5 px-4 text-sky-100">No. Registrasi & Tanggal</th>
-                <th className="py-3.5 px-4 text-sky-100">Korban</th>
-                <th className="py-3.5 px-4 text-sky-100">TKP / Wilayah</th>
-                <th className="py-3.5 px-4 text-sky-100">Bentuk Kekerasan</th>
-                <th className="py-3.5 px-4 text-sky-100">Pelaku / Hubungan</th>
-                <th className="py-3.5 px-4 text-sky-100">Status & Urgensi</th>
-                <th className="py-3.5 px-4 text-right text-sky-100">Aksi Tindakan</th>
+              <tr className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 border-b-2 border-sky-300 font-extrabold uppercase tracking-wider text-[11px]">
+                <th className="py-3.5 px-4 text-sky-950">No. Registrasi & Tanggal</th>
+                <th className="py-3.5 px-4 text-sky-950">Korban</th>
+                <th className="py-3.5 px-4 text-sky-950">TKP / Wilayah</th>
+                <th className="py-3.5 px-4 text-sky-950">Bentuk Kekerasan</th>
+                <th className="py-3.5 px-4 text-sky-950">Pelaku / Hubungan</th>
+                <th className="py-3.5 px-4 text-sky-950">Status & Urgensi</th>
+                <th className="py-3.5 px-4 text-right text-sky-950">Aksi Tindakan</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-blue-100">

@@ -162,8 +162,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         } ${isCollapsed ? 'lg:w-16' : 'w-64'}`}
       >
-        {/* Sidebar Brand Header */}
-        <div className="h-14 flex items-center justify-between px-3.5 border-b border-slate-100 bg-gradient-to-r from-blue-900 via-blue-950 to-slate-900 text-white relative shrink-0">
+        {/* Sidebar Brand Header (Biru Muda) */}
+        <div className="h-14 flex items-center justify-between px-3.5 border-b border-sky-300 bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 relative shrink-0">
           <button
             onClick={() => handleNav('dashboard')}
             className={`flex items-center gap-2.5 text-left group overflow-hidden focus:outline-none ${
@@ -174,20 +174,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <img
               src={LOGO_NAGEKEO}
               alt="Logo Kabupaten Nagekeo"
-              className="w-8 h-8 object-contain shrink-0 drop-shadow-md group-hover:scale-105 transition-transform"
+              className="w-8 h-8 object-contain shrink-0 drop-shadow-sm group-hover:scale-105 transition-transform"
               referrerPolicy="no-referrer"
             />
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-extrabold tracking-tight text-white truncate">
+                  <span className="text-sm font-extrabold tracking-tight text-sky-950 truncate">
                     SIPELKA
                   </span>
                   <span className="text-[9px] font-bold bg-amber-400 text-slate-950 px-1.5 py-0.2 rounded font-mono">
                     PPPA
                   </span>
                 </div>
-                <span className="text-[10px] font-semibold text-sky-200 truncate -mt-0.5">
+                <span className="text-[10px] font-semibold text-sky-800 truncate -mt-0.5">
                   Kab. Nagekeo · Dinas PMDP3A
                 </span>
               </div>
@@ -197,15 +197,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Close button for Mobile Drawer */}
           <button
             onClick={onCloseMobile}
-            className="lg:hidden p-1 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            className="lg:hidden p-1 rounded-lg text-sky-800 hover:text-sky-950 hover:bg-white/60 transition-colors"
             title="Tutup Menu"
             aria-label="Tutup Menu"
           >
             <X className="w-4 h-4" />
           </button>
 
-          {/* Subtle bottom golden accent line */}
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-400 via-sky-300 to-amber-400" />
+          {/* Subtle bottom sky-gold accent line */}
+          <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-sky-500 via-cyan-400 to-amber-400" />
         </div>
 
         {/* Navigation Menus List with Decorative Mother & Child + Nagekeo Rice Fields Backdrop */}
@@ -251,7 +251,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         isCollapsed ? 'justify-center' : 'justify-between'
                       } ${
                         isActive
-                          ? 'bg-gradient-to-r from-blue-900 to-sky-900 text-white font-bold shadow-xs'
+                          ? 'bg-gradient-to-r from-sky-500 to-blue-500 text-white font-bold shadow-xs'
                           : 'text-slate-700 hover:bg-white/85 hover:text-slate-900'
                       }`}
                     >
@@ -259,8 +259,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         <Icon
                           className={`w-4 h-4 shrink-0 transition-colors ${
                             isActive
-                              ? 'text-amber-300'
-                              : 'text-slate-500 group-hover:text-blue-700'
+                              ? 'text-amber-200'
+                              : 'text-slate-500 group-hover:text-sky-600'
                           }`}
                         />
                         {!isCollapsed && (
