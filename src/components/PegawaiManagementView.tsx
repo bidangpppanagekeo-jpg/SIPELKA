@@ -473,7 +473,7 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
         </div>
       </div>
 
-      {/* 4. Pegawai Cards Grid */}
+      {/* 4. Pegawai List Table View */}
       {filteredPegawai.length === 0 ? (
         <div className="bg-white p-12 text-center rounded-2xl border border-slate-200 space-y-3">
           <Users className="w-12 h-12 text-slate-300 mx-auto" />
@@ -486,128 +486,145 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
               setSelectedKategori('Semua');
               setSearchQuery('');
             }}
-            className="text-xs text-blue-700 font-bold hover:underline"
+            className="text-xs text-sky-700 font-bold hover:underline"
           >
             Reset Filter Pencarian
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredPegawai.map((p) => {
-            const badgeStyle = getKategoriBadge(p.kategori);
-            const IconComp = badgeStyle.icon;
-            const syncedCount = getSyncedCasesCount(p);
+        <div className="bg-white rounded-3xl border-2 border-sky-200/90 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 border-b-2 border-sky-300 font-extrabold uppercase tracking-wider text-[11px]">
+                  <th className="py-3.5 px-4 text-sky-950">Nama & Identitas (NIP)</th>
+                  <th className="py-3.5 px-4 text-sky-950">Kategori & Jabatan</th>
+                  <th className="py-3.5 px-4 text-sky-950">Kontak & Instansi</th>
+                  <th className="py-3.5 px-4 text-sky-950">Fokus / Keahlian</th>
+                  <th className="py-3.5 px-4 text-center text-sky-950">Status & Kasus</th>
+                  <th className="py-3.5 px-4 text-right text-sky-950">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-sky-100">
+                {filteredPegawai.map((p) => {
+                  const badgeStyle = getKategoriBadge(p.kategori);
+                  const IconComp = badgeStyle.icon;
+                  const syncedCount = getSyncedCasesCount(p);
 
-            return (
-              <div
-                key={p.id}
-                className={`p-5 rounded-2xl border-2 ${badgeStyle.border} bg-gradient-to-br ${badgeStyle.gradient} shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4`}
-              >
-                <div className="space-y-3">
-                  {/* Top category & Status */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span
-                      className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md border ${badgeStyle.bg}`}
-                    >
-                      {p.kategori}
-                    </span>
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${
-                        p.status === 'Aktif'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-slate-100 text-slate-600'
-                      }`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          p.status === 'Aktif' ? 'bg-emerald-600' : 'bg-slate-400'
-                        }`}
-                      />
-                      <span>{p.status}</span>
-                    </span>
-                  </div>
+                  return (
+                    <tr key={p.id} className="hover:bg-sky-50/50 transition-colors">
+                      {/* Nama & Identitas */}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-xl shrink-0 ${badgeStyle.iconColor}`}>
+                            <IconComp className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <div className="font-extrabold text-slate-900 text-xs">
+                              {p.nama}
+                            </div>
+                            <div className="font-mono text-[11px] text-slate-500 font-medium">
+                              NIP/ID: {p.nipOrIdentitas}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
 
-                  {/* Name and Officer details */}
-                  <div className="flex items-start gap-3">
-                    <div className={`p-2.5 rounded-xl shrink-0 ${badgeStyle.iconColor}`}>
-                      <IconComp className="w-5 h-5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-extrabold text-blue-950 text-sm leading-snug truncate">
-                        {p.nama}
-                      </h3>
-                      <div className="text-[11px] font-mono text-slate-600 font-semibold mt-0.5">
-                        Identitas: {p.nipOrIdentitas}
-                      </div>
-                      <div className="text-xs font-medium text-slate-800 mt-1">{p.jabatan}</div>
-                      <div className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                        <Building className="w-3 h-3 text-slate-400 shrink-0" />
-                        <span className="truncate">{p.instansi}</span>
-                      </div>
-                    </div>
-                  </div>
+                      {/* Kategori & Jabatan */}
+                      <td className="py-3.5 px-4">
+                        <div className="space-y-1">
+                          <span
+                            className={`inline-block text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border ${badgeStyle.bg}`}
+                          >
+                            {p.kategori}
+                          </span>
+                          <div className="font-bold text-slate-800 text-xs">
+                            {p.jabatan}
+                          </div>
+                        </div>
+                      </td>
 
-                  {/* Keahlian & Kontak */}
-                  <div className="space-y-2 pt-2 border-t border-slate-200/70 text-xs">
-                    {p.keahlian && (
-                      <div className="text-[11px] text-slate-600 bg-white/80 p-2.5 rounded-xl border border-slate-200/80 leading-relaxed">
-                        <strong className="text-blue-950 font-bold block mb-0.5">Keahlian / Fokus:</strong>
-                        {p.keahlian}
-                      </div>
-                    )}
+                      {/* Kontak & Instansi */}
+                      <td className="py-3.5 px-4">
+                        <div className="space-y-1">
+                          <div className="text-xs text-slate-800 font-medium flex items-center gap-1">
+                            <Building className="w-3 h-3 text-slate-400 shrink-0" />
+                            <span className="truncate">{p.instansi}</span>
+                          </div>
+                          <a
+                            href={`tel:${p.telepon}`}
+                            className="inline-flex items-center gap-1 font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 text-[11px]"
+                          >
+                            <Phone className="w-3 h-3 text-emerald-600" />
+                            <span>{p.telepon}</span>
+                          </a>
+                        </div>
+                      </td>
 
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 text-[11px]">
-                      <a
-                        href={`tel:${p.telepon}`}
-                        className="inline-flex items-center gap-1 font-semibold text-emerald-800 hover:text-emerald-950 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 transition-colors"
-                      >
-                        <Phone className="w-3 h-3 text-emerald-600" />
-                        <span>{p.telepon}</span>
-                      </a>
-                      {p.email && (
-                        <span className="text-slate-500 truncate max-w-[150px] font-mono">
-                          {p.email}
+                      {/* Keahlian */}
+                      <td className="py-3.5 px-4 max-w-xs">
+                        <span className="text-[11px] text-slate-600 line-clamp-2 bg-slate-50 px-2 py-1 rounded border border-slate-200">
+                          {p.keahlian || '-'}
                         </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                      </td>
 
-                {/* Bottom sync indicator & Actions */}
-                <div className="pt-3 border-t border-slate-200/80 flex items-center justify-between gap-2">
-                  <button
-                    onClick={() => onViewOfficerCases(p.nama)}
-                    className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-900 bg-blue-100/70 hover:bg-blue-200/80 px-2.5 py-1 rounded-lg transition-colors"
-                    title="Buka register untuk kasus yang melibatkan petugas ini"
-                  >
-                    <span>{syncedCount} Kasus Terhubung</span>
-                    <ArrowRight className="w-3 h-3" />
-                  </button>
+                      {/* Status & Kasus */}
+                      <td className="py-3.5 px-4 text-center">
+                        <div className="flex flex-col items-center gap-1">
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
+                              p.status === 'Aktif'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-slate-100 text-slate-600'
+                            }`}
+                          >
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                p.status === 'Aktif' ? 'bg-emerald-600' : 'bg-slate-400'
+                              }`}
+                            />
+                            <span>{p.status}</span>
+                          </span>
 
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => handleOpenEditModal(p)}
-                      className="p-1.5 text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Edit Pegawai"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (window.confirm(`Hapus data pegawai ${p.nama}?`)) {
-                          onDeletePegawai(p.id);
-                        }
-                      }}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                      title="Hapus Pegawai"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                          <button
+                            onClick={() => onViewOfficerCases(p.nama)}
+                            className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-800 bg-sky-100/80 hover:bg-sky-200 px-2 py-0.5 rounded transition-colors"
+                          >
+                            <span>{syncedCount} Kasus</span>
+                            <ArrowRight className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      </td>
+
+                      {/* Aksi */}
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => handleOpenEditModal(p)}
+                            className="p-1.5 text-slate-600 hover:text-sky-700 hover:bg-sky-100 rounded-lg transition-colors"
+                            title="Edit Pegawai"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`Hapus data pegawai ${p.nama}?`)) {
+                                onDeletePegawai(p.id);
+                              }
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            title="Hapus Pegawai"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
