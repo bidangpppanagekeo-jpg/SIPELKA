@@ -57,9 +57,9 @@ export const LoginView: React.FC<LoginViewProps> = ({
         src={sawahNagekeoImg}
         alt="Pemandangan Sawah Nagekeo"
         referrerPolicy="no-referrer"
-        className="absolute inset-0 w-full h-full object-cover object-center opacity-30 pointer-events-none"
+        className="absolute inset-0 w-full h-full object-cover object-center opacity-70 brightness-110 saturate-110 pointer-events-none"
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-blue-950/85 to-slate-900/90 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-950/60 via-sky-900/40 to-blue-950/65 pointer-events-none" />
 
       {/* Background ambient lighting */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-sky-600/15 rounded-full blur-3xl pointer-events-none" />

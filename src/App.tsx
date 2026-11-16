@@ -331,9 +331,9 @@ export default function App() {
           src={sawahNagekeoImg}
           alt="Pemandangan Sawah Nagekeo"
           referrerPolicy="no-referrer"
-          className="w-full h-full object-cover object-center opacity-25"
+          className="w-full h-full object-cover object-center opacity-55 brightness-105 saturate-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/75 via-sky-50/70 to-white/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-sky-50/35 to-white/45" />
       </div>
 
       {/* Background subtle light ambient effects */}

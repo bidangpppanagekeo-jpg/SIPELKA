@@ -374,15 +374,15 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* SECTION 1: Nomor Registrasi & Pelapor (Soft Sky Blue + Floral Mother & Daughter) */}
-        <div className="relative overflow-hidden bg-sky-50/40 p-6 sm:p-7 rounded-3xl border-2 border-sky-300/90 shadow-sm">
+        <div className="relative overflow-hidden bg-white p-6 sm:p-7 rounded-3xl border-2 border-sky-300/90 shadow-sm">
           <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
             <img
               src={formBgBiruImg}
               alt="Latar Ibu dan Anak Nuansa Biru Langit"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-right opacity-35"
+              className="w-full h-full object-cover object-right opacity-70 brightness-105 saturate-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-sky-50/85 to-sky-50/45" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-sky-50/55 to-transparent" />
           </div>
 
           <div className="relative z-10 space-y-4">
@@ -553,15 +553,15 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
         </div>
 
         {/* SECTION 2: Data Korban & Asesmen Kerentanan (Lavender / Indigo + Mother & Child in Meadow) */}
-        <div className="relative overflow-hidden bg-indigo-50/40 p-6 sm:p-7 rounded-3xl border-2 border-indigo-300/90 shadow-sm">
+        <div className="relative overflow-hidden bg-white p-6 sm:p-7 rounded-3xl border-2 border-indigo-300/90 shadow-sm">
           <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
             <img
               src={formBgIndigoImg}
               alt="Latar Ibu dan Anak Nuansa Lavender Indigo"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-right opacity-35"
+              className="w-full h-full object-cover object-right opacity-70 brightness-105 saturate-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-indigo-50/85 to-purple-50/45" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-indigo-50/55 to-transparent" />
           </div>
 
           <div className="relative z-10 space-y-4">
@@ -753,15 +753,15 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
         </div>
 
         {/* SECTION 3: Data Terlapor & TKP (Warm Amber / Gold + Mother & Son Rice Terraces) */}
-        <div className="relative overflow-hidden bg-amber-50/40 p-6 sm:p-7 rounded-3xl border-2 border-amber-300/90 shadow-sm">
+        <div className="relative overflow-hidden bg-white p-6 sm:p-7 rounded-3xl border-2 border-amber-300/90 shadow-sm">
           <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
             <img
               src={formBgEmasImg}
               alt="Latar Ibu dan Anak Nuansa Emas Pedesaan"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-right opacity-35"
+              className="w-full h-full object-cover object-right opacity-70 brightness-105 saturate-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-amber-50/85 to-orange-50/45" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-amber-50/55 to-transparent" />
           </div>
 
           <div className="relative z-10 space-y-4">
@@ -900,15 +900,15 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
         </div>
 
         {/* SECTION 4: Bentuk Kekerasan, Kronologi & Layanan (Emerald / Teal + Mother & Child Reading) */}
-        <div className="relative overflow-hidden bg-emerald-50/40 p-6 sm:p-7 rounded-3xl border-2 border-emerald-300/90 shadow-sm">
+        <div className="relative overflow-hidden bg-white p-6 sm:p-7 rounded-3xl border-2 border-emerald-300/90 shadow-sm">
           <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
             <img
               src={formBgHijauImg}
               alt="Latar Ibu dan Anak Nuansa Hijau Pemulihan"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-right opacity-30"
+              className="w-full h-full object-cover object-right opacity-65 brightness-105 saturate-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-emerald-50/85 to-teal-50/45" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-emerald-50/55 to-transparent" />
           </div>
 
           <div className="relative z-10 space-y-4">
@@ -1058,15 +1058,15 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
         </div>
 
         {/* SECTION 5: Tim Penanganan Terpadu & Sinkronisasi Petugas SIPELKA (Vibrant Flores Colors) */}
-        <div className="relative overflow-hidden bg-rose-50/35 p-6 sm:p-7 rounded-3xl border-2 border-rose-300/80 shadow-sm">
+        <div className="relative overflow-hidden bg-white p-6 sm:p-7 rounded-3xl border-2 border-rose-300/80 shadow-sm">
           <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
             <img
               src={formBgPelangiImg}
               alt="Latar Ibu dan Anak Tenun Flores Berwarna"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-right opacity-35"
+              className="w-full h-full object-cover object-right opacity-70 brightness-105 saturate-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-rose-50/80 to-amber-50/45" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-rose-50/50 to-transparent" />
           </div>
 
           <div className="relative z-10 space-y-4">

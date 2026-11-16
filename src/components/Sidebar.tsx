@@ -219,9 +219,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 src={latarIbuAnakImg}
                 alt="Latar Ibu dan Anak dengan Pemandangan Sawah Nagekeo"
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover object-center opacity-55"
+                className="w-full h-full object-cover object-center opacity-85 brightness-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-white via-white/75 to-white/10" />
+              <div className="absolute inset-0 bg-gradient-to-b from-white via-white/35 to-transparent" />
             </div>
           )}
 
