@@ -9,8 +9,6 @@ import {
   Clock,
   ArrowRight,
   MapPin,
-  FileSpreadsheet,
-  PlusCircle,
   BarChart3,
   PieChart as PieChartIcon,
   TrendingUp
@@ -138,40 +136,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
-              <span>Ringkasan Data Terpadu</span>
-              <span>·</span>
-              <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              Dashboard Ringkasan Kasus PPPA Nagekeo
-            </h1>
-            <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
-              Rekapitulasi statistik laporan, grafik sebaran kasus di 7 kecamatan, klasifikasi kekerasan, dan pemantauan penanganan kasus aktif se-Kabupaten Nagekeo.
-            </p>
+        <div className="relative z-10 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+            <span>Ringkasan Data Terpadu</span>
+            <span>·</span>
+            <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
           </div>
-
-          <div className="flex items-center gap-2.5 flex-wrap shrink-0">
-            <button
-              type="button"
-              onClick={() => onNavigateToTab('input')}
-              className="flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 rounded-xl transition-all shadow-md hover:shadow-lg ring-1 ring-white/50 cursor-pointer"
-            >
-              <PlusCircle className="w-4 h-4 text-slate-950" />
-              <span>Catat Kasus Baru</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => onNavigateToTab('laporan')}
-              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-blue-950 bg-white hover:bg-sky-50 rounded-xl transition-all shadow-sm cursor-pointer"
-            >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-              <span>Rekap & Laporan</span>
-            </button>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+            Dashboard Ringkasan Kasus PPPA Nagekeo
+          </h1>
+          <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
+            Rekapitulasi statistik laporan, grafik sebaran kasus di 7 kecamatan, klasifikasi kekerasan, dan pemantauan penanganan kasus aktif se-Kabupaten Nagekeo.
+          </p>
         </div>
       </div>
 

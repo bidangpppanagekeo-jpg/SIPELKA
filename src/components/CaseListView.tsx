@@ -8,7 +8,6 @@ import {
   Filter,
   Download,
   FileSpreadsheet,
-  Plus,
   Eye,
   FileText,
   Trash2,
@@ -176,14 +175,6 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
             >
               <Download className="w-4 h-4 text-sky-200" />
               <span>Backup JSON</span>
-            </button>
-
-            <button
-              onClick={onOpenNewCase}
-              className="flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 rounded-xl transition-all shadow-md hover:shadow-lg ring-1 ring-white/50"
-            >
-              <Plus className="w-4 h-4 text-slate-950" />
-              <span>+ Catat Kasus Baru</span>
             </button>
           </div>
         </div>

@@ -366,9 +366,7 @@ export default function App() {
           }}
           isAnonymized={isAnonymized}
           onToggleAnonymized={handleToggleAnonymized}
-          onOpenNewCase={handleOpenNewCase}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-          onLogout={handleLogout}
         />
 
         {/* Toast Notification */}

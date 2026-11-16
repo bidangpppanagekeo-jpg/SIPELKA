@@ -159,13 +159,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <aside
         className={`fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-200/90 shadow-sm transition-all duration-300 ease-in-out lg:sticky lg:top-0 lg:h-screen lg:z-30 shrink-0 ${
           isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } ${isCollapsed ? 'lg:w-20' : 'w-72'}`}
+        } ${isCollapsed ? 'lg:w-16' : 'w-64'}`}
       >
         {/* Sidebar Brand Header */}
-        <div className="h-20 flex items-center justify-between px-4 border-b border-slate-100 bg-gradient-to-r from-blue-900 via-blue-950 to-slate-900 text-white relative">
+        <div className="h-14 flex items-center justify-between px-3.5 border-b border-slate-100 bg-gradient-to-r from-blue-900 via-blue-950 to-slate-900 text-white relative shrink-0">
           <button
             onClick={() => handleNav('dashboard')}
-            className={`flex items-center gap-3 text-left group overflow-hidden focus:outline-none ${
+            className={`flex items-center gap-2.5 text-left group overflow-hidden focus:outline-none ${
               isCollapsed ? 'justify-center w-full' : ''
             }`}
             title="SIPELKA Kabupaten Nagekeo - Dinas PMDP3A"
@@ -173,24 +173,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <img
               src={LOGO_NAGEKEO}
               alt="Logo Kabupaten Nagekeo"
-              className="w-11 h-11 object-contain shrink-0 drop-shadow-md group-hover:scale-105 transition-transform"
+              className="w-8 h-8 object-contain shrink-0 drop-shadow-md group-hover:scale-105 transition-transform"
               referrerPolicy="no-referrer"
             />
             {!isCollapsed && (
               <div className="flex flex-col min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-base font-extrabold tracking-tight text-white truncate">
+                  <span className="text-sm font-extrabold tracking-tight text-white truncate">
                     SIPELKA
                   </span>
-                  <span className="text-[10px] font-bold bg-amber-400 text-slate-950 px-1.5 py-0.2 rounded font-mono">
+                  <span className="text-[9px] font-bold bg-amber-400 text-slate-950 px-1.5 py-0.2 rounded font-mono">
                     PPPA
                   </span>
                 </div>
-                <span className="text-[11px] font-semibold text-sky-200 truncate -mt-0.5">
-                  Kabupaten Nagekeo
-                </span>
-                <span className="text-[9px] text-slate-300 uppercase tracking-wider truncate">
-                  Dinas PMDP3A
+                <span className="text-[10px] font-semibold text-sky-200 truncate -mt-0.5">
+                  Kab. Nagekeo · Dinas PMDP3A
                 </span>
               </div>
             )}
@@ -199,41 +196,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Close button for Mobile Drawer */}
           <button
             onClick={onCloseMobile}
-            className="lg:hidden p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+            className="lg:hidden p-1 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
             title="Tutup Menu"
             aria-label="Tutup Menu"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
 
           {/* Subtle bottom golden accent line */}
           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-400 via-sky-300 to-amber-400" />
         </div>
 
-        {/* Quick Action in Expanded Sidebar */}
-        {!isCollapsed && (
-          <div className="p-3 border-b border-slate-100 bg-slate-50/70">
-            <button
-              onClick={() => handleNav('input')}
-              className="w-full flex items-center justify-center gap-2 px-3.5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-blue-700 via-sky-600 to-blue-800 hover:from-blue-800 hover:to-sky-700 rounded-xl shadow-xs hover:shadow-md transition-all ring-1 ring-amber-400/30 group"
-            >
-              <PlusCircle className="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform" />
-              <span>+ Catat Kasus Baru</span>
-            </button>
-          </div>
-        )}
-
-        {/* Navigation Menus List (Scrollable) */}
-        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6 scrollbar-thin scrollbar-thumb-slate-200">
+        {/* Navigation Menus List (Compact & Visible All at Once) */}
+        <div className="flex-1 overflow-y-auto px-2.5 py-2.5 space-y-2.5 scrollbar-thin scrollbar-thumb-slate-200">
           {navGroups.map((group, gIdx) => (
-            <div key={gIdx} className="space-y-1">
+            <div key={gIdx} className="space-y-0.5">
               {/* Group Section Header */}
               {!isCollapsed ? (
-                <div className="px-3 pb-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+                <div className="px-2.5 pb-0.5 text-[9.5px] font-extrabold uppercase tracking-wider text-slate-400">
                   {group.groupLabel}
                 </div>
               ) : (
-                <div className="w-6 mx-auto my-2 border-b border-slate-200" />
+                <div className="w-6 mx-auto my-1.5 border-b border-slate-200" />
               )}
 
               {/* Group Nav Items */}
@@ -246,15 +230,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     key={item.id}
                     onClick={() => handleNav(item.id)}
                     title={isCollapsed ? item.label : undefined}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group relative ${
+                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all group relative ${
                       isCollapsed ? 'justify-center' : 'justify-between'
                     } ${
                       isActive
-                        ? 'bg-gradient-to-r from-blue-900 to-sky-900 text-white font-bold shadow-sm shadow-blue-950/15'
+                        ? 'bg-gradient-to-r from-blue-900 to-sky-900 text-white font-bold shadow-xs'
                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                     }`}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <Icon
                         className={`w-4 h-4 shrink-0 transition-colors ${
                           isActive
@@ -270,7 +254,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {/* Badge when expanded */}
                     {!isCollapsed && item.badge && (
                       <span
-                        className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
+                        className={`text-[9.5px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 leading-none ${
                           isActive
                             ? 'bg-white/20 text-white'
                             : item.badgeColor || 'bg-slate-100 text-slate-600'
@@ -282,7 +266,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
                     {/* Active Indicator bar */}
                     {isActive && (
-                      <div className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-amber-400 rounded-r-md" />
+                      <div className="absolute left-0 top-1 bottom-1 w-1 bg-amber-400 rounded-r-md" />
                     )}
                   </button>
                 );
@@ -291,13 +275,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           ))}
         </div>
 
-        {/* Sidebar Footer: Officer Profile & Desktop Collapse Toggle */}
-        <div className="p-3 border-t border-slate-200 bg-slate-50/80">
+        {/* Sidebar Footer: Compact Officer Profile, Logout & Collapse Toggle */}
+        <div className="p-2.5 border-t border-slate-200 bg-slate-50/90 shrink-0">
           {!isCollapsed ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {/* Officer Account Card */}
-              <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-900 font-bold flex items-center justify-center text-xs shrink-0 border border-blue-200 uppercase">
+              <div className="p-2 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-900 font-bold flex items-center justify-center text-[11px] shrink-0 border border-blue-200 uppercase">
                   {currentUser?.nama
                     ? currentUser.nama
                         .split(' ')
@@ -308,10 +292,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     : 'OP'}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-bold text-slate-800 truncate">
+                  <div className="text-[11px] font-bold text-slate-800 truncate leading-tight">
                     {currentUser?.nama || 'Petugas SIPELKA'}
                   </div>
-                  <div className="text-[10px] text-slate-500 truncate font-mono">
+                  <div className="text-[9.5px] text-slate-500 truncate font-mono leading-tight">
                     {currentUser?.email || 'bidangpppanagekeo@gmail.com'}
                   </div>
                 </div>
@@ -321,37 +305,39 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 type="button"
                 onClick={onLogout}
-                className="w-full flex items-center justify-center gap-2 py-2 px-3 text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 hover:text-rose-800 border border-rose-200 rounded-xl transition-all shadow-2xs group"
+                className="w-full flex items-center justify-center gap-1.5 py-1.5 px-2.5 text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 hover:text-rose-800 border border-rose-200 rounded-lg transition-all shadow-2xs group"
                 title="Keluar dari sesi administrator"
               >
                 <LogOut className="w-3.5 h-3.5 text-rose-600 group-hover:scale-110 transition-transform" />
                 <span>Keluar Aplikasi (Logout)</span>
               </button>
 
-              {/* Security & Sync Mini Status */}
-              <div className="flex items-center justify-between px-1 text-[10px] text-slate-500 font-medium">
-                <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Sistem Aman</span>
+              {/* Status & Desktop Collapse Toggle in One Clean Row */}
+              <div className="flex items-center justify-between px-1 pt-0.5 text-[10px] text-slate-500 font-medium">
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1 text-emerald-700 font-semibold">
+                    <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                    <span>Aman</span>
+                  </span>
+                  <span className="text-slate-300">·</span>
+                  <span className="flex items-center gap-1 text-slate-600">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span>Sheet</span>
+                  </span>
                 </div>
-                <div className="flex items-center gap-1 text-slate-600">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Sheet Terhubung</span>
-                </div>
-              </div>
 
-              {/* Desktop Collapse Button */}
-              <button
-                onClick={onToggleCollapsed}
-                className="hidden lg:flex w-full items-center justify-center gap-2 py-1.5 text-[11px] font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg transition-colors"
-                title="Persempit Menu Samping"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-                <span>Ciutkan Menu</span>
-              </button>
+                <button
+                  onClick={onToggleCollapsed}
+                  className="hidden lg:inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 hover:text-slate-800 hover:bg-slate-200/70 rounded transition-colors"
+                  title="Persempit Menu Samping"
+                >
+                  <ChevronLeft className="w-3 h-3" />
+                  <span>Ciutkan</span>
+                </button>
+              </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center gap-2.5">
+            <div className="flex flex-col items-center gap-2">
               <button
                 type="button"
                 onClick={onLogout}
@@ -362,7 +348,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </button>
               <button
                 onClick={onToggleCollapsed}
-                className="hidden lg:flex p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg transition-colors"
+                className="hidden lg:flex p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg transition-colors"
                 title="Perlebar Menu Samping"
               >
                 <ChevronRight className="w-4 h-4" />

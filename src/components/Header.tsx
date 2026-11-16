@@ -1,13 +1,9 @@
 import React from 'react';
 import {
   Menu,
-  PlusCircle,
   Eye,
   EyeOff,
-  ShieldCheck,
-  ChevronRight,
-  BookOpen,
-  LogOut
+  ChevronRight
 } from 'lucide-react';
 import { AppTab } from './Sidebar';
 
@@ -16,9 +12,7 @@ interface HeaderProps {
   onSelectTab: (tab: AppTab) => void;
   isAnonymized: boolean;
   onToggleAnonymized: () => void;
-  onOpenNewCase: () => void;
   onToggleMobileSidebar: () => void;
-  onLogout?: () => void;
 }
 
 const TAB_META: Record<AppTab, { title: string; subtitle: string; category: string }> = {
@@ -69,9 +63,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectTab,
   isAnonymized,
   onToggleAnonymized,
-  onOpenNewCase,
-  onToggleMobileSidebar,
-  onLogout
+  onToggleMobileSidebar
 }) => {
   const currentMeta = TAB_META[currentTab] || {
     title: 'SIPELKA Nagekeo',
@@ -81,7 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
-      <div className="px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
+      <div className="px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
         {/* Left Section: Mobile Menu Toggle & Breadcrumbs */}
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           {/* Mobile Hamburger Button */}
@@ -96,17 +88,17 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Breadcrumb & Section Title */}
           <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+            <div className="flex items-center gap-1.5 text-[10.5px] font-semibold text-slate-400">
               <span className="hover:text-blue-800 cursor-pointer hidden sm:inline" onClick={() => onSelectTab('dashboard')}>
                 SIPELKA Nagekeo
               </span>
               <ChevronRight className="w-3 h-3 text-slate-300 hidden sm:inline" />
-              <span className="text-blue-900 font-bold uppercase tracking-wider text-[10px] bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
+              <span className="text-blue-900 font-bold uppercase tracking-wider text-[9.5px] bg-blue-50 px-1.5 py-0.5 rounded border border-blue-100">
                 {currentMeta.category}
               </span>
             </div>
             <div className="flex items-baseline gap-2 truncate">
-              <h1 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight truncate">
+              <h1 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight truncate">
                 {currentMeta.title}
               </h1>
               <span className="text-xs text-slate-500 font-medium hidden xl:inline truncate">
@@ -116,9 +108,8 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Right Section: Privacy Toggle, Cyber Shield, and Quick Action */}
-        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-          {/* Privacy Toggle Button */}
+        {/* Right Section: Privacy Toggle Only (No Duplicate Sidebar Menus) */}
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={onToggleAnonymized}
@@ -141,53 +132,6 @@ export const Header: React.FC<HeaderProps> = ({
               </>
             )}
           </button>
-
-          {/* Cyber Security Status Badge */}
-          <div
-            title="Keamanan Siber Aktif: Sanitasi Anti-SQL Injection, Proteksi Inspeksi & Keamanan Data Korban"
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200/90 shadow-2xs cursor-default select-none"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span className="hidden md:inline text-[11px] font-bold text-emerald-800">
-              Keamanan Aktif
-            </span>
-          </div>
-
-          {/* Guide Quick Button */}
-          {currentTab !== 'panduan' && (
-            <button
-              onClick={() => onSelectTab('panduan')}
-              title="Buka Panduan Aplikasi"
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all shadow-2xs"
-            >
-              <BookOpen className="w-3.5 h-3.5 text-amber-600" />
-              <span>Panduan</span>
-            </button>
-          )}
-
-          {/* Primary Action Button: Catat Kasus Baru */}
-          <button
-            type="button"
-            onClick={onOpenNewCase}
-            className="flex items-center gap-2 px-3.5 sm:px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-blue-700 via-sky-600 to-blue-800 hover:from-blue-800 hover:to-sky-700 rounded-xl shadow-xs hover:shadow-md transition-all whitespace-nowrap shrink-0 ring-1 ring-amber-400/40"
-          >
-            <PlusCircle className="w-4 h-4 text-amber-300" />
-            <span className="hidden xs:inline">+ Catat Kasus Baru</span>
-            <span className="xs:hidden">Catat Kasus</span>
-          </button>
-
-          {/* Quick Logout Button */}
-          {onLogout && (
-            <button
-              type="button"
-              onClick={onLogout}
-              title="Keluar dari Aplikasi (Logout)"
-              className="p-2 text-slate-500 hover:text-rose-700 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-xl transition-all shadow-2xs shrink-0"
-              aria-label="Logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          )}
         </div>
       </div>
     </header>
