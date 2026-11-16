@@ -33,6 +33,7 @@ interface CaseDetailModalProps {
     note: Omit<CatatanPenanganan, 'id'>,
     newStatus?: StatusPenanganan
   ) => void;
+  isReadOnly?: boolean;
 }
 
 export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
@@ -42,7 +43,8 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
   onClose,
   onEdit,
   onPrint,
-  onAddProgressNote
+  onAddProgressNote,
+  isReadOnly = false
 }) => {
   const [activeTab, setActiveTab] = useState<'kronologi' | 'identitas' | 'riwayat'>('kronologi');
   const [showAddNoteForm, setShowAddNoteForm] = useState(false);
@@ -136,13 +138,15 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
             >
               <Printer className="w-4 h-4" />
             </button>
-            <button
-              onClick={() => onEdit(kasus)}
-              className="p-2 text-slate-600 hover:text-indigo-900 hover:bg-white rounded-lg border border-slate-200 transition-colors"
-              title="Ubah Berkas"
-            >
-              <Edit className="w-4 h-4" />
-            </button>
+            {!isReadOnly && (
+              <button
+                onClick={() => onEdit(kasus)}
+                className="p-2 text-slate-600 hover:text-indigo-900 hover:bg-white rounded-lg border border-slate-200 transition-colors"
+                title="Ubah Berkas"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={onClose}
               className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-lg transition-colors"
@@ -451,7 +455,7 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                     Rekam jejak setiap langkah penanganan medis, hukum, psikologis, atau mediasi
                   </p>
                 </div>
-                {!showAddNoteForm && (
+                {!isReadOnly && !showAddNoteForm && (
                   <button
                     onClick={() => setShowAddNoteForm(true)}
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-900 hover:bg-indigo-950 text-white rounded-lg font-semibold text-xs shadow-sm"

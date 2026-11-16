@@ -125,6 +125,45 @@ export const LoginView: React.FC<LoginViewProps> = ({
             </div>
           )}
 
+          {/* Quick Role Fill Buttons */}
+          <div className="mb-5 p-3 bg-sky-50 border border-sky-200 rounded-2xl">
+            <div className="text-[11px] font-bold text-sky-900 mb-2 flex items-center justify-between">
+              <span>Pilih Jenis Akses Cepat:</span>
+              <span className="text-[10px] text-sky-700 font-normal">Klik untuk isi otomatis</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setUsernameOrEmail('admin');
+                  setPassword('sipelka2026');
+                }}
+                className="px-3 py-2 bg-white hover:bg-sky-100 border border-sky-300 rounded-xl text-left transition-all shadow-2xs group cursor-pointer"
+              >
+                <div className="text-[11px] font-extrabold text-blue-900 group-hover:text-blue-950 flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-blue-600" />
+                  <span>Administrator</span>
+                </div>
+                <div className="text-[10px] text-slate-500 truncate mt-0.5">Akses Penuh (Edit Data)</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setUsernameOrEmail('pimpinan');
+                  setPassword('pimpinan2026');
+                }}
+                className="px-3 py-2 bg-white hover:bg-sky-100 border border-sky-300 rounded-xl text-left transition-all shadow-2xs group cursor-pointer"
+              >
+                <div className="text-[11px] font-extrabold text-amber-900 group-hover:text-amber-950 flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span>Pimpinan / Kabid</span>
+                </div>
+                <div className="text-[10px] text-slate-500 truncate mt-0.5">Hanya Melihat (Read-Only)</div>
+              </button>
+            </div>
+          </div>
+
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Username / Email Field */}

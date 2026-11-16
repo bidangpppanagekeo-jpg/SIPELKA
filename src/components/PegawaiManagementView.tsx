@@ -39,6 +39,7 @@ interface PegawaiManagementViewProps {
   onViewOfficerCases: (officerName: string) => void;
   onOpenIntegrasi?: () => void;
   showToast?: (msg: string) => void;
+  isReadOnly?: boolean;
 }
 
 const KATEGORI_OPTIONS: KategoriPegawai[] = [
@@ -57,7 +58,8 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
   onResetPegawai,
   onViewOfficerCases,
   onOpenIntegrasi,
-  showToast
+  showToast,
+  isReadOnly = false
 }) => {
   const [selectedKategori, setSelectedKategori] = useState<string>('Semua');
   const [searchQuery, setSearchQuery] = useState('');
@@ -278,6 +280,15 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {isReadOnly && (
+        <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl text-xs sm:text-sm text-amber-900 font-bold flex items-center gap-3 shadow-sm">
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-600 animate-pulse shrink-0" />
+          <div>
+            <span>Mode Pimpinan (Hanya Melihat - Read Only): Anda masuk sebagai Pimpinan / Kepala Bidang PPPA. Penambahan, pengeditan, dan penghapusan data pegawai dinonaktifkan.</span>
+          </div>
+        </div>
+      )}
+
       {/* 1. Header Banner (Biru Muda) */}
       <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 p-6 sm:p-7 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
         <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
@@ -322,13 +333,15 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
               <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
               <span>Ekspor CSV</span>
             </button>
-            <button
-              onClick={handleOpenNewModal}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-blue-950 font-black text-xs rounded-xl shadow-md transition-all transform active:scale-95"
-            >
-              <UserPlus className="w-4 h-4 text-blue-950" />
-              <span>Tambah Pegawai Baru</span>
-            </button>
+            {!isReadOnly && (
+              <button
+                onClick={handleOpenNewModal}
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-blue-950 font-black text-xs rounded-xl shadow-md transition-all transform active:scale-95"
+              >
+                <UserPlus className="w-4 h-4 text-blue-950" />
+                <span>Tambah Pegawai Baru</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -599,24 +612,28 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
                       {/* Aksi */}
                       <td className="py-3.5 px-4 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => handleOpenEditModal(p)}
-                            className="p-1.5 text-slate-600 hover:text-sky-700 hover:bg-sky-100 rounded-lg transition-colors"
-                            title="Edit Pegawai"
-                          >
-                            <Edit2 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (window.confirm(`Hapus data pegawai ${p.nama}?`)) {
-                                onDeletePegawai(p.id);
-                              }
-                            }}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                            title="Hapus Pegawai"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                          {!isReadOnly && (
+                            <>
+                              <button
+                                onClick={() => handleOpenEditModal(p)}
+                                className="p-1.5 text-slate-600 hover:text-sky-700 hover:bg-sky-100 rounded-lg transition-colors"
+                                title="Edit Pegawai"
+                              >
+                                <Edit2 className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (window.confirm(`Hapus data pegawai ${p.nama}?`)) {
+                                    onDeletePegawai(p.id);
+                                  }
+                                }}
+                                className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                title="Hapus Pegawai"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>

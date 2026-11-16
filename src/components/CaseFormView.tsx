@@ -42,6 +42,7 @@ interface CaseFormViewProps {
   onSaveCase: (savedCase: KasusKekerasan) => void;
   onCancel: () => void;
   onOpenGuide?: () => void;
+  isReadOnly?: boolean;
 }
 
 const TEMPAT_KEJADIAN_OPTIONS: TempatKejadian[] = [
@@ -82,7 +83,8 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
   pegawaiList,
   onSaveCase,
   onCancel,
-  onOpenGuide
+  onOpenGuide,
+  isReadOnly = false
 }) => {
   const isEditing = Boolean(initialCase);
 
@@ -268,6 +270,15 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {isReadOnly && (
+        <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl text-xs sm:text-sm text-amber-900 font-bold flex items-center gap-3 shadow-sm">
+          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
+          <div>
+            <span>Mode Pimpinan (Hanya Melihat - Read Only): Anda masuk sebagai Pimpinan / Kepala Bidang PPPA. Formulir ini ditampilkan dalam mode baca saja. Perubahan data tidak dapat disimpan.</span>
+          </div>
+        </div>
+      )}
+
       {/* 1. Colorful Official Header Banner (Biru Muda) */}
       <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 p-6 sm:p-7 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
         <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
@@ -1259,15 +1270,17 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
             onClick={onCancel}
             className="px-4 py-2.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
           >
-            Batal
+            {isReadOnly ? 'Kembali' : 'Batal'}
           </button>
-          <button
-            type="submit"
-            className="flex items-center gap-2 px-6 py-2.5 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 rounded-xl transition-all shadow-md hover:shadow-lg ring-1 ring-white/50"
-          >
-            <Save className="w-4 h-4 text-slate-950" />
-            <span>{isEditing ? 'Simpan Perubahan Berkas' : 'Daftarkan Kasus ke SIPELKA'}</span>
-          </button>
+          {!isReadOnly && (
+            <button
+              type="submit"
+              className="flex items-center gap-2 px-6 py-2.5 text-xs font-black text-slate-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 rounded-xl transition-all shadow-md hover:shadow-lg ring-1 ring-white/50"
+            >
+              <Save className="w-4 h-4 text-slate-950" />
+              <span>{isEditing ? 'Simpan Perubahan Berkas' : 'Daftarkan Kasus ke SIPELKA'}</span>
+            </button>
+          )}
         </div>
       </form>
     </div>

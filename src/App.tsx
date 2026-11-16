@@ -91,6 +91,10 @@ export default function App() {
   };
 
   const handleOpenNewCase = () => {
+    if (authSession.user?.role === 'pimpinan') {
+      showToast('Mode Pimpinan bersifat hanya melihat. Penambahan kasus baru hanya dapat dilakukan oleh Administrator.');
+      return;
+    }
     setCaseToEdit(null);
     setCurrentTab('input');
   };
@@ -411,6 +415,7 @@ export default function App() {
             onPrintCase={handlePrintCase}
             onOpenNewCase={handleOpenNewCase}
             onResetData={handleResetData}
+            isReadOnly={authSession.user?.role === 'pimpinan'}
           />
         )}
 
@@ -425,6 +430,7 @@ export default function App() {
               setCurrentTab('register');
             }}
             onOpenGuide={() => setCurrentTab('panduan')}
+            isReadOnly={authSession.user?.role === 'pimpinan'}
           />
         )}
 
@@ -438,6 +444,7 @@ export default function App() {
             onViewOfficerCases={handleViewOfficerCases}
             onOpenIntegrasi={() => setCurrentTab('integrasi')}
             showToast={showToast}
+            isReadOnly={authSession.user?.role === 'pimpinan'}
           />
         )}
 
@@ -478,6 +485,7 @@ export default function App() {
           onEdit={handleEditCase}
           onPrint={handlePrintCase}
           onAddProgressNote={handleAddProgressNote}
+          isReadOnly={authSession.user?.role === 'pimpinan'}
         />
       )}
 

@@ -117,14 +117,14 @@ export function loginAdmin(
   if (!cleanInput) {
     return {
       success: false,
-      message: 'Silakan masukkan Username (admin) atau Email Dinas.'
+      message: 'Silakan masukkan Username atau Email Dinas.'
     };
   }
 
   if (!cleanPassword) {
     return {
       success: false,
-      message: 'Silakan masukkan Kata Sandi administrator.'
+      message: 'Silakan masukkan Kata Sandi.'
     };
   }
 
@@ -138,13 +138,22 @@ export function loginAdmin(
   }
 
   const normalizedInput = cleanInput.toLowerCase();
-  const isAuthorizedIdentity =
+  
+  // Tentukan apakah Pimpinan atau Admin
+  const isPimpinan = 
+    normalizedInput === 'pimpinan' || 
+    normalizedInput === 'kabid' || 
+    normalizedInput === 'kepalabidang' ||
+    normalizedInput.includes('pimpinan') ||
+    normalizedInput.includes('kabid.pppa');
+
+  const isAdmin = 
     normalizedInput === 'admin' ||
     normalizedInput === 'bidangpppanagekeo@gmail.com' ||
     normalizedInput === 'admin.pppa' ||
     normalizedInput === 'adminpppa';
 
-  if (!isAuthorizedIdentity) {
+  if (!isAdmin && !isPimpinan) {
     // Catat percobaan gagal
     const state = getLockoutState();
     const newAttempts = state.attempts + 1;
@@ -155,7 +164,7 @@ export function loginAdmin(
 
     return {
       success: false,
-      message: 'Akses ditolak. Username atau Email tidak terdaftar sebagai Administrator Dinas PMDP3A.'
+      message: 'Akses ditolak. Username atau Email tidak terdaftar sebagai Administrator atau Pimpinan.'
     };
   }
 
@@ -170,10 +179,11 @@ export function loginAdmin(
     console.warn('Error reading custom creds:', e);
   }
 
-  const isValidPassword =
-    cleanPassword === DEFAULT_PASSWORD ||
-    ALTERNATIVE_PASSWORDS.includes(cleanPassword) ||
-    (customCredentials && customCredentials.passwordHash === cleanPassword);
+  // Password khusus Pimpinan: 'pimpinan2026' atau 'kabid2026', atau password default admin
+  const pimpinanPasswords = ['pimpinan2026', 'kabid2026', 'pimpinan123'];
+  const isValidPassword = isPimpinan
+    ? (pimpinanPasswords.includes(cleanPassword) || cleanPassword === DEFAULT_PASSWORD || ALTERNATIVE_PASSWORDS.includes(cleanPassword))
+    : (cleanPassword === DEFAULT_PASSWORD || ALTERNATIVE_PASSWORDS.includes(cleanPassword) || (customCredentials && customCredentials.passwordHash === cleanPassword));
 
   if (!isValidPassword) {
     const state = getLockoutState();
@@ -185,24 +195,46 @@ export function loginAdmin(
 
     return {
       success: false,
-      message: 'Kata sandi salah! Pastikan memasukkan kata sandi administrator yang sesuai.'
+      message: 'Kata sandi salah! Pastikan memasukkan kata sandi yang sesuai.'
     };
   }
 
-  // 4. Login Berhasil - Buat sesi Administrator Dinas PPPA
+  // 4. Login Berhasil - Buat sesi Administrator atau Pimpinan
   saveLockoutState({ attempts: 0, lockoutUntil: 0 });
 
-  const sessionUser: AdminUser = {
-    ...DEFAULT_ADMIN,
-    email: normalizedInput === 'admin' ? DEFAULT_ADMIN.email : normalizedInput,
-    lastLogin: new Date().toLocaleString('id-ID', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  };
+  let sessionUser: AdminUser;
+  if (isPimpinan) {
+    sessionUser = {
+      id: 'PIMPINAN-NAGEKEO-001',
+      username: normalizedInput,
+      nama: 'Kepala Bidang / Pimpinan PPPA',
+      email: 'pimpinan.pppa@nagekeokab.go.id',
+      role: 'pimpinan', // Read-only role
+      instansi: 'Dinas PMDP3A Kabupaten Nagekeo',
+      jabatan: 'Kepala Bidang Pemberdayaan Perempuan & Perlindungan Anak',
+      nipOrIdentitas: '19740512 200212 2 004',
+      lastLogin: new Date().toLocaleString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    };
+  } else {
+    sessionUser = {
+      ...DEFAULT_ADMIN,
+      email: normalizedInput === 'admin' ? DEFAULT_ADMIN.email : normalizedInput,
+      role: 'superadmin', // Full access
+      lastLogin: new Date().toLocaleString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    };
+  }
 
   const session: AuthSession = {
     isAuthenticated: true,
@@ -221,7 +253,7 @@ export function loginAdmin(
 
   return {
     success: true,
-    message: `Login berhasil! Selamat datang, ${sessionUser.nama}.`,
+    message: `Login berhasil! Selamat datang, ${sessionUser.nama} (${isPimpinan ? 'Mode Pimpinan - Hanya Melihat' : 'Mode Administrator - Penuh'}).`,
     user: sessionUser
   };
 }

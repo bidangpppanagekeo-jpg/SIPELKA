@@ -25,6 +25,7 @@ interface CaseListViewProps {
   onPrintCase: (c: KasusKekerasan) => void;
   onOpenNewCase: () => void;
   onResetData: () => void;
+  isReadOnly?: boolean;
 }
 
 export const CaseListView: React.FC<CaseListViewProps> = ({
@@ -36,7 +37,8 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
   onDeleteCase,
   onPrintCase,
   onOpenNewCase,
-  onResetData
+  onResetData,
+  isReadOnly = false
 }) => {
   const [filters, setFilters] = useState<FilterKasusState>({
     searchQuery: initialSearchQuery || '',
@@ -124,6 +126,15 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
 
   return (
     <div className="space-y-6">
+      {isReadOnly && (
+        <div className="p-4 bg-amber-50 border-2 border-amber-300 rounded-2xl text-xs sm:text-sm text-amber-900 font-bold flex items-center gap-3 shadow-sm">
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-600 animate-pulse shrink-0" />
+          <div>
+            <span>Mode Pimpinan (Hanya Melihat - Read Only): Anda masuk sebagai Pimpinan / Kepala Bidang PPPA. Tindakan ubah data, hapus berkas, dan registrasi baru dinonaktifkan.</span>
+          </div>
+        </div>
+      )}
+
       {/* 1. Colorful Official Header Banner (Biru Muda) */}
       <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-200 text-sky-950 p-6 sm:p-7 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
         <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
@@ -428,14 +439,16 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => onEditCase(item)}
-                          className="p-1.5 text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded"
-                          title="Ubah Data Kasus"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
+                        {!isReadOnly && (
+                          <button
+                            type="button"
+                            onClick={() => onEditCase(item)}
+                            className="p-1.5 text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded"
+                            title="Ubah Data Kasus"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => onPrintCase(item)}
@@ -444,14 +457,16 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                         >
                           <FileText className="w-4 h-4" />
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setConfirmDeleteId(item.id)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded"
-                          title="Hapus Kasus"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {!isReadOnly && (
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDeleteId(item.id)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded"
+                            title="Hapus Kasus"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

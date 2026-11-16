@@ -166,7 +166,7 @@ export interface AdminUser {
   username: string;
   nama: string;
   email: string;
-  role: 'superadmin' | 'admin_pppa';
+  role: 'superadmin' | 'admin_pppa' | 'pimpinan';
   instansi: string;
   jabatan: string;
   nipOrIdentitas?: string;
