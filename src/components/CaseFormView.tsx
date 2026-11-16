@@ -374,66 +374,68 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* SECTION 1: Nomor Registrasi & Pelapor (Soft Sky Blue + Floral Mother & Daughter) */}
-        <div className="relative overflow-hidden bg-white p-6 sm:p-7 rounded-3xl border-2 border-sky-300/90 shadow-sm">
+        <div className="relative overflow-hidden bg-transparent p-6 sm:p-7 rounded-3xl border-2 border-sky-300/90 shadow-sm">
           <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
             <img
               src={formBgBiruImg}
               alt="Latar Ibu dan Anak Nuansa Biru Langit"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-right opacity-70 brightness-105 saturate-110"
+              className="w-full h-full object-cover object-center opacity-90 brightness-105 saturate-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-sky-50/55 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent" />
           </div>
 
           <div className="relative z-10 space-y-4">
-          <div className="border-b border-sky-200/80 pb-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-              01
-            </div>
-            <div>
-              <h2 className="text-sm font-extrabold text-blue-950 uppercase tracking-wide">
-                1. Data Penerimaan Laporan & Pihak Pelapor
-              </h2>
-              <p className="text-xs text-slate-600">
-                Informasi pencatatan awal, nomor registrasi resmi, dan pihak yang menyampaikan aduan
-              </p>
+          <div className="pb-1 flex items-center justify-between gap-3">
+            <div className="inline-flex items-center gap-3 bg-white/95 backdrop-blur-xs px-4 py-2.5 rounded-2xl border border-sky-200/90 shadow-xs">
+              <div className="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
+                01
+              </div>
+              <div>
+                <h2 className="text-sm font-extrabold text-blue-950 uppercase tracking-wide">
+                  1. Data Penerimaan Laporan & Pihak Pelapor
+                </h2>
+                <p className="text-xs font-medium text-slate-700">
+                  Informasi pencatatan awal, nomor registrasi resmi, dan pihak yang menyampaikan aduan
+                </p>
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Nomor Registrasi Resmi
               </label>
               <input
                 type="text"
                 value={formData.nomorRegistrasi}
                 onChange={(e) => setFormData({ ...formData, nomorRegistrasi: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-mono font-semibold"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
                 required
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Tanggal Lapor
               </label>
               <input
                 type="date"
                 value={formData.tanggalLapor}
                 onChange={(e) => setFormData({ ...formData, tanggalLapor: e.target.value })}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
                 required
               />
             </div>
 
             {/* Petugas Pendamping Utama - Terkoneksi ke Data Pegawai Tenaga Pendamping Bidang PPPA */}
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block font-semibold text-slate-800">
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <label className="inline-block font-bold text-slate-900 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                   Petugas Pendamping Utama *
                 </label>
-                <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200">
+                <span className="text-[10px] font-bold text-indigo-800 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-md border border-indigo-200 shadow-2xs">
                   Data Pegawai PPPA
                 </span>
               </div>
@@ -464,7 +466,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                     });
                   }
                 }}
-                className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
                 required
               >
                 <option value="">-- Pilih Tenaga Pendamping Bidang PPPA --</option>
@@ -487,10 +489,10 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 );
                 if (currentPppa) {
                   return (
-                    <div className="mt-1.5 p-2 bg-indigo-50/70 border border-indigo-200/80 rounded-lg text-[11px] text-indigo-950 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    <div className="mt-1.5 p-2 bg-white/95 backdrop-blur-xs border border-indigo-200 rounded-lg text-[11px] text-indigo-950 flex flex-wrap items-center gap-x-2 gap-y-0.5 shadow-2xs">
                       <span className="font-bold text-indigo-900">{currentPppa.jabatan}</span>
                       <span>·</span>
-                      <span className="text-slate-600">{currentPppa.instansi}</span>
+                      <span className="text-slate-700 font-medium">{currentPppa.instansi}</span>
                       {currentPppa.telepon && (
                         <>
                           <span>·</span>
@@ -501,7 +503,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                   );
                 }
                 return (
-                  <p className="text-[11px] text-slate-500 mt-1">
+                  <p className="inline-block text-[11px] font-medium text-slate-800 mt-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md shadow-2xs">
                     Pilih pegawai dari kategori Tenaga Pendamping Bidang PPPA.
                   </p>
                 );
@@ -509,7 +511,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Nama Lengkap Pelapor *
               </label>
               <input
@@ -517,13 +519,13 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.namaPelapor}
                 onChange={(e) => setFormData({ ...formData, namaPelapor: e.target.value })}
                 placeholder="Nama orang yang melapor"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
                 required
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Hubungan dengan Korban
               </label>
               <input
@@ -531,13 +533,13 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.hubunganPelaporDenganKorban}
                 onChange={(e) => setFormData({ ...formData, hubunganPelaporDenganKorban: e.target.value })}
                 placeholder="Contoh: Korban Langsung, Ibu Kandung, Kader Desa"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
                 required
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Kontak HP / Telepon Pelapor
               </label>
               <input
@@ -545,7 +547,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.kontakPelapor}
                 onChange={(e) => setFormData({ ...formData, kontakPelapor: e.target.value })}
                 placeholder="0812-xxxx-xxxx"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
               />
             </div>
           </div>
@@ -553,35 +555,37 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
         </div>
 
         {/* SECTION 2: Data Korban & Asesmen Kerentanan (Lavender / Indigo + Mother & Child in Meadow) */}
-        <div className="relative overflow-hidden bg-white p-6 sm:p-7 rounded-3xl border-2 border-indigo-300/90 shadow-sm">
+        <div className="relative overflow-hidden bg-transparent p-6 sm:p-7 rounded-3xl border-2 border-indigo-300/90 shadow-sm">
           <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
             <img
               src={formBgIndigoImg}
               alt="Latar Ibu dan Anak Nuansa Lavender Indigo"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-right opacity-70 brightness-105 saturate-110"
+              className="w-full h-full object-cover object-center opacity-90 brightness-105 saturate-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-indigo-50/55 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent" />
           </div>
 
           <div className="relative z-10 space-y-4">
-          <div className="border-b border-indigo-200/80 pb-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-              02
-            </div>
-            <div>
-              <h2 className="text-sm font-extrabold text-indigo-950 uppercase tracking-wide">
-                2. Identitas Korban & Asesmen Kerentanan
-              </h2>
-              <p className="text-xs text-slate-600">
-                Data identitas korban dilindungi kerahasiaannya sesuai UU Perlindungan Saksi dan Korban
-              </p>
+          <div className="pb-1 flex items-center justify-between gap-3">
+            <div className="inline-flex items-center gap-3 bg-white/95 backdrop-blur-xs px-4 py-2.5 rounded-2xl border border-indigo-200/90 shadow-xs">
+              <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
+                02
+              </div>
+              <div>
+                <h2 className="text-sm font-extrabold text-indigo-950 uppercase tracking-wide">
+                  2. Identitas Korban & Asesmen Kerentanan
+                </h2>
+                <p className="text-xs font-medium text-slate-700">
+                  Data identitas korban dilindungi kerahasiaannya sesuai UU Perlindungan Saksi dan Korban
+                </p>
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Nama Lengkap Korban *
               </label>
               <input
@@ -589,13 +593,13 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.namaKorban}
                 onChange={(e) => setFormData({ ...formData, namaKorban: e.target.value })}
                 placeholder="Sesuai KTP / Akta Kelahiran"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
                 required
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Nama Samaran / Kode Privasi
               </label>
               <input
@@ -603,13 +607,13 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.namaSamaran}
                 onChange={(e) => setFormData({ ...formData, namaSamaran: e.target.value })}
                 placeholder="Contoh: Ny. MGD (32 th) / An. TN (13 th)"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-medium text-slate-800"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
                 required
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 NIK Korban (16 Digit)
               </label>
               <input
@@ -617,18 +621,18 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.nikKorban}
                 onChange={(e) => setFormData({ ...formData, nikKorban: e.target.value })}
                 placeholder="5316xxxxxxxxxxxx"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-mono"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-mono font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Jenis Kelamin Korban
               </label>
               <select
                 value={formData.jenisKelaminKorban}
                 onChange={(e) => setFormData({ ...formData, jenisKelaminKorban: e.target.value as any })}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
               >
                 <option value="Perempuan">Perempuan</option>
                 <option value="Laki-laki">Laki-laki (Anak)</option>
@@ -636,7 +640,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Usia Korban (Tahun)
               </label>
               <input
@@ -645,19 +649,19 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 max={120}
                 value={formData.usiaKorban}
                 onChange={(e) => handleUsiaChange(parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-mono"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-mono font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
                 required
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Kategori Korban
               </label>
               <select
                 value={formData.kategoriKorban}
                 onChange={(e) => setFormData({ ...formData, kategoriKorban: e.target.value as any })}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-medium"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
               >
                 <option value="Perempuan Dewasa">Perempuan Dewasa</option>
                 <option value="Anak Perempuan">Anak Perempuan (&lt; 18 th)</option>
@@ -667,13 +671,13 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Kecamatan Domisili Korban
               </label>
               <select
                 value={formData.kecamatanKorban}
                 onChange={(e) => setFormData({ ...formData, kecamatanKorban: e.target.value as any })}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-medium"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
               >
                 {DAFTAR_KECAMATAN.map((k) => (
                   <option key={k.nama} value={k.nama}>
@@ -684,7 +688,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Alamat Domisili Lengkap
               </label>
               <input
@@ -692,12 +696,12 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.alamatKorban}
                 onChange={(e) => setFormData({ ...formData, alamatKorban: e.target.value })}
                 placeholder="RT/RW, Dusun, Desa/Kelurahan"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Pendidikan Terakhir
               </label>
               <input
@@ -705,12 +709,12 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.pendidikanKorban}
                 onChange={(e) => setFormData({ ...formData, pendidikanKorban: e.target.value })}
                 placeholder="SD / SMP / SMA / Perguruan Tinggi / Tidak Sekolah"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Pekerjaan Korban
               </label>
               <input
@@ -718,12 +722,12 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.pekerjaanKorban}
                 onChange={(e) => setFormData({ ...formData, pekerjaanKorban: e.target.value })}
                 placeholder="Pelajar / IRT / Petani / Honorer / Swasta"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
               />
             </div>
 
             <div className="flex items-center gap-3 pt-4">
-              <label className="flex items-center gap-2 cursor-pointer font-semibold text-slate-800">
+              <label className="inline-flex items-center gap-2 cursor-pointer font-bold text-slate-900 bg-white/92 backdrop-blur-xs px-3 py-1.5 rounded-lg border border-white/80 shadow-2xs">
                 <input
                   type="checkbox"
                   checked={formData.disabilitas}
@@ -734,7 +738,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                       kategoriKorban: e.target.checked ? 'Disabilitas / Rentan' : formData.kategoriKorban
                     })
                   }
-                  className="rounded border-slate-300 text-indigo-900 focus:ring-indigo-600 w-4 h-4"
+                  className="rounded border-slate-400 text-indigo-900 focus:ring-indigo-600 w-4 h-4"
                 />
                 <span>Penyandang Disabilitas</span>
               </label>
@@ -744,7 +748,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                   value={formData.jenisDisabilitas}
                   onChange={(e) => setFormData({ ...formData, jenisDisabilitas: e.target.value })}
                   placeholder="Jenis disabilitas (Fisik / Rungu / Netra / Intelektual)"
-                  className="px-2 py-1 bg-white border border-slate-200 rounded text-xs flex-1"
+                  className="px-2.5 py-1.5 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg text-xs font-medium text-slate-900 flex-1 shadow-xs"
                 />
               )}
             </div>
@@ -753,35 +757,37 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
         </div>
 
         {/* SECTION 3: Data Terlapor & TKP (Warm Amber / Gold + Mother & Son Rice Terraces) */}
-        <div className="relative overflow-hidden bg-white p-6 sm:p-7 rounded-3xl border-2 border-amber-300/90 shadow-sm">
+        <div className="relative overflow-hidden bg-transparent p-6 sm:p-7 rounded-3xl border-2 border-amber-300/90 shadow-sm">
           <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
             <img
               src={formBgEmasImg}
               alt="Latar Ibu dan Anak Nuansa Emas Pedesaan"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-right opacity-70 brightness-105 saturate-110"
+              className="w-full h-full object-cover object-center opacity-90 brightness-105 saturate-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-amber-50/55 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent" />
           </div>
 
           <div className="relative z-10 space-y-4">
-          <div className="border-b border-amber-200/80 pb-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow-xs">
-              03
-            </div>
-            <div>
-              <h2 className="text-sm font-extrabold text-amber-950 uppercase tracking-wide">
-                3. Data Terlapor (Pelaku) & Tempat Kejadian Perkara (TKP)
-              </h2>
-              <p className="text-xs text-amber-900/80">
-                Identitas terduga pelaku dan lokasi tempat kejadian perkara di 7 kecamatan Kabupaten Nagekeo
-              </p>
+          <div className="pb-1 flex items-center justify-between gap-3">
+            <div className="inline-flex items-center gap-3 bg-white/95 backdrop-blur-xs px-4 py-2.5 rounded-2xl border border-amber-200/90 shadow-xs">
+              <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow-xs shrink-0">
+                03
+              </div>
+              <div>
+                <h2 className="text-sm font-extrabold text-amber-950 uppercase tracking-wide">
+                  3. Data Terlapor (Pelaku) & Tempat Kejadian Perkara (TKP)
+                </h2>
+                <p className="text-xs font-medium text-slate-700">
+                  Identitas terduga pelaku dan lokasi tempat kejadian perkara di 7 kecamatan Kabupaten Nagekeo
+                </p>
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Nama Terlapor / Terduga Pelaku *
               </label>
               <input
@@ -789,19 +795,19 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.namaPelaku}
                 onChange={(e) => setFormData({ ...formData, namaPelaku: e.target.value })}
                 placeholder="Nama lengkap atau panggilan"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs"
                 required
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Hubungan Pelaku dengan Korban
               </label>
               <select
                 value={formData.hubunganPelaku}
                 onChange={(e) => setFormData({ ...formData, hubunganPelaku: e.target.value as any })}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-medium"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs"
               >
                 {HUBUNGAN_PELAKU_OPTIONS.map((h) => (
                   <option key={h} value={h}>
@@ -812,7 +818,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Perkiraan Usia Pelaku (Tahun)
               </label>
               <input
@@ -820,25 +826,25 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 min={0}
                 value={formData.usiaPelaku}
                 onChange={(e) => setFormData({ ...formData, usiaPelaku: parseInt(e.target.value) || 0 })}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-mono"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-mono font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Tanggal Kejadian Perkara
               </label>
               <input
                 type="date"
                 value={formData.tanggalKejadian}
                 onChange={(e) => setFormData({ ...formData, tanggalKejadian: e.target.value })}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs"
                 required
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Kecamatan TKP (Kabupaten Nagekeo) *
               </label>
               <select
@@ -852,7 +858,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                     desaKelurahanTKP: kecObj?.desa[0] || ''
                   });
                 }}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-medium"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs"
               >
                 {DAFTAR_KECAMATAN.map((k) => (
                   <option key={k.nama} value={k.nama}>
@@ -863,13 +869,13 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Desa / Kelurahan TKP
               </label>
               <select
                 value={formData.desaKelurahanTKP}
                 onChange={(e) => setFormData({ ...formData, desaKelurahanTKP: e.target.value })}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-medium"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs"
               >
                 {selectedKecData?.desa.map((d) => (
                   <option key={d} value={d}>
@@ -880,13 +886,13 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
             </div>
 
             <div className="sm:col-span-3">
-              <label className="block font-semibold text-slate-700 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Kategori Tempat Kejadian
               </label>
               <select
                 value={formData.tempatKejadian}
                 onChange={(e) => setFormData({ ...formData, tempatKejadian: e.target.value as any })}
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-medium"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs"
               >
                 {TEMPAT_KEJADIAN_OPTIONS.map((t) => (
                   <option key={t} value={t}>
@@ -900,36 +906,38 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
         </div>
 
         {/* SECTION 4: Bentuk Kekerasan, Kronologi & Layanan (Emerald / Teal + Mother & Child Reading) */}
-        <div className="relative overflow-hidden bg-white p-6 sm:p-7 rounded-3xl border-2 border-emerald-300/90 shadow-sm">
+        <div className="relative overflow-hidden bg-transparent p-6 sm:p-7 rounded-3xl border-2 border-emerald-300/90 shadow-sm">
           <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
             <img
               src={formBgHijauImg}
               alt="Latar Ibu dan Anak Nuansa Hijau Pemulihan"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-right opacity-65 brightness-105 saturate-110"
+              className="w-full h-full object-cover object-center opacity-90 brightness-105 saturate-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-emerald-50/55 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent" />
           </div>
 
           <div className="relative z-10 space-y-4">
-          <div className="border-b border-emerald-200/80 pb-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-              04
-            </div>
-            <div>
-              <h2 className="text-sm font-extrabold text-emerald-950 uppercase tracking-wide">
-                4. Bentuk Kekerasan, Kronologi & Rencana Layanan
-              </h2>
-              <p className="text-xs text-emerald-900/80">
-                Klasifikasi jenis pelanggaran, uraian ringkas kejadian, serta penentuan urgensi respon terpadu
-              </p>
+          <div className="pb-1 flex items-center justify-between gap-3">
+            <div className="inline-flex items-center gap-3 bg-white/95 backdrop-blur-xs px-4 py-2.5 rounded-2xl border border-emerald-200/90 shadow-xs">
+              <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
+                04
+              </div>
+              <div>
+                <h2 className="text-sm font-extrabold text-emerald-950 uppercase tracking-wide">
+                  4. Bentuk Kekerasan, Kronologi & Rencana Layanan
+                </h2>
+                <p className="text-xs font-medium text-slate-700">
+                  Klasifikasi jenis pelanggaran, uraian ringkas kejadian, serta penentuan urgensi respon terpadu
+                </p>
+              </div>
             </div>
           </div>
 
           <div className="space-y-4 text-xs">
             {/* Bentuk Kekerasan Multi-checkbox */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-2">
+              <label className="inline-block font-bold text-slate-900 mb-2 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Bentuk Kekerasan yang Dialami (Bisa pilih lebih dari satu) *
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -939,17 +947,17 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                     <label
                       key={bentuk}
                       onClick={() => toggleBentukKekerasan(bentuk)}
-                      className={`flex items-center gap-2.5 p-2.5 rounded-lg border text-xs cursor-pointer transition-colors ${
+                      className={`flex items-center gap-2.5 p-2.5 rounded-lg border text-xs cursor-pointer transition-colors backdrop-blur-xs shadow-2xs ${
                         isChecked
-                          ? 'bg-indigo-50/80 border-indigo-400 text-indigo-950 font-semibold'
-                          : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                          ? 'bg-indigo-50/95 border-indigo-400 text-indigo-950 font-bold'
+                          : 'bg-white/95 border-slate-300 text-slate-800 font-medium hover:bg-white'
                       }`}
                     >
                       <input
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => {}}
-                        className="rounded border-slate-300 text-indigo-900 focus:ring-indigo-600"
+                        className="rounded border-slate-400 text-indigo-900 focus:ring-indigo-600"
                       />
                       <span>{bentuk}</span>
                     </label>
@@ -960,7 +968,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
 
             {/* Kronologi */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Ringkasan Kronologi Kejadian *
               </label>
               <textarea
@@ -968,7 +976,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.ringkasanKronologi}
                 onChange={(e) => setFormData({ ...formData, ringkasanKronologi: e.target.value })}
                 placeholder="Ceritakan secara kronologis peristiwa yang terjadi, waktu kejadian, tindakan pelaku, dan saksi yang mengetahui..."
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 leading-relaxed"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 leading-relaxed shadow-xs"
                 required
               />
             </div>
@@ -976,13 +984,13 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
             {/* Tingkat Urgensi & Status */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block font-semibold text-slate-800 mb-1">
+                <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                   Tingkat Urgensi Penanganan
                 </label>
                 <select
                   value={formData.tingkatUrgensi}
                   onChange={(e) => setFormData({ ...formData, tingkatUrgensi: e.target.value as TingkatUrgensi })}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-semibold"
+                  className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 shadow-xs"
                 >
                   <option value="Darurat">Darurat (Ancaman jiwa, butuh evakuasi / Visum &lt;24 Jam)</option>
                   <option value="Tinggi">Tinggi (Luka berat / trauma akut / pelaku satu rumah)</option>
@@ -992,13 +1000,13 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-800 mb-1">
+                <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                   Status Penanganan Terkini
                 </label>
                 <select
                   value={formData.statusPenanganan}
                   onChange={(e) => setFormData({ ...formData, statusPenanganan: e.target.value as StatusPenanganan })}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg font-semibold"
+                  className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 shadow-xs"
                 >
                   {DAFTAR_STATUS_PENANGANAN.map((s) => (
                     <option key={s} value={s}>
@@ -1011,7 +1019,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
 
             {/* Layanan Rujukan yang dibutuhkan */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-2">
+              <label className="inline-block font-bold text-slate-900 mb-2 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Rencana Layanan & Rujukan Terpadu (UPTD PPA & Jejaring Kab. Nagekeo)
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1021,17 +1029,17 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                     <label
                       key={layanan}
                       onClick={() => toggleLayanan(layanan)}
-                      className={`flex items-center gap-2 p-2 rounded-lg border text-xs cursor-pointer transition-colors ${
+                      className={`flex items-center gap-2 p-2.5 rounded-lg border text-xs cursor-pointer transition-colors backdrop-blur-xs shadow-2xs ${
                         isChecked
-                          ? 'bg-amber-50 border-amber-300 text-amber-950 font-medium'
-                          : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                          ? 'bg-amber-50/95 border-amber-400 text-amber-950 font-bold'
+                          : 'bg-white/95 border-slate-300 text-slate-800 font-medium hover:bg-white'
                       }`}
                     >
                       <input
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => {}}
-                        className="rounded border-slate-300 text-amber-600 focus:ring-amber-500"
+                        className="rounded border-slate-400 text-amber-600 focus:ring-amber-500"
                       />
                       <span>{layanan}</span>
                     </label>
@@ -1042,7 +1050,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
 
             {/* Keterangan Tambahan */}
             <div>
-              <label className="block font-semibold text-slate-800 mb-1">
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Catatan Asesmen Tambahan / Tindak Lanjut Khusus
               </label>
               <input
@@ -1050,7 +1058,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                 value={formData.keteranganTambahan}
                 onChange={(e) => setFormData({ ...formData, keteranganTambahan: e.target.value })}
                 placeholder="Contoh: Saksi adalah tetangga samping rumah; korban membutuhkan juru bahasa isyarat"
-                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg"
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 shadow-xs"
               />
             </div>
           </div>
@@ -1058,21 +1066,21 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
         </div>
 
         {/* SECTION 5: Tim Penanganan Terpadu & Sinkronisasi Petugas SIPELKA (Vibrant Flores Colors) */}
-        <div className="relative overflow-hidden bg-white p-6 sm:p-7 rounded-3xl border-2 border-rose-300/80 shadow-sm">
+        <div className="relative overflow-hidden bg-transparent p-6 sm:p-7 rounded-3xl border-2 border-rose-300/80 shadow-sm">
           <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
             <img
               src={formBgPelangiImg}
               alt="Latar Ibu dan Anak Tenun Flores Berwarna"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-right opacity-70 brightness-105 saturate-110"
+              className="w-full h-full object-cover object-center opacity-90 brightness-105 saturate-110"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-rose-50/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent" />
           </div>
 
           <div className="relative z-10 space-y-4">
-          <div className="border-b border-rose-200/80 pb-3 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-rose-600 to-amber-500 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+          <div className="pb-1 flex items-center justify-between gap-3">
+            <div className="inline-flex items-center gap-3 bg-white/95 backdrop-blur-xs px-4 py-2.5 rounded-2xl border border-rose-200/90 shadow-xs">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-rose-600 to-amber-500 text-white font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
                 05
               </div>
               <div>
@@ -1080,20 +1088,20 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                   <Users className="w-4 h-4 text-rose-600" />
                   5. Penugasan Tim Penanganan Terpadu & Sinkronisasi Petugas
                 </h2>
-                <p className="text-xs text-slate-700">
+                <p className="text-xs font-medium text-slate-700">
                   Data petugas yang dipilih akan tersinkron otomatis ke lembar penanganan, berita acara, dan riwayat kasus
                 </p>
               </div>
             </div>
-            <span className="hidden sm:inline-flex text-[10px] font-bold text-rose-900 bg-rose-100/90 px-2.5 py-1 rounded-full border border-rose-200">
+            <span className="hidden sm:inline-flex text-[10px] font-bold text-rose-900 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-full border border-rose-200 shadow-xs">
               Sinkronisasi SIPELKA
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
             {/* 1. Admin SIPELKA Pencatat */}
-            <div className="bg-white p-3.5 rounded-xl border border-blue-200 shadow-xs space-y-1.5">
-              <label className="font-bold text-slate-800 flex items-center gap-1.5">
+            <div className="space-y-1.5">
+              <label className="inline-flex items-center gap-1.5 font-bold text-slate-900 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 <Shield className="w-3.5 h-3.5 text-blue-700" />
                 <span>Admin SIPELKA (Pencatat) *</span>
               </label>
@@ -1107,7 +1115,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                     adminSipelka: sel?.nama || ''
                   });
                 }}
-                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full px-2.5 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 shadow-xs"
               >
                 <option value="">-- Pilih Admin SIPELKA --</option>
                 {adminPegawai.map((p) => (
@@ -1116,12 +1124,14 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                   </option>
                 ))}
               </select>
-              <p className="text-[10px] text-slate-500">Petugas yang memverifikasi input perkara.</p>
+              <p className="inline-block text-[10px] font-medium text-slate-800 bg-white/92 backdrop-blur-xs px-2 py-0.5 rounded-md shadow-2xs">
+                Petugas yang memverifikasi input perkara.
+              </p>
             </div>
 
             {/* 2. Tenaga Pendamping Bidang PPPA */}
-            <div className="bg-white p-3.5 rounded-xl border border-indigo-200 shadow-xs space-y-1.5">
-              <label className="font-bold text-slate-800 flex items-center gap-1.5">
+            <div className="space-y-1.5">
+              <label className="inline-flex items-center gap-1.5 font-bold text-slate-900 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 <UserCheck className="w-3.5 h-3.5 text-indigo-700" />
                 <span>Tenaga Pendamping PPPA *</span>
               </label>
@@ -1135,7 +1145,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                     petugasPendamping: sel?.nama || ''
                   });
                 }}
-                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                className="w-full px-2.5 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
               >
                 <option value="">-- Pilih Pendamping PPPA --</option>
                 {pppaPegawai.map((p) => (
@@ -1144,12 +1154,14 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                   </option>
                 ))}
               </select>
-              <p className="text-[10px] text-slate-500">Pekerja sosial / konselor pendamping korban.</p>
+              <p className="inline-block text-[10px] font-medium text-slate-800 bg-white/92 backdrop-blur-xs px-2 py-0.5 rounded-md shadow-2xs">
+                Pekerja sosial / konselor pendamping korban.
+              </p>
             </div>
 
             {/* 3. Tenaga Pendamping Unit PPA Polres */}
-            <div className="bg-white p-3.5 rounded-xl border border-teal-200 shadow-xs space-y-1.5">
-              <label className="font-bold text-slate-800 flex items-center gap-1.5">
+            <div className="space-y-1.5">
+              <label className="inline-flex items-center gap-1.5 font-bold text-slate-900 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 <Gavel className="w-3.5 h-3.5 text-teal-700" />
                 <span>Unit PPA Polres (Penyidik)</span>
               </label>
@@ -1163,7 +1175,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                     petugasPolres: sel ? `${sel.nama} (${sel.jabatan})` : ''
                   });
                 }}
-                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-600"
+                className="w-full px-2.5 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-600 shadow-xs"
               >
                 <option value="">-- Tidak Ada / Koordinasi Menyusul --</option>
                 {polresPegawai.map((p) => (
@@ -1172,12 +1184,14 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                   </option>
                 ))}
               </select>
-              <p className="text-[10px] text-slate-500">Penyidik pembantu pendamping proses hukum.</p>
+              <p className="inline-block text-[10px] font-medium text-slate-800 bg-white/92 backdrop-blur-xs px-2 py-0.5 rounded-md shadow-2xs">
+                Penyidik pembantu pendamping proses hukum.
+              </p>
             </div>
 
             {/* 4. Tenaga Medis Visum */}
-            <div className="bg-white p-3.5 rounded-xl border border-emerald-200 shadow-xs space-y-1.5">
-              <label className="font-bold text-slate-800 flex items-center gap-1.5">
+            <div className="space-y-1.5">
+              <label className="inline-flex items-center gap-1.5 font-bold text-slate-900 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 <Stethoscope className="w-3.5 h-3.5 text-emerald-700" />
                 <span>Tenaga Medis Visum (VeR)</span>
               </label>
@@ -1191,7 +1205,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                     tenagaMedis: sel ? `${sel.nama} (${sel.instansi})` : ''
                   });
                 }}
-                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                className="w-full px-2.5 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 shadow-xs"
               >
                 <option value="">-- Tidak Ada / Medis Menyusul --</option>
                 {medisPegawai.map((p) => (
@@ -1200,12 +1214,14 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                   </option>
                 ))}
               </select>
-              <p className="text-[10px] text-slate-500">Dokter pemeriksa luka & Visum et Repertum.</p>
+              <p className="inline-block text-[10px] font-medium text-slate-800 bg-white/92 backdrop-blur-xs px-2 py-0.5 rounded-md shadow-2xs">
+                Dokter pemeriksa luka & Visum et Repertum.
+              </p>
             </div>
 
             {/* 5. Kepala Bidang PPPA Pengesah */}
-            <div className="bg-white p-3.5 rounded-xl border border-amber-200 shadow-xs space-y-1.5 sm:col-span-2 lg:col-span-2">
-              <label className="font-bold text-slate-800 flex items-center gap-1.5">
+            <div className="space-y-1.5 sm:col-span-2 lg:col-span-2">
+              <label className="inline-flex items-center gap-1.5 font-bold text-slate-900 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 <Award className="w-3.5 h-3.5 text-amber-700" />
                 <span>Kepala Bidang PPPA (Pejabat Pengesah Laporan Resmi) *</span>
               </label>
@@ -1219,7 +1235,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                     kepalaBidang: sel?.nama || ''
                   });
                 }}
-                className="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-lg font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-600"
+                className="w-full px-2.5 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-600 shadow-xs"
               >
                 <option value="">-- Pilih Kepala Bidang --</option>
                 {kabidPegawai.map((p) => (
@@ -1228,7 +1244,9 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
                   </option>
                 ))}
               </select>
-              <p className="text-[10px] text-slate-500">Nama pejabat yang tercantum pada lembar pengesahan berita acara dan laporan resmi.</p>
+              <p className="inline-block text-[10px] font-medium text-slate-800 bg-white/92 backdrop-blur-xs px-2 py-0.5 rounded-md shadow-2xs">
+                Nama pejabat yang tercantum pada lembar pengesahan berita acara dan laporan resmi.
+              </p>
             </div>
           </div>
           </div>
