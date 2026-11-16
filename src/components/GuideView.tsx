@@ -30,11 +30,13 @@ import {
 interface GuideViewProps {
   onNavigateToTab: (tab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi' | 'panduan') => void;
   onOpenNewCase: () => void;
+  isReadOnly?: boolean;
 }
 
 export const GuideView: React.FC<GuideViewProps> = ({
   onNavigateToTab,
-  onOpenNewCase
+  onOpenNewCase,
+  isReadOnly = false
 }) => {
   const [activeCategory, setActiveCategory] = useState<
     'semua' | 'input' | 'register' | 'pegawai' | 'sheet' | 'keamanan' | 'faq'
@@ -228,15 +230,17 @@ export const GuideView: React.FC<GuideViewProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-2.5 flex-wrap shrink-0">
-            <button
-              onClick={onOpenNewCase}
-              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 text-xs font-extrabold rounded-xl shadow-md transition-all hover:shadow-lg ring-1 ring-white/50"
-            >
-              <Sparkles className="w-4 h-4 text-slate-950" />
-              <span>Mulai Catat Kasus Sekarang</span>
-            </button>
-          </div>
+          {!isReadOnly && (
+            <div className="flex items-center gap-2.5 flex-wrap shrink-0">
+              <button
+                onClick={onOpenNewCase}
+                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 text-xs font-extrabold rounded-xl shadow-md transition-all hover:shadow-lg ring-1 ring-white/50"
+              >
+                <Sparkles className="w-4 h-4 text-slate-950" />
+                <span>Mulai Catat Kasus Sekarang</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -284,16 +288,18 @@ export const GuideView: React.FC<GuideViewProps> = ({
             >
               3. Data Pegawai & Tim
             </button>
-            <button
-              onClick={() => setActiveCategory('sheet')}
-              className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
-                activeCategory === 'sheet'
-                  ? 'bg-sky-500 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              4. Integrasi Google Sheet
-            </button>
+            {!isReadOnly && (
+              <button
+                onClick={() => setActiveCategory('sheet')}
+                className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
+                  activeCategory === 'sheet'
+                    ? 'bg-sky-500 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+              >
+                4. Integrasi Google Sheet
+              </button>
+            )}
             <button
               onClick={() => setActiveCategory('faq')}
               className={`px-3.5 py-2 rounded-xl font-bold transition-all whitespace-nowrap ${
@@ -389,20 +395,22 @@ export const GuideView: React.FC<GuideViewProps> = ({
                 </div>
               ))}
 
-              <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-sky-50/60 p-4 rounded-2xl border border-sky-200">
-                <div className="flex items-center gap-3 text-xs text-blue-950">
-                  <Info className="w-5 h-5 text-sky-600 shrink-0" />
-                  <span>
-                    Setelah seluruh kolom Bagian 1 s/d 5 terisi, klik tombol hijau <strong>"Simpan Berkas Kasus"</strong> di bagian bawah halaman.
-                  </span>
+              {!isReadOnly && (
+                <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-sky-50/60 p-4 rounded-2xl border border-sky-200">
+                  <div className="flex items-center gap-3 text-xs text-blue-950">
+                    <Info className="w-5 h-5 text-sky-600 shrink-0" />
+                    <span>
+                      Setelah seluruh kolom Bagian 1 s/d 5 terisi, klik tombol hijau <strong>"Simpan Berkas Kasus"</strong> di bagian bawah halaman.
+                    </span>
+                  </div>
+                  <button
+                    onClick={onOpenNewCase}
+                    className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold rounded-xl shadow-xs transition-colors shrink-0 whitespace-nowrap"
+                  >
+                    Buka Formulir Input &rarr;
+                  </button>
                 </div>
-                <button
-                  onClick={onOpenNewCase}
-                  className="px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold rounded-xl shadow-xs transition-colors shrink-0 whitespace-nowrap"
-                >
-                  Buka Formulir Input &rarr;
-                </button>
-              </div>
+              )}
             </div>
           )}
         </div>
@@ -547,7 +555,7 @@ export const GuideView: React.FC<GuideViewProps> = ({
       )}
 
       {/* 6. Section 4: Integrasi Google Sheet & Webhook */}
-      {(activeCategory === 'semua' || activeCategory === 'sheet') && (
+      {!isReadOnly && (activeCategory === 'semua' || activeCategory === 'sheet') && (
         <div className="bg-white rounded-3xl border-2 border-emerald-200 shadow-sm p-6 sm:p-7 space-y-6">
           <div className="border-b border-emerald-100 pb-4 flex items-center justify-between">
             <div className="flex items-center gap-3">

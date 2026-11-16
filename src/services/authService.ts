@@ -45,10 +45,13 @@ export function getAuthSession(): AuthSession {
 
     const session: AuthSession = JSON.parse(stored);
     if (session && session.isAuthenticated && session.user) {
-      // Validasi bahwa sesi adalah admin resmi Nagekeo
-      const validIdentities = ['admin', 'bidangpppanagekeo@gmail.com'];
+      // Validasi bahwa sesi adalah admin resmi Nagekeo atau pimpinan
+      const validIdentities = ['admin', 'bidangpppanagekeo@gmail.com', 'pimpinan', 'kabid'];
       const userIdent = (session.user.username || session.user.email || '').toLowerCase();
-      const isOfficial = validIdentities.some(id => userIdent.includes(id)) || session.user.role === 'superadmin';
+      const isOfficial =
+        validIdentities.some(id => userIdent.includes(id)) ||
+        session.user.role === 'superadmin' ||
+        session.user.role === 'pimpinan';
 
       if (isOfficial) {
         return session;

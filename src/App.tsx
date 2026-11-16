@@ -90,8 +90,24 @@ export default function App() {
     showToast(nextVal ? 'Mode Sensor Privasi Nama Diaktifkan' : 'Mode Nama Lengkap Diaktifkan');
   };
 
+  const isPimpinan = authSession.user?.role === 'pimpinan';
+
+  const handleSelectTab = (tab: AppTab) => {
+    if (isPimpinan && (tab === 'input' || tab === 'integrasi')) {
+      setCurrentTab('dashboard');
+      return;
+    }
+    if (tab === 'input' && !caseToEdit) {
+      setCaseToEdit(null);
+    }
+    if (tab === 'register') {
+      setOfficerFilterQuery('');
+    }
+    setCurrentTab(tab);
+  };
+
   const handleOpenNewCase = () => {
-    if (authSession.user?.role === 'pimpinan') {
+    if (isPimpinan) {
       showToast('Mode Pimpinan bersifat hanya melihat. Penambahan kasus baru hanya dapat dilakukan oleh Administrator.');
       return;
     }
@@ -100,6 +116,10 @@ export default function App() {
   };
 
   const handleEditCase = (c: KasusKekerasan) => {
+    if (isPimpinan) {
+      showToast('Mode Pimpinan bersifat hanya melihat. Pengeditan kasus hanya dapat dilakukan oleh Administrator.');
+      return;
+    }
     setCaseToEdit(c);
     setSelectedCaseForDetail(null);
     setCurrentTab('input');
@@ -302,12 +322,14 @@ export default function App() {
 
   const handleLoginSuccess = (user: AdminUser) => {
     setAuthSession({ isAuthenticated: true, user });
+    setCurrentTab('dashboard');
   };
 
   const handleLogout = () => {
     if (window.confirm('Keluar dari aplikasi SIPELKA? Sesi administrator Anda akan diakhiri.')) {
       logoutAdmin();
       setAuthSession({ isAuthenticated: false, user: null });
+      setCurrentTab('dashboard');
       showToast('Anda telah berhasil keluar dari sistem SIPELKA.');
     }
   };
@@ -347,15 +369,7 @@ export default function App() {
       {/* Modern Sidebar Navigation on the Left */}
       <Sidebar
         currentTab={currentTab}
-        onSelectTab={(tab) => {
-          if (tab === 'input' && !caseToEdit) {
-            setCaseToEdit(null);
-          }
-          if (tab === 'register') {
-            setOfficerFilterQuery('');
-          }
-          setCurrentTab(tab);
-        }}
+        onSelectTab={handleSelectTab}
         caseCount={cases.length}
         pegawaiCount={pegawaiList.length}
         isMobileOpen={isMobileSidebarOpen}
@@ -371,15 +385,7 @@ export default function App() {
         {/* Top Header Bar */}
         <Header
           currentTab={currentTab}
-          onSelectTab={(tab) => {
-            if (tab === 'input' && !caseToEdit) {
-              setCaseToEdit(null);
-            }
-            if (tab === 'register') {
-              setOfficerFilterQuery('');
-            }
-            setCurrentTab(tab);
-          }}
+          onSelectTab={handleSelectTab}
           isAnonymized={isAnonymized}
           onToggleAnonymized={handleToggleAnonymized}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
@@ -400,7 +406,7 @@ export default function App() {
             cases={cases}
             isAnonymized={isAnonymized}
             onSelectCase={(c) => setSelectedCaseForDetail(c)}
-            onNavigateToTab={(tab) => setCurrentTab(tab as any)}
+            onNavigateToTab={(tab) => handleSelectTab(tab)}
           />
         )}
 
@@ -415,11 +421,11 @@ export default function App() {
             onPrintCase={handlePrintCase}
             onOpenNewCase={handleOpenNewCase}
             onResetData={handleResetData}
-            isReadOnly={authSession.user?.role === 'pimpinan'}
+            isReadOnly={isPimpinan}
           />
         )}
 
-        {currentTab === 'input' && (
+        {currentTab === 'input' && !isPimpinan && (
           <CaseFormView
             initialCase={caseToEdit}
             allCases={cases}
@@ -430,7 +436,7 @@ export default function App() {
               setCurrentTab('register');
             }}
             onOpenGuide={() => setCurrentTab('panduan')}
-            isReadOnly={authSession.user?.role === 'pimpinan'}
+            isReadOnly={isPimpinan}
           />
         )}
 
@@ -442,9 +448,9 @@ export default function App() {
             onDeletePegawai={handleDeletePegawai}
             onResetPegawai={handleResetPegawai}
             onViewOfficerCases={handleViewOfficerCases}
-            onOpenIntegrasi={() => setCurrentTab('integrasi')}
+            onOpenIntegrasi={isPimpinan ? undefined : () => handleSelectTab('integrasi')}
             showToast={showToast}
-            isReadOnly={authSession.user?.role === 'pimpinan'}
+            isReadOnly={isPimpinan}
           />
         )}
 
@@ -459,7 +465,7 @@ export default function App() {
 
         {currentTab === 'sop' && <SopNetworkView />}
 
-        {currentTab === 'integrasi' && (
+        {currentTab === 'integrasi' && !isPimpinan && (
           <GoogleSheetIntegrationView
             cases={cases}
             pegawaiList={pegawaiList}
@@ -469,8 +475,9 @@ export default function App() {
 
         {currentTab === 'panduan' && (
           <GuideView
-            onNavigateToTab={(tab) => setCurrentTab(tab)}
+            onNavigateToTab={(tab) => handleSelectTab(tab)}
             onOpenNewCase={handleOpenNewCase}
+            isReadOnly={isPimpinan}
           />
         )}
       </main>

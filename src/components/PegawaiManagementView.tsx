@@ -311,21 +311,23 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={handleSyncAllPegawaiToSheet}
-              disabled={isSyncingSheet}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white/85 hover:bg-white text-sky-950 font-bold text-xs rounded-xl border border-sky-300 transition-all shadow-xs disabled:opacity-50"
-              title={
-                sheetConfig.webhookUrl
-                  ? 'Sinkronkan seluruh data pegawai ke tab "Data Pegawai" di Google Sheet'
-                  : 'Atur URL Webhook di menu Integrasi Google Sheet'
-              }
-            >
-              <RefreshCw
-                className={`w-4 h-4 text-sky-700 ${isSyncingSheet ? 'animate-spin' : ''}`}
-              />
-              <span>{isSyncingSheet ? 'Menyinkronkan...' : 'Sinkronkan ke Sheet'}</span>
-            </button>
+            {!isReadOnly && (
+              <button
+                onClick={handleSyncAllPegawaiToSheet}
+                disabled={isSyncingSheet}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white/85 hover:bg-white text-sky-950 font-bold text-xs rounded-xl border border-sky-300 transition-all shadow-xs disabled:opacity-50"
+                title={
+                  sheetConfig.webhookUrl
+                    ? 'Sinkronkan seluruh data pegawai ke tab "Data Pegawai" di Google Sheet'
+                    : 'Atur URL Webhook di menu Integrasi Google Sheet'
+                }
+              >
+                <RefreshCw
+                  className={`w-4 h-4 text-sky-700 ${isSyncingSheet ? 'animate-spin' : ''}`}
+                />
+                <span>{isSyncingSheet ? 'Menyinkronkan...' : 'Sinkronkan ke Sheet'}</span>
+              </button>
+            )}
             <button
               onClick={() => exportPegawaiToCSV(pegawaiList)}
               className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white/85 hover:bg-white text-sky-950 font-bold text-xs rounded-xl border border-sky-300 transition-all shadow-xs"
@@ -446,44 +448,46 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
         </div>
 
         {/* Sync Info Notification Pill */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-blue-950 bg-blue-100/70 px-3.5 py-2 rounded-xl border border-blue-200">
-          <div className="flex items-center gap-2">
-            <Layers className="w-3.5 h-3.5 text-blue-700 shrink-0" />
-            <span>
-              <strong>Sinkronisasi Aktif:</strong> Setiap pegawai yang ditambahkan/diubah langsung tersinkron ke <strong>Input Kasus</strong>, <strong>Laporan Resmi</strong>, dan{' '}
-              <strong>Google Sheet (Tab "Data Pegawai")</strong>.
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5 shrink-0 font-bold">
-            <Cloud
-              className={`w-3.5 h-3.5 ${
-                sheetConfig.webhookUrl && sheetConfig.autoSync
-                  ? 'text-emerald-600'
-                  : 'text-amber-600'
-              }`}
-            />
-            <span
-              className={
-                sheetConfig.webhookUrl && sheetConfig.autoSync
-                  ? 'text-emerald-800'
-                  : 'text-amber-800'
-              }
-            >
-              {sheetConfig.webhookUrl && sheetConfig.autoSync
-                ? 'Auto-Sync Sheet Aktif'
-                : 'Sheet Belum Terhubung'}
-            </span>
-            {onOpenIntegrasi && (
-              <button
-                type="button"
-                onClick={onOpenIntegrasi}
-                className="ml-1 underline text-blue-800 hover:text-blue-950"
+        {!isReadOnly && (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-blue-950 bg-blue-100/70 px-3.5 py-2 rounded-xl border border-blue-200">
+            <div className="flex items-center gap-2">
+              <Layers className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+              <span>
+                <strong>Sinkronisasi Aktif:</strong> Setiap pegawai yang ditambahkan/diubah langsung tersinkron ke <strong>Input Kasus</strong>, <strong>Laporan Resmi</strong>, dan{' '}
+                <strong>Google Sheet (Tab "Data Pegawai")</strong>.
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0 font-bold">
+              <Cloud
+                className={`w-3.5 h-3.5 ${
+                  sheetConfig.webhookUrl && sheetConfig.autoSync
+                    ? 'text-emerald-600'
+                    : 'text-amber-600'
+                }`}
+              />
+              <span
+                className={
+                  sheetConfig.webhookUrl && sheetConfig.autoSync
+                    ? 'text-emerald-800'
+                    : 'text-amber-800'
+                }
               >
-                Atur
-              </button>
-            )}
+                {sheetConfig.webhookUrl && sheetConfig.autoSync
+                  ? 'Auto-Sync Sheet Aktif'
+                  : 'Sheet Belum Terhubung'}
+              </span>
+              {onOpenIntegrasi && (
+                <button
+                  type="button"
+                  onClick={onOpenIntegrasi}
+                  className="ml-1 underline text-blue-800 hover:text-blue-950"
+                >
+                  Atur
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* 4. Pegawai List Table View */}

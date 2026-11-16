@@ -61,6 +61,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     onCloseMobile();
   };
 
+  const isPimpinan = currentUser?.role === 'pimpinan';
+
   const navGroups = [
     {
       groupLabel: 'Menu Utama',
@@ -226,7 +228,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
           )}
 
           <div className="relative z-10 flex-1 overflow-y-auto px-2.5 py-2.5 space-y-2.5 scrollbar-thin scrollbar-thumb-slate-200">
-            {navGroups.map((group, gIdx) => (
+            {navGroups
+              .map((group) => ({
+                ...group,
+                items: isPimpinan
+                  ? group.items.filter(
+                      (item) => item.id !== 'input' && item.id !== 'integrasi'
+                    )
+                  : group.items
+              }))
+              .filter((group) => group.items.length > 0)
+              .map((group, gIdx) => (
               <div key={gIdx} className="space-y-0.5">
                 {/* Group Section Header */}
                 {!isCollapsed ? (
@@ -337,11 +349,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <ShieldCheck className="w-3 h-3 text-emerald-600" />
                     <span>Aman</span>
                   </span>
-                  <span className="text-slate-300">·</span>
-                  <span className="flex items-center gap-1 text-slate-600">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    <span>Sheet</span>
-                  </span>
+                  {!isPimpinan && (
+                    <>
+                      <span className="text-slate-300">·</span>
+                      <span className="flex items-center gap-1 text-slate-600">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span>Sheet</span>
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 <button
@@ -373,7 +389,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </button>
               <div
                 className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200"
-                title="Keamanan Siber Aktif & Sheet Terhubung"
+                title={isPimpinan ? 'Keamanan Siber Aktif (Mode Pimpinan)' : 'Keamanan Siber Aktif & Sheet Terhubung'}
               >
                 <ShieldCheck className="w-4 h-4" />
               </div>
