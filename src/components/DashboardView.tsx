@@ -132,38 +132,46 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     .slice(0, 5);
 
   return (
-    <div className="space-y-5">
-      {/* 1. Compact Summary Top Bar (Tanpa banner gambar besar agar langsung fokus ke data) */}
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-[11px] font-bold text-blue-800 uppercase tracking-wider">
-            <span>Dinas PMDP3A Kabupaten Nagekeo</span>
-            <span className="text-slate-300">·</span>
-            <span className="text-amber-700">Bidang PPPA</span>
+    <div className="space-y-6">
+      {/* 1. Colorful Official Header Banner */}
+      <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-sky-900 text-white p-6 sm:p-7 rounded-3xl border border-blue-200 shadow-md relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-sky-400/10 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-400 via-yellow-300 to-sky-400" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-wider">
+              <span>Ringkasan Data Terpadu</span>
+              <span>·</span>
+              <span className="text-white">Dinas PMDP3A Kabupaten Nagekeo</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              Dashboard Ringkasan Kasus PPPA Nagekeo
+            </h1>
+            <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
+              Rekapitulasi statistik laporan, grafik sebaran kasus di 7 kecamatan, klasifikasi kekerasan, dan pemantauan penanganan kasus aktif se-Kabupaten Nagekeo.
+            </p>
           </div>
-          <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight mt-0.5">
-            Ringkasan Data & Sebaran Kasus
-          </h2>
-        </div>
 
-        <div className="flex items-center gap-2.5 flex-wrap shrink-0">
-          <button
-            type="button"
-            onClick={() => onNavigateToTab('input')}
-            className="px-4 py-2 bg-gradient-to-r from-blue-800 to-sky-700 hover:from-blue-900 hover:to-sky-800 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <PlusCircle className="w-4 h-4 text-amber-300" />
-            <span>Catat Kasus Baru</span>
-          </button>
+          <div className="flex items-center gap-2.5 flex-wrap shrink-0">
+            <button
+              type="button"
+              onClick={() => onNavigateToTab('input')}
+              className="flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold text-slate-950 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 rounded-xl transition-all shadow-md hover:shadow-lg ring-1 ring-white/50 cursor-pointer"
+            >
+              <PlusCircle className="w-4 h-4 text-slate-950" />
+              <span>Catat Kasus Baru</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => onNavigateToTab('laporan')}
-            className="px-3.5 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer"
-          >
-            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-            <span>Rekap & Laporan</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => onNavigateToTab('laporan')}
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-blue-950 bg-white hover:bg-sky-50 rounded-xl transition-all shadow-sm cursor-pointer"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+              <span>Rekap & Laporan</span>
+            </button>
+          </div>
         </div>
       </div>
 
