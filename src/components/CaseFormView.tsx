@@ -380,7 +380,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               src={formBgBiruImg}
               alt="Latar Ibu dan Anak Nuansa Biru Langit"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-center opacity-90 brightness-105 saturate-110"
+              className="w-full h-full object-cover object-center opacity-35 brightness-110 contrast-75"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent" />
           </div>
@@ -561,7 +561,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               src={formBgIndigoImg}
               alt="Latar Ibu dan Anak Nuansa Lavender Indigo"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-center opacity-90 brightness-105 saturate-110"
+              className="w-full h-full object-cover object-center opacity-35 brightness-110 contrast-75"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent" />
           </div>
@@ -763,7 +763,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               src={formBgEmasImg}
               alt="Latar Ibu dan Anak Nuansa Emas Pedesaan"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-center opacity-90 brightness-105 saturate-110"
+              className="w-full h-full object-cover object-center opacity-35 brightness-110 contrast-75"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent" />
           </div>
@@ -912,7 +912,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               src={formBgHijauImg}
               alt="Latar Ibu dan Anak Nuansa Hijau Pemulihan"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-center opacity-90 brightness-105 saturate-110"
+              className="w-full h-full object-cover object-center opacity-35 brightness-110 contrast-75"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent" />
           </div>
@@ -1072,7 +1072,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               src={formBgPelangiImg}
               alt="Latar Ibu dan Anak Tenun Flores Berwarna"
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover object-center opacity-90 brightness-105 saturate-110"
+              className="w-full h-full object-cover object-center opacity-35 brightness-110 contrast-75"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-transparent" />
           </div>
