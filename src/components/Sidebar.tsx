@@ -15,6 +15,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { AdminUser } from '../types';
+import latarIbuAnakImg from '../assets/images/latar_ibu_anak_nagekeo_1794803688210.jpg';
 
 const LOGO_NAGEKEO = '/assets/aistudio/Logo-Kabupaten-Nagekeo11-removebg-preview_44ae2cef.png';
 
@@ -207,72 +208,89 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-amber-400 via-sky-300 to-amber-400" />
         </div>
 
-        {/* Navigation Menus List (Compact & Visible All at Once) */}
-        <div className="flex-1 overflow-y-auto px-2.5 py-2.5 space-y-2.5 scrollbar-thin scrollbar-thumb-slate-200">
-          {navGroups.map((group, gIdx) => (
-            <div key={gIdx} className="space-y-0.5">
-              {/* Group Section Header */}
-              {!isCollapsed ? (
-                <div className="px-2.5 pb-0.5 text-[9.5px] font-extrabold uppercase tracking-wider text-slate-400">
-                  {group.groupLabel}
-                </div>
-              ) : (
-                <div className="w-6 mx-auto my-1.5 border-b border-slate-200" />
-              )}
-
-              {/* Group Nav Items */}
-              {group.items.map((item) => {
-                const Icon = item.icon;
-                const isActive = currentTab === item.id;
-
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => handleNav(item.id)}
-                    title={isCollapsed ? item.label : undefined}
-                    className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all group relative ${
-                      isCollapsed ? 'justify-center' : 'justify-between'
-                    } ${
-                      isActive
-                        ? 'bg-gradient-to-r from-blue-900 to-sky-900 text-white font-bold shadow-xs'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <Icon
-                        className={`w-4 h-4 shrink-0 transition-colors ${
-                          isActive
-                            ? 'text-amber-300'
-                            : 'text-slate-500 group-hover:text-blue-700'
-                        }`}
-                      />
-                      {!isCollapsed && (
-                        <span className="truncate">{item.label}</span>
-                      )}
-                    </div>
-
-                    {/* Badge when expanded */}
-                    {!isCollapsed && item.badge && (
-                      <span
-                        className={`text-[9.5px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 leading-none ${
-                          isActive
-                            ? 'bg-white/20 text-white'
-                            : item.badgeColor || 'bg-slate-100 text-slate-600'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
-
-                    {/* Active Indicator bar */}
-                    {isActive && (
-                      <div className="absolute left-0 top-1 bottom-1 w-1 bg-amber-400 rounded-r-md" />
-                    )}
-                  </button>
-                );
-              })}
+        {/* Navigation Menus List with Decorative Mother & Child + Nagekeo Rice Fields Backdrop */}
+        <div className="relative flex-1 flex flex-col overflow-hidden">
+          {!isCollapsed && (
+            <div
+              className="absolute inset-x-0 bottom-0 h-72 pointer-events-none select-none z-0 overflow-hidden"
+              aria-hidden="true"
+            >
+              <img
+                src={latarIbuAnakImg}
+                alt="Latar Ibu dan Anak dengan Pemandangan Sawah Nagekeo"
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover object-center opacity-55"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-white via-white/75 to-white/10" />
             </div>
-          ))}
+          )}
+
+          <div className="relative z-10 flex-1 overflow-y-auto px-2.5 py-2.5 space-y-2.5 scrollbar-thin scrollbar-thumb-slate-200">
+            {navGroups.map((group, gIdx) => (
+              <div key={gIdx} className="space-y-0.5">
+                {/* Group Section Header */}
+                {!isCollapsed ? (
+                  <div className="px-2.5 pb-0.5 text-[9.5px] font-extrabold uppercase tracking-wider text-slate-500">
+                    {group.groupLabel}
+                  </div>
+                ) : (
+                  <div className="w-6 mx-auto my-1.5 border-b border-slate-200" />
+                )}
+
+                {/* Group Nav Items */}
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = currentTab === item.id;
+
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNav(item.id)}
+                      title={isCollapsed ? item.label : undefined}
+                      className={`w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all group relative ${
+                        isCollapsed ? 'justify-center' : 'justify-between'
+                      } ${
+                        isActive
+                          ? 'bg-gradient-to-r from-blue-900 to-sky-900 text-white font-bold shadow-xs'
+                          : 'text-slate-700 hover:bg-white/85 hover:text-slate-900'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Icon
+                          className={`w-4 h-4 shrink-0 transition-colors ${
+                            isActive
+                              ? 'text-amber-300'
+                              : 'text-slate-500 group-hover:text-blue-700'
+                          }`}
+                        />
+                        {!isCollapsed && (
+                          <span className="truncate">{item.label}</span>
+                        )}
+                      </div>
+
+                      {/* Badge when expanded */}
+                      {!isCollapsed && item.badge && (
+                        <span
+                          className={`text-[9.5px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 leading-none ${
+                            isActive
+                              ? 'bg-white/20 text-white'
+                              : item.badgeColor || 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+
+                      {/* Active Indicator bar */}
+                      {isActive && (
+                        <div className="absolute left-0 top-1 bottom-1 w-1 bg-amber-400 rounded-r-md" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Sidebar Footer: Compact Officer Profile, Logout & Collapse Toggle */}

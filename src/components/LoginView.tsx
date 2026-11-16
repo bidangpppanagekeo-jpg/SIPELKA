@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { loginAdmin } from '../services/authService';
 import { AdminUser } from '../types';
+import sawahNagekeoImg from '../assets/images/pemandangan_sawah_nagekeo_1794803689160.jpg';
 
 const LOGO_NAGEKEO = '/assets/aistudio/Logo-Kabupaten-Nagekeo11-removebg-preview_44ae2cef.png';
 
@@ -50,7 +51,16 @@ export const LoginView: React.FC<LoginViewProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col justify-between p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden text-slate-100">
+    <div className="min-h-screen bg-slate-900 flex flex-col justify-between p-4 sm:p-6 lg:p-8 font-sans relative overflow-hidden text-slate-100">
+      {/* Scenic Nagekeo Rice Fields Background */}
+      <img
+        src={sawahNagekeoImg}
+        alt="Pemandangan Sawah Nagekeo"
+        referrerPolicy="no-referrer"
+        className="absolute inset-0 w-full h-full object-cover object-center opacity-30 pointer-events-none"
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-blue-950/85 to-slate-900/90 pointer-events-none" />
+
       {/* Background ambient lighting */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-sky-600/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />

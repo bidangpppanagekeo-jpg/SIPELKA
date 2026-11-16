@@ -35,6 +35,7 @@ import { GoogleSheetIntegrationView } from './components/GoogleSheetIntegrationV
 import { GuideView } from './components/GuideView';
 import { CaseDetailModal } from './components/CaseDetailModal';
 import { PrintDocument } from './components/PrintDocument';
+import sawahNagekeoImg from './assets/images/pemandangan_sawah_nagekeo_1794803689160.jpg';
 
 export default function App() {
   const [authSession, setAuthSession] = useState<AuthSession>(() => getAuthSession());
@@ -323,10 +324,21 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/70 via-sky-50/50 to-indigo-50/40 flex font-sans relative text-slate-800">
+    <div className="min-h-screen bg-blue-50 flex font-sans relative z-0 text-slate-800">
+      {/* Subtle panoramic Nagekeo rice fields scenery backdrop */}
+      <div className="fixed inset-0 pointer-events-none -z-10 print:hidden" aria-hidden="true">
+        <img
+          src={sawahNagekeoImg}
+          alt="Pemandangan Sawah Nagekeo"
+          referrerPolicy="no-referrer"
+          className="w-full h-full object-cover object-center opacity-25"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/75 via-sky-50/70 to-white/80" />
+      </div>
+
       {/* Background subtle light ambient effects */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-sky-200/20 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-amber-100/30 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="fixed top-0 left-1/4 w-96 h-96 bg-sky-200/20 rounded-full blur-3xl pointer-events-none -z-10 print:hidden" />
+      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-amber-100/30 rounded-full blur-3xl pointer-events-none -z-10 print:hidden" />
 
       {/* Modern Sidebar Navigation on the Left */}
       <Sidebar
