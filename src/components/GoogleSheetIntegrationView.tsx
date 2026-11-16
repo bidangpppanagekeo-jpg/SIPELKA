@@ -21,7 +21,8 @@ import {
   AlertTriangle,
   Trash2,
   Edit,
-  Sparkles
+  Sparkles,
+  Users
 } from 'lucide-react';
 
 interface GoogleSheetIntegrationViewProps {
@@ -44,6 +45,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
   const [isTesting, setIsTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
   const [isSyncingAll, setIsSyncingAll] = useState(false);
+  const [isSyncingPegawai, setIsSyncingPegawai] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
@@ -177,11 +179,113 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
     }
   };
 
+  const handleSyncAllPegawai = async () => {
+    if (!config.webhookUrl) {
+      showToast('Harap isi URL Webhook terlebih dahulu.');
+      return;
+    }
+
+    if (!window.confirm(`Sinkronkan seluruh ${pegawaiList.length} data pegawai & tim PPPA ke tab "Data Pegawai" pada Google Sheet yang sama?`)) {
+      return;
+    }
+
+    setIsSyncingPegawai(true);
+    try {
+      const payload = {
+        action: 'SYNC_ALL_PEGAWAI',
+        app: 'SIPELKA Nagekeo',
+        timestamp: new Date().toISOString(),
+        pegawaiCount: pegawaiList.length,
+        pegawai: pegawaiList
+      };
+
+      const res = await sendDataToGoogleSheetWebhook(payload, config);
+      if (res.success) {
+        setTestResult({
+          success: true,
+          message: `Berhasil mengirim ${pegawaiList.length} data pegawai ke Google Sheet (Tab "Data Pegawai").`
+        });
+        showToast(`Berhasil menyinkronkan ${pegawaiList.length} data pegawai ke tab "Data Pegawai".`);
+      } else {
+        setTestResult({ success: false, message: `Gagal menyinkronkan data pegawai: ${res.message}` });
+        showToast(`Gagal menyinkronkan data pegawai: ${res.message}`);
+      }
+    } catch {
+      showToast('Terjadi kesalahan saat menyinkronkan data pegawai.');
+    } finally {
+      setIsSyncingPegawai(false);
+    }
+  };
+
+  const handleTestSaveFirstPegawai = async () => {
+    if (!config.webhookUrl) {
+      showToast('Harap isi URL Webhook terlebih dahulu.');
+      return;
+    }
+    if (pegawaiList.length === 0) {
+      showToast('Tidak ada data pegawai untuk diuji.');
+      return;
+    }
+
+    const target = pegawaiList[0];
+    setIsTesting(true);
+    const res = await sendDataToGoogleSheetWebhook({
+      action: 'SAVE_PEGAWAI',
+      timestamp: new Date().toISOString(),
+      ...target
+    }, config);
+    setIsTesting(false);
+    setTestResult({
+      success: res.success,
+      message: res.success
+        ? `Data pegawai "${target.nama}" berhasil dikirim ke tab "Data Pegawai" di Google Sheet.`
+        : `Gagal mengirim data pegawai: ${res.message}`
+    });
+    showToast(res.success ? `Data pegawai "${target.nama}" berhasil dikirim.` : 'Gagal mengirim data pegawai.');
+  };
+
   const appsScriptCode = `function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  // Helper: Ambil sheet Data Kasus (sheet pertama selain 'Data Pegawai')
+  function getCasesSheet() {
+    var sheets = ss.getSheets();
+    for (var i = 0; i < sheets.length; i++) {
+      if (sheets[i].getName() !== 'Data Pegawai') {
+        return sheets[i];
+      }
+    }
+    return sheets[0];
+  }
+
+  // Helper: Ambil atau buat otomatis tab 'Data Pegawai' di Spreadsheet yang sama
+  function getPegawaiSheet() {
+    var pSheet = ss.getSheetByName('Data Pegawai');
+    if (!pSheet) {
+      pSheet = ss.insertSheet('Data Pegawai');
+    }
+    if (pSheet.getLastRow() === 0) {
+      pSheet.appendRow([
+        'WAKTU UPDATE',
+        'ID PEGAWAI',
+        'NAMA LENGKAP',
+        'NIP / NRP / SIP / NIK',
+        'KATEGORI PEGAWAI',
+        'JABATAN RESMI',
+        'INSTANSI / UNIT KERJA',
+        'NO. TELEPON / WA',
+        'EMAIL',
+        'KEAHLIAN / SERTIFIKASI',
+        'STATUS',
+        'TANGGAL BERGABUNG'
+      ]);
+    }
+    return pSheet;
+  }
+
   try {
     var data = {};
-    
+
     // 1. Ekstrak data dari payload JSON
     if (e && e.postData && e.postData.contents) {
       try {
@@ -190,18 +294,163 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
         data = {};
       }
     }
-    
+
     var action = (data.action || (e && e.parameter && e.parameter.action) || 'SAVE_CASE').toString().trim();
     var targetReg = (data.nomorRegistrasi || (e && e.parameter && e.parameter.nomorRegistrasi) || '').toString().trim();
     var originalReg = (data.originalNomorRegistrasi || '').toString().trim();
     var targetId = (data.id || (e && e.parameter && e.parameter.id) || '').toString().trim();
-    
+
+    // Format Waktu Sekarang (WITA Nagekeo)
+    var waktuSekarang = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || "GMT+8", "yyyy-MM-dd HH:mm:ss");
+
+    // =========================================================
+    // A. HANDLER DATA PEGAWAI & TIM PPPA (TAB: "Data Pegawai")
+    // =========================================================
+    if (
+      action === 'SAVE_PEGAWAI' ||
+      action === 'EDIT_PEGAWAI' ||
+      action === 'DELETE_PEGAWAI' ||
+      action === 'SYNC_ALL_PEGAWAI'
+    ) {
+      var pSheet = getPegawaiSheet();
+      var pLastRow = pSheet.getLastRow();
+      var pLastCol = Math.max(pSheet.getLastColumn(), 12);
+      var pValues = pLastRow > 0 ? pSheet.getRange(1, 1, pLastRow, pLastCol).getValues() : [];
+
+      function isPegawaiMatch(rowArray, idToMatch) {
+        var colId = String(rowArray[1] || '').trim(); // Kolom B = ID PEGAWAI
+        if (idToMatch && colId === idToMatch) return true;
+        var rowText = rowArray.map(function(c) { return String(c || '').trim(); }).join(' ### ');
+        if (idToMatch && rowText.indexOf(idToMatch) !== -1) return true;
+        return false;
+      }
+
+      // 1. HAPUS PEGAWAI
+      if (action === 'DELETE_PEGAWAI') {
+        var deletedPegawai = 0;
+        for (var pr = pValues.length - 1; pr >= 1; pr--) {
+          if (isPegawaiMatch(pValues[pr], targetId)) {
+            pSheet.deleteRow(pr + 1);
+            deletedPegawai++;
+          }
+        }
+        return ContentService.createTextOutput(JSON.stringify({
+          status: deletedPegawai > 0 ? 'success' : 'not_found',
+          action: 'DELETE_PEGAWAI',
+          deletedRowsCount: deletedPegawai,
+          id: targetId
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      // 2. SINKRONISASI BERSIH SEMUA PEGAWAI
+      if (action === 'SYNC_ALL_PEGAWAI' && Array.isArray(data.pegawai)) {
+        pSheet.clearContents();
+        pSheet.appendRow([
+          'WAKTU UPDATE',
+          'ID PEGAWAI',
+          'NAMA LENGKAP',
+          'NIP / NRP / SIP / NIK',
+          'KATEGORI PEGAWAI',
+          'JABATAN RESMI',
+          'INSTANSI / UNIT KERJA',
+          'NO. TELEPON / WA',
+          'EMAIL',
+          'KEAHLIAN / SERTIFIKASI',
+          'STATUS',
+          'TANGGAL BERGABUNG'
+        ]);
+
+        data.pegawai.forEach(function(p) {
+          pSheet.appendRow([
+            waktuSekarang,
+            p.id || '',
+            p.nama || '',
+            p.nipOrIdentitas || '',
+            p.kategori || '',
+            p.jabatan || '',
+            p.instansi || '',
+            p.telepon || '',
+            p.email || '',
+            p.keahlian || '',
+            p.status || 'Aktif',
+            p.tanggalBergabung || ''
+          ]);
+        });
+
+        return ContentService.createTextOutput(JSON.stringify({
+          status: 'success',
+          action: 'SYNC_ALL_PEGAWAI',
+          total: data.pegawai.length
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      // 3. SIMPAN / EDIT SATU DATA PEGAWAI (SAVE_PEGAWAI / EDIT_PEGAWAI)
+      var pegawaiRow = [
+        waktuSekarang,
+        data.id || targetId || '',
+        data.nama || '',
+        data.nipOrIdentitas || '',
+        data.kategori || '',
+        data.jabatan || '',
+        data.instansi || '',
+        data.telepon || '',
+        data.email || '',
+        data.keahlian || '',
+        data.status || 'Aktif',
+        data.tanggalBergabung || ''
+      ];
+
+      var foundPegawaiRow = -1;
+      for (var pi = 1; pi < pValues.length; pi++) {
+        if (isPegawaiMatch(pValues[pi], targetId)) {
+          foundPegawaiRow = pi + 1;
+          pSheet.getRange(foundPegawaiRow, 1, 1, pegawaiRow.length).setValues([pegawaiRow]);
+          break;
+        }
+      }
+
+      if (foundPegawaiRow > 0) {
+        // Bersihkan duplikat jika ada
+        var refreshedP = pSheet.getDataRange().getValues();
+        for (var pk = refreshedP.length - 1; pk >= foundPegawaiRow; pk--) {
+          if (isPegawaiMatch(refreshedP[pk], targetId)) {
+            pSheet.deleteRow(pk + 1);
+          }
+        }
+        return ContentService.createTextOutput(JSON.stringify({
+          status: 'success',
+          action: action,
+          updatedRow: foundPegawaiRow
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+
+      // Jika belum ada di tab Data Pegawai, tambahkan baris baru
+      pSheet.appendRow(pegawaiRow);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        action: action,
+        appended: true
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // =========================================================
+    // B. HANDLER DATA KASUS PPPA (SHEET UTAMA)
+    // =========================================================
+    if (action === 'TEST_CONNECTION') {
+      return ContentService.createTextOutput(JSON.stringify({
+        status: 'success',
+        action: 'TEST_CONNECTION',
+        message: 'Koneksi SIPELKA Nagekeo aktif (Kasus & Data Pegawai).'
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var sheet = getCasesSheet();
     var lastRow = sheet.getLastRow();
     var lastCol = Math.max(sheet.getLastColumn(), 15);
-    
+
     // Ambil seluruh baris sheet dari Baris 1 sampai baris terakhir
     var values = lastRow > 0 ? sheet.getRange(1, 1, lastRow, lastCol).getValues() : [];
-    
+
     // Fungsi pencocokan baris fleksibel (mencari Nomor Registrasi / ID di semua kolom baris)
     function isRowMatch(rowArray) {
       var rowText = rowArray.map(function(c) { return String(c || '').trim(); }).join(' ### ');
@@ -210,20 +459,13 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       if (targetId && rowText.indexOf(targetId) !== -1) return true;
       return false;
     }
-    
-    // Format Waktu Sekarang (WITA Nagekeo)
-    var waktuSekarang = Utilities.formatDate(new Date(), Session.getScriptTimeZone() || "GMT+8", "yyyy-MM-dd HH:mm:ss");
-    
-    // ==========================================
-    // 1. AKSI HAPUS (DELETE_CASE)
-    // Menghapus baris dari Google Sheet (Mulai dari baris bawah ke atas agar indeks aman)
-    // PENTING: Sama sekali TIDAK memanggil sheet.appendRow()!
-    // ==========================================
+
+    // 1. AKSI HAPUS KASUS (DELETE_CASE)
     if (action === 'DELETE_CASE') {
       var deletedRows = 0;
       for (var r = values.length - 1; r >= 0; r--) {
         if (isRowMatch(values[r])) {
-          sheet.deleteRow(r + 1); // deleteRow menggunakan indeks 1-based
+          sheet.deleteRow(r + 1);
           deletedRows++;
         }
       }
@@ -234,46 +476,38 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
         nomorRegistrasi: targetReg
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
-    // Data yang akan ditulis (Sesuai urutan kolom Google Sheet Anda: Kolom A Waktu, Kolom B No. Reg, dst)
+
+    // Data Kasus (Kolom A Waktu, Kolom B No. Reg, dst)
     var rowData = [
-      waktuSekarang,                           // Kolom A: Waktu Input / Update
-      data.nomorRegistrasi || targetReg || '',  // Kolom B: No. Registrasi
-      data.tanggalLapor || '',                  // Kolom C: Tanggal Lapor
-      data.namaKorban || '',                    // Kolom D: Nama Korban
-      data.usiaKorban || '',                    // Kolom E: Usia Korban
-      data.kategoriKorban || '',                // Kolom F: Kategori Korban
-      data.kecamatanTKP || '',                  // Kolom G: Kecamatan TKP
-      data.bentukKekerasan ? (Array.isArray(data.bentukKekerasan) ? data.bentukKekerasan.join(', ') : data.bentukKekerasan) : '', // Kolom H: Bentuk Kekerasan
-      data.namaPelaku || '',                    // Kolom I: Nama Pelaku
-      data.hubunganPelaku || '',                // Kolom J: Hubungan Pelaku
-      data.tingkatUrgensi || '',                // Kolom K: Urgensi
-      data.statusPenanganan || '',              // Kolom L: Status Penanganan
-      data.petugasPendamping || ''              // Kolom M: Petugas Pendamping
+      waktuSekarang,
+      data.nomorRegistrasi || targetReg || '',
+      data.tanggalLapor || '',
+      data.namaKorban || '',
+      data.usiaKorban || '',
+      data.kategoriKorban || '',
+      data.kecamatanTKP || '',
+      data.bentukKekerasan ? (Array.isArray(data.bentukKekerasan) ? data.bentukKekerasan.join(', ') : data.bentukKekerasan) : '',
+      data.namaPelaku || '',
+      data.hubunganPelaku || '',
+      data.tingkatUrgensi || '',
+      data.statusPenanganan || '',
+      data.petugasPendamping || ''
     ];
-    
-    // ==========================================
-    // 2. AKSI EDIT (EDIT_CASE)
-    // Menimpa baris yang ada secara tepat di tempat (TIDAK menambah baris baru!)
-    // ==========================================
+
+    // 2. AKSI EDIT KASUS (EDIT_CASE)
     if (action === 'EDIT_CASE') {
       var foundRow = -1;
-      
-      // Cari baris pertama yang cocok
       for (var i = 0; i < values.length; i++) {
         if (isRowMatch(values[i])) {
-          foundRow = i + 1; // 1-based index
-          // Pertahankan timestamp awal jika ada
+          foundRow = i + 1;
           if (values[i][0]) {
             rowData[0] = values[i][0];
           }
-          // Timpa data tepat di baris tersebut
           sheet.getRange(foundRow, 1, 1, rowData.length).setValues([rowData]);
           break;
         }
       }
-      
-      // Jika sebelumnya ada baris duplikat di bawahnya, bersihkan duplikatnya
+
       if (foundRow > 0) {
         var refreshedValues = sheet.getDataRange().getValues();
         for (var k = refreshedValues.length - 1; k >= foundRow; k--) {
@@ -287,18 +521,15 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
           updatedRow: foundRow
         })).setMimeType(ContentService.MimeType.JSON);
       }
-      
-      // Jika baris tidak ditemukan saat edit, JANGAN menambah baris baru!
+
       return ContentService.createTextOutput(JSON.stringify({
         status: 'not_found',
         action: 'EDIT_CASE',
         message: 'Baris tidak ditemukan untuk ditimpa.'
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
-    // ==========================================
+
     // 3. AKSI SIMPAN KASUS BARU (SAVE_CASE)
-    // ==========================================
     if (action === 'SAVE_CASE') {
       var existingIndex = -1;
       for (var s = 0; s < values.length; s++) {
@@ -309,7 +540,6 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
           break;
         }
       }
-      // Jika belum ada, baru tambahkan baris baru
       if (existingIndex <= 0) {
         sheet.appendRow(rowData);
       }
@@ -318,15 +548,10 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
         action: 'SAVE_CASE'
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
-    // ==========================================
-    // 4. SINKRONISASI BERSIH SEMUA DATA (SYNC_ALL_CASES)
-    // Membersihkan baris-baris duplikat lama dan merapikan tabel secara utuh
-    // ==========================================
+
+    // 4. SINKRONISASI BERSIH SEMUA KASUS (SYNC_ALL_CASES)
     if (action === 'SYNC_ALL_CASES' && Array.isArray(data.cases)) {
       sheet.clearContents();
-      
-      // Tulis Header Kolom di Baris 1
       sheet.appendRow([
         'WAKTU INPUT',
         'NO. REGISTRASI',
@@ -342,7 +567,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
         'STATUS PENANGANAN',
         'PETUGAS PENDAMPING'
       ]);
-      
+
       data.cases.forEach(function(c) {
         sheet.appendRow([
           waktuSekarang,
@@ -360,20 +585,19 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
           c.petugasPendamping || ''
         ]);
       });
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         status: 'success',
         action: 'SYNC_ALL_CASES',
         total: data.cases.length
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
-    // Abaikan aksi lain tanpa menambah data
+
     return ContentService.createTextOutput(JSON.stringify({
       status: 'ignored',
       action: action
     })).setMimeType(ContentService.MimeType.JSON);
-    
+
   } catch(err) {
     return ContentService.createTextOutput(JSON.stringify({
       status: 'error',
@@ -383,7 +607,7 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
 }
 
 function doGet(e) {
-  return ContentService.createTextOutput("Webhook SIPELKA Nagekeo Aktif & Siap Menerima POST.")
+  return ContentService.createTextOutput("Webhook SIPELKA Nagekeo Aktif (Kasus & Data Pegawai).")
     .setMimeType(ContentService.MimeType.TEXT);
 }`;
 
@@ -410,24 +634,35 @@ function doGet(e) {
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
               <FileSpreadsheet className="w-6 h-6 text-amber-300" />
-              Integrasi Google Sheet (Hapus & Edit Presisi Baris)
+              Integrasi Google Sheet (Data Kasus &amp; Data Pegawai)
             </h1>
             <p className="text-xs sm:text-sm text-sky-100 max-w-2xl leading-relaxed">
-              Memastikan data yang <strong>Dihapus</strong> di web langsung terhapus dari baris Google Sheet, dan data yang <strong>Diedit</strong> menimpa baris yang sama tanpa menambah baris baru.
+              Menghubungkan <strong>Data Kasus PPPA</strong> (Sheet Utama) dan <strong>Data Pegawai &amp; Tim PPPA</strong> (Tab <code>Data Pegawai</code>) ke dalam <strong>1 Google Spreadsheet yang sama</strong> secara otomatis.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0 flex-wrap">
+          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
             {config.webhookUrl && (
-              <button
-                type="button"
-                onClick={handleSyncAllCases}
-                disabled={isSyncingAll}
-                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 text-xs font-extrabold rounded-xl shadow-md transition-all disabled:opacity-50 ring-1 ring-white/40"
-              >
-                <Sparkles className={`w-4 h-4 ${isSyncingAll ? 'animate-spin' : ''}`} />
-                <span>{isSyncingAll ? 'Merapikan...' : 'Sinkronkan & Rapikan Google Sheet'}</span>
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={handleSyncAllPegawai}
+                  disabled={isSyncingPegawai}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white text-xs font-extrabold rounded-xl shadow-sm transition-all disabled:opacity-50 border border-white/30"
+                >
+                  <Users className={`w-4 h-4 text-amber-300 ${isSyncingPegawai ? 'animate-pulse' : ''}`} />
+                  <span>{isSyncingPegawai ? 'Menyinkronkan...' : `Sinkronkan Data Pegawai (${pegawaiList.length})`}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSyncAllCases}
+                  disabled={isSyncingAll}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 text-xs font-extrabold rounded-xl shadow-md transition-all disabled:opacity-50 ring-1 ring-white/40"
+                >
+                  <Sparkles className={`w-4 h-4 ${isSyncingAll ? 'animate-spin' : ''}`} />
+                  <span>{isSyncingAll ? 'Merapikan...' : `Sinkronkan Data Kasus (${cases.length})`}</span>
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -442,23 +677,22 @@ function doGet(e) {
           <div className="space-y-2.5 text-xs text-amber-950">
             <div>
               <h3 className="font-extrabold text-sm text-amber-900">
-                Penyebab Tombol Hapus/Edit Menambah Baris 2 & 3:
+                Pembaruan Skrip Terpadu: Data Kasus &amp; Data Pegawai dalam 1 Spreadsheet
               </h3>
               <p className="text-xs text-slate-700 mt-1 leading-relaxed">
-                Di Google Sheet Anda, data kasus dimulai langsung dari <strong>Baris 1</strong> (Kolom A adalah Waktu, Kolom B adalah Nomor Registrasi). Skrip lama memeriksa baris mulai dari baris 2 sehingga Baris 1 tidak pernah terdeteksi, lalu mengeksekusi penambahan baris baru.
+                Agar setiap input, ubah, dan hapus pada menu <strong>Data Pegawai &amp; Tim PPPA</strong> ikut terekam otomatis di Spreadsheet yang sama (pada tab baru bernama <strong>Data Pegawai</strong> yang dibuat otomatis oleh sistem), perbarui kode <code>Code.gs</code> Anda dengan skrip terbaru di bawah ini.
               </p>
             </div>
 
             <div className="bg-white p-3.5 rounded-xl border border-amber-300 space-y-1.5 font-medium">
-              <strong className="block text-slate-900 font-bold">Cara Memperbaikinya Sekarang (1 Menit):</strong>
+              <strong className="block text-slate-900 font-bold">Langkah Pembaruan Skrip Apps Script (1 Menit):</strong>
               <ol className="list-decimal list-inside space-y-1 text-slate-800">
-                <li>Klik tombol <strong className="text-blue-900">"Salin Kode"</strong> pada panel <code>Code.gs</code> di sebelah kanan bawah.</li>
+                <li>Klik tombol <strong className="text-blue-900">&quot;Salin Kode&quot;</strong> pada panel <code>Code.gs</code> di sebelah kanan bawah.</li>
                 <li>Buka Google Sheet Anda &gt; menu <strong>Extensions &gt; Apps Script</strong> &gt; ganti seluruh isi skrip dengan kode yang baru disalin.</li>
                 <li>Klik tombol <strong>Deploy (Penerapan)</strong> di pojok kanan atas &gt; pilih <strong>Manage deployments (Kelola penerapan)</strong>.</li>
                 <li>Klik ikon <strong>Pensil (Edit)</strong> pada baris Web App Anda.</li>
-                <li>Pada pilihan <strong>Version (Versi)</strong>, ubah dan pilih <strong className="text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded font-bold">New version (Versi baru)</strong>.</li>
-                <li>Klik tombol <strong>Deploy (Terapkan)</strong>. Selesai!</li>
-                <li><em>(Opsional)</em> Klik tombol kuning <strong>"Sinkronkan & Rapikan Google Sheet"</strong> di atas untuk langsung membersihkan baris duplikat yang ada di sheet Anda.</li>
+                <li>Pada pilihan <strong>Version (Versi)</strong>, ubah dan pilih <strong className="text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded font-bold">New version (Versi baru)</strong>, lalu klik <strong>Deploy</strong>.</li>
+                <li>Setelah itu, klik tombol <strong>&quot;Sinkronkan Data Pegawai&quot;</strong> di atas agar seluruh daftar pegawai langsung terbuat di tab <code>Data Pegawai</code> pada Spreadsheet Anda.</li>
               </ol>
             </div>
           </div>
@@ -530,7 +764,7 @@ function doGet(e) {
                   onChange={(e) => setConfig({ ...config, autoSync: e.target.checked })}
                   className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span>Kirim data otomatis saat kasus dicatat, diedit, atau dihapus di web</span>
+                <span>Kirim data otomatis saat Data Kasus atau Data Pegawai dicatat, diedit, atau dihapus</span>
               </label>
 
               {config.sheetUrl && (
@@ -582,13 +816,24 @@ function doGet(e) {
 
                 <button
                   type="button"
+                  onClick={handleTestSaveFirstPegawai}
+                  disabled={isTesting || !config.webhookUrl || pegawaiList.length === 0}
+                  className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 font-bold rounded-xl transition-all disabled:opacity-50 flex items-center gap-1.5 text-xs"
+                  title="Kirim 1 data pegawai ke tab Data Pegawai"
+                >
+                  <Users className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Uji Kirim Data Pegawai</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={handleTestEditFirstCase}
                   disabled={isTesting || !config.webhookUrl || cases.length === 0}
                   className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 font-bold rounded-xl transition-all disabled:opacity-50 flex items-center gap-1.5 text-xs"
-                  title="Kirim sinyal EDIT untuk data pertama"
+                  title="Kirim sinyal EDIT untuk data kasus pertama"
                 >
                   <Edit className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Uji Sinyal Edit (Menimpa Baris)</span>
+                  <span>Uji Sinyal Edit Kasus</span>
                 </button>
 
                 <button
@@ -596,10 +841,10 @@ function doGet(e) {
                   onClick={handleTestDeleteFirstCase}
                   disabled={isTesting || !config.webhookUrl || cases.length === 0}
                   className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 font-bold rounded-xl transition-all disabled:opacity-50 flex items-center gap-1.5 text-xs"
-                  title="Kirim sinyal HAPUS untuk data pertama"
+                  title="Kirim sinyal HAPUS untuk data kasus pertama"
                 >
                   <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-                  <span>Uji Sinyal Hapus (Hapus Baris)</span>
+                  <span>Uji Sinyal Hapus Kasus</span>
                 </button>
               </div>
             </div>
@@ -621,15 +866,15 @@ function doGet(e) {
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="font-extrabold text-sm text-white flex items-center gap-2">
                 <Database className="w-4 h-4 text-amber-400" />
-                Kode Google Apps Script Terbaru (Code.gs)
+                Kode Google Apps Script Terpadu (Code.gs)
               </h3>
               <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-2.5 py-1 rounded-full border border-amber-400/30">
-                Cocok Persis Sheet Anda
+                Kasus &amp; Pegawai
               </span>
             </div>
 
             <p className="text-xs text-sky-100 leading-relaxed">
-              Skrip ini secara spesifik mengecek Nomor Registrasi di Kolom B (mulai dari Baris 1). Saat <strong>DELETE</strong> dieksekusi, baris langsung dihapus. Saat <strong>EDIT</strong> dieksekusi, baris lama ditimpa tanpa menambah baris baru.
+              Skrip ini memisahkan sheet secara otomatis: <strong>Data Kasus</strong> disimpan di sheet utama, sedangkan <strong>Data Pegawai &amp; Tim PPPA</strong> otomatis dibuat dan direkam di tab <code>Data Pegawai</code> dalam Spreadsheet yang sama.
             </p>
 
             <div className="relative pt-1">
@@ -651,7 +896,7 @@ function doGet(e) {
 
           <div className="pt-3 border-t border-white/10 text-[11px] text-sky-200 flex items-center gap-2">
             <Shield className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Pasti menimpa baris saat diedit dan menghapus baris saat dihapus tanpa menambah data baru.</span>
+            <span>Mendukung input, edit, hapus presisi baris, serta sinkronisasi penuh untuk Data Kasus dan Data Pegawai.</span>
           </div>
         </div>
       </div>

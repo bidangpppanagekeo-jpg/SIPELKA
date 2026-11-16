@@ -1,6 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { PegawaiSIPELKA, KategoriPegawai, KasusKekerasan } from '../types';
-import { exportPegawaiToCSV } from '../services/storageService';
+import {
+  exportPegawaiToCSV,
+  getGoogleSheetConfig,
+  sendDataToGoogleSheetWebhook
+} from '../services/storageService';
 import {
   Users,
   UserPlus,
@@ -21,7 +25,9 @@ import {
   Gavel,
   Briefcase,
   Layers,
-  ArrowRight
+  ArrowRight,
+  RefreshCw,
+  Cloud
 } from 'lucide-react';
 
 interface PegawaiManagementViewProps {
@@ -31,6 +37,8 @@ interface PegawaiManagementViewProps {
   onDeletePegawai: (id: string) => void;
   onResetPegawai: () => void;
   onViewOfficerCases: (officerName: string) => void;
+  onOpenIntegrasi?: () => void;
+  showToast?: (msg: string) => void;
 }
 
 const KATEGORI_OPTIONS: KategoriPegawai[] = [
@@ -47,12 +55,55 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
   onSavePegawai,
   onDeletePegawai,
   onResetPegawai,
-  onViewOfficerCases
+  onViewOfficerCases,
+  onOpenIntegrasi,
+  showToast
 }) => {
   const [selectedKategori, setSelectedKategori] = useState<string>('Semua');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPegawai, setEditingPegawai] = useState<PegawaiSIPELKA | null>(null);
+  const [isSyncingSheet, setIsSyncingSheet] = useState(false);
+
+  const sheetConfig = getGoogleSheetConfig();
+
+  const handleSyncAllPegawaiToSheet = async () => {
+    const cfg = getGoogleSheetConfig();
+    if (!cfg.webhookUrl) {
+      if (showToast) {
+        showToast('URL Webhook Google Sheet belum diatur. Membuka menu Integrasi Google Sheet...');
+      }
+      if (onOpenIntegrasi) {
+        onOpenIntegrasi();
+      }
+      return;
+    }
+
+    setIsSyncingSheet(true);
+    try {
+      const res = await sendDataToGoogleSheetWebhook(
+        {
+          action: 'SYNC_ALL_PEGAWAI',
+          app: 'SIPELKA Nagekeo',
+          timestamp: new Date().toISOString(),
+          pegawaiCount: pegawaiList.length,
+          pegawai: pegawaiList
+        },
+        cfg
+      );
+      if (res.success) {
+        showToast?.(
+          `Berhasil menyinkronkan ${pegawaiList.length} data pegawai ke Google Sheet (Tab "Data Pegawai").`
+        );
+      } else {
+        showToast?.(`Gagal menyinkronkan data pegawai: ${res.message}`);
+      }
+    } catch {
+      showToast?.('Terjadi kesalahan saat menyinkronkan data pegawai ke Google Sheet.');
+    } finally {
+      setIsSyncingSheet(false);
+    }
+  };
 
   // Form state
   const [formData, setFormData] = useState<Partial<PegawaiSIPELKA>>({
@@ -250,6 +301,21 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
 
           <div className="flex flex-wrap items-center gap-2.5">
             <button
+              onClick={handleSyncAllPegawaiToSheet}
+              disabled={isSyncingSheet}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/20 transition-all backdrop-blur-xs disabled:opacity-50"
+              title={
+                sheetConfig.webhookUrl
+                  ? 'Sinkronkan seluruh data pegawai ke tab "Data Pegawai" di Google Sheet'
+                  : 'Atur URL Webhook di menu Integrasi Google Sheet'
+              }
+            >
+              <RefreshCw
+                className={`w-4 h-4 text-sky-300 ${isSyncingSheet ? 'animate-spin' : ''}`}
+              />
+              <span>{isSyncingSheet ? 'Menyinkronkan...' : 'Sinkronkan ke Sheet'}</span>
+            </button>
+            <button
               onClick={() => exportPegawaiToCSV(pegawaiList)}
               className="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl border border-white/20 transition-all backdrop-blur-xs"
             >
@@ -367,11 +433,43 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
         </div>
 
         {/* Sync Info Notification Pill */}
-        <div className="flex items-center gap-2 text-[11px] text-blue-950 bg-blue-100/70 px-3.5 py-1.5 rounded-xl border border-blue-200">
-          <Layers className="w-3.5 h-3.5 text-blue-700 shrink-0" />
-          <span>
-            <strong>Sinkronisasi Aktif:</strong> Setiap pegawai yang ditambahkan di sini langsung muncul di pilihan menu <strong>Input Kasus</strong>, <strong>Riwayat Kasus</strong>, serta <strong>Lembar Pengesahan Laporan Resmi</strong>.
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-blue-950 bg-blue-100/70 px-3.5 py-2 rounded-xl border border-blue-200">
+          <div className="flex items-center gap-2">
+            <Layers className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+            <span>
+              <strong>Sinkronisasi Aktif:</strong> Setiap pegawai yang ditambahkan/diubah langsung tersinkron ke <strong>Input Kasus</strong>, <strong>Laporan Resmi</strong>, dan{' '}
+              <strong>Google Sheet (Tab "Data Pegawai")</strong>.
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 shrink-0 font-bold">
+            <Cloud
+              className={`w-3.5 h-3.5 ${
+                sheetConfig.webhookUrl && sheetConfig.autoSync
+                  ? 'text-emerald-600'
+                  : 'text-amber-600'
+              }`}
+            />
+            <span
+              className={
+                sheetConfig.webhookUrl && sheetConfig.autoSync
+                  ? 'text-emerald-800'
+                  : 'text-amber-800'
+              }
+            >
+              {sheetConfig.webhookUrl && sheetConfig.autoSync
+                ? 'Auto-Sync Sheet Aktif'
+                : 'Sheet Belum Terhubung'}
+            </span>
+            {onOpenIntegrasi && (
+              <button
+                type="button"
+                onClick={onOpenIntegrasi}
+                className="ml-1 underline text-blue-800 hover:text-blue-950"
+              >
+                Atur
+              </button>
+            )}
+          </div>
         </div>
       </div>
 

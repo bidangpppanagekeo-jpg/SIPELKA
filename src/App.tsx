@@ -193,21 +193,79 @@ export default function App() {
 
   // Pegawai Handlers
   const handleSavePegawai = (p: PegawaiSIPELKA) => {
+    const isExisting = pegawaiList.some((item) => item.id === p.id);
     const updated = savePegawai(p);
     setPegawaiList(updated);
-    showToast(`Data pegawai ${p.nama} (${p.kategori}) berhasil disimpan.`);
+
+    const sheetCfg = getGoogleSheetConfig();
+    if (sheetCfg.autoSync && sheetCfg.webhookUrl) {
+      showToast(
+        isExisting
+          ? `Memperbarui data pegawai ${p.nama} di Web & Google Sheet...`
+          : `Menyimpan data pegawai ${p.nama} ke Web & Google Sheet...`
+      );
+      sendDataToGoogleSheetWebhook({
+        action: isExisting ? 'EDIT_PEGAWAI' : 'SAVE_PEGAWAI',
+        timestamp: new Date().toISOString(),
+        ...p
+      })
+        .then((res) => {
+          if (res.success) {
+            showToast(
+              isExisting
+                ? `Data pegawai ${p.nama} berhasil diperbarui di Web & Google Sheet.`
+                : `Data pegawai ${p.nama} berhasil direkam ke Google Sheet (Tab Data Pegawai).`
+            );
+          }
+        })
+        .catch((err) => console.error('Auto-sync pegawai webhook error:', err));
+    } else {
+      showToast(`Data pegawai ${p.nama} (${p.kategori}) berhasil disimpan.`);
+    }
   };
 
   const handleDeletePegawai = (id: string) => {
+    const targetPegawai = pegawaiList.find((p) => p.id === id);
     const updated = deletePegawai(id);
     setPegawaiList(updated);
-    showToast('Data pegawai berhasil dihapus.');
+
+    const sheetCfg = getGoogleSheetConfig();
+    if (sheetCfg.autoSync && sheetCfg.webhookUrl && targetPegawai) {
+      showToast(`Menghapus ${targetPegawai.nama} dari Web dan Google Sheet...`);
+      sendDataToGoogleSheetWebhook({
+        action: 'DELETE_PEGAWAI',
+        timestamp: new Date().toISOString(),
+        id: targetPegawai.id,
+        nama: targetPegawai.nama,
+        nipOrIdentitas: targetPegawai.nipOrIdentitas
+      })
+        .then((res) => {
+          if (res.success) {
+            showToast(`Data pegawai ${targetPegawai.nama} berhasil dihapus dari Web & Google Sheet.`);
+          }
+        })
+        .catch((err) => console.error('Delete pegawai sync webhook error:', err));
+    } else {
+      showToast('Data pegawai berhasil dihapus.');
+    }
   };
 
   const handleResetPegawai = () => {
     if (window.confirm('Muat ulang sampel data pegawai & tim penanganan Nagekeo?')) {
       const def = resetDefaultPegawai();
       setPegawaiList(def);
+
+      const sheetCfg = getGoogleSheetConfig();
+      if (sheetCfg.autoSync && sheetCfg.webhookUrl) {
+        sendDataToGoogleSheetWebhook({
+          action: 'SYNC_ALL_PEGAWAI',
+          app: 'SIPELKA Nagekeo',
+          timestamp: new Date().toISOString(),
+          pegawaiCount: def.length,
+          pegawai: def
+        }).catch((err) => console.error('Reset pegawai sync webhook error:', err));
+      }
+
       showToast('Data pegawai berhasil dimuat ulang ke daftar sampel.');
     }
   };
@@ -368,6 +426,8 @@ export default function App() {
             onDeletePegawai={handleDeletePegawai}
             onResetPegawai={handleResetPegawai}
             onViewOfficerCases={handleViewOfficerCases}
+            onOpenIntegrasi={() => setCurrentTab('integrasi')}
+            showToast={showToast}
           />
         )}
 
