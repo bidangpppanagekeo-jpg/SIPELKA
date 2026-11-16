@@ -29,6 +29,11 @@ import {
   ChevronUp,
   Sparkles
 } from 'lucide-react';
+import formBgBiruImg from '../assets/images/form_ibu_anak_biru_1794804190809.jpg';
+import formBgIndigoImg from '../assets/images/form_ibu_anak_indigo_1794804190861.jpg';
+import formBgEmasImg from '../assets/images/form_ibu_anak_emas_1794804192901.jpg';
+import formBgHijauImg from '../assets/images/form_ibu_anak_hijau_1794804193174.jpg';
+import formBgPelangiImg from '../assets/images/form_ibu_anak_pelangi_1794804192967.jpg';
 
 interface CaseFormViewProps {
   initialCase?: KasusKekerasan | null;
@@ -368,9 +373,20 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* SECTION 1: Nomor Registrasi & Pelapor (Soft Sky Blue) */}
-        <div className="bg-gradient-to-br from-white via-sky-50/70 to-blue-50/80 p-6 sm:p-7 rounded-3xl border-2 border-blue-200/90 shadow-sm space-y-4">
-          <div className="border-b border-blue-100 pb-3 flex items-center gap-3">
+        {/* SECTION 1: Nomor Registrasi & Pelapor (Soft Sky Blue + Floral Mother & Daughter) */}
+        <div className="relative overflow-hidden bg-sky-50/40 p-6 sm:p-7 rounded-3xl border-2 border-sky-300/90 shadow-sm">
+          <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
+            <img
+              src={formBgBiruImg}
+              alt="Latar Ibu dan Anak Nuansa Biru Langit"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover object-right opacity-35"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-sky-50/85 to-sky-50/45" />
+          </div>
+
+          <div className="relative z-10 space-y-4">
+          <div className="border-b border-sky-200/80 pb-3 flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
               01
             </div>
@@ -378,7 +394,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               <h2 className="text-sm font-extrabold text-blue-950 uppercase tracking-wide">
                 1. Data Penerimaan Laporan & Pihak Pelapor
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-600">
                 Informasi pencatatan awal, nomor registrasi resmi, dan pihak yang menyampaikan aduan
               </p>
             </div>
@@ -533,11 +549,23 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               />
             </div>
           </div>
+          </div>
         </div>
 
-        {/* SECTION 2: Data Korban & Asesmen Kerentanan (Soft Indigo/Blue) */}
-        <div className="bg-gradient-to-br from-white via-indigo-50/50 to-blue-50/70 p-6 sm:p-7 rounded-3xl border-2 border-indigo-200/90 shadow-sm space-y-4">
-          <div className="border-b border-indigo-100 pb-3 flex items-center gap-3">
+        {/* SECTION 2: Data Korban & Asesmen Kerentanan (Lavender / Indigo + Mother & Child in Meadow) */}
+        <div className="relative overflow-hidden bg-indigo-50/40 p-6 sm:p-7 rounded-3xl border-2 border-indigo-300/90 shadow-sm">
+          <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
+            <img
+              src={formBgIndigoImg}
+              alt="Latar Ibu dan Anak Nuansa Lavender Indigo"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover object-right opacity-35"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-indigo-50/85 to-purple-50/45" />
+          </div>
+
+          <div className="relative z-10 space-y-4">
+          <div className="border-b border-indigo-200/80 pb-3 flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
               02
             </div>
@@ -545,7 +573,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               <h2 className="text-sm font-extrabold text-indigo-950 uppercase tracking-wide">
                 2. Identitas Korban & Asesmen Kerentanan
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-600">
                 Data identitas korban dilindungi kerahasiaannya sesuai UU Perlindungan Saksi dan Korban
               </p>
             </div>
@@ -721,11 +749,23 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               )}
             </div>
           </div>
+          </div>
         </div>
 
-        {/* SECTION 3: Data Terlapor & TKP (Soft Amber/Gold) */}
-        <div className="bg-gradient-to-br from-white via-amber-50/50 to-yellow-50/70 p-6 sm:p-7 rounded-3xl border-2 border-amber-200/90 shadow-sm space-y-4">
-          <div className="border-b border-amber-200 pb-3 flex items-center gap-3">
+        {/* SECTION 3: Data Terlapor & TKP (Warm Amber / Gold + Mother & Son Rice Terraces) */}
+        <div className="relative overflow-hidden bg-amber-50/40 p-6 sm:p-7 rounded-3xl border-2 border-amber-300/90 shadow-sm">
+          <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
+            <img
+              src={formBgEmasImg}
+              alt="Latar Ibu dan Anak Nuansa Emas Pedesaan"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover object-right opacity-35"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-amber-50/85 to-orange-50/45" />
+          </div>
+
+          <div className="relative z-10 space-y-4">
+          <div className="border-b border-amber-200/80 pb-3 flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 font-black text-xs flex items-center justify-center shadow-xs">
               03
             </div>
@@ -733,7 +773,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               <h2 className="text-sm font-extrabold text-amber-950 uppercase tracking-wide">
                 3. Data Terlapor (Pelaku) & Tempat Kejadian Perkara (TKP)
               </h2>
-              <p className="text-xs text-amber-800/80">
+              <p className="text-xs text-amber-900/80">
                 Identitas terduga pelaku dan lokasi tempat kejadian perkara di 7 kecamatan Kabupaten Nagekeo
               </p>
             </div>
@@ -856,19 +896,31 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               </select>
             </div>
           </div>
+          </div>
         </div>
 
-        {/* SECTION 4: Bentuk Kekerasan, Kronologi & Layanan (Soft Sky Blue) */}
-        <div className="bg-gradient-to-br from-white via-sky-50/60 to-cyan-50/70 p-6 sm:p-7 rounded-3xl border-2 border-sky-200/90 shadow-sm space-y-4">
-          <div className="border-b border-sky-200 pb-3 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-sky-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+        {/* SECTION 4: Bentuk Kekerasan, Kronologi & Layanan (Emerald / Teal + Mother & Child Reading) */}
+        <div className="relative overflow-hidden bg-emerald-50/40 p-6 sm:p-7 rounded-3xl border-2 border-emerald-300/90 shadow-sm">
+          <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
+            <img
+              src={formBgHijauImg}
+              alt="Latar Ibu dan Anak Nuansa Hijau Pemulihan"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover object-right opacity-30"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-emerald-50/85 to-teal-50/45" />
+          </div>
+
+          <div className="relative z-10 space-y-4">
+          <div className="border-b border-emerald-200/80 pb-3 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
               04
             </div>
             <div>
-              <h2 className="text-sm font-extrabold text-blue-950 uppercase tracking-wide">
+              <h2 className="text-sm font-extrabold text-emerald-950 uppercase tracking-wide">
                 4. Bentuk Kekerasan, Kronologi & Rencana Layanan
               </h2>
-              <p className="text-xs text-sky-800/80">
+              <p className="text-xs text-emerald-900/80">
                 Klasifikasi jenis pelanggaran, uraian ringkas kejadian, serta penentuan urgensi respon terpadu
               </p>
             </div>
@@ -1002,26 +1054,38 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               />
             </div>
           </div>
+          </div>
         </div>
 
-        {/* SECTION 5: Tim Penanganan Terpadu & Sinkronisasi Petugas SIPELKA (Vibrant Indigo/Blue) */}
-        <div className="bg-gradient-to-br from-white via-indigo-50/70 to-blue-50/80 p-6 sm:p-7 rounded-3xl border-2 border-indigo-200/90 shadow-sm space-y-4">
-          <div className="border-b border-indigo-200 pb-3 flex items-center justify-between gap-3">
+        {/* SECTION 5: Tim Penanganan Terpadu & Sinkronisasi Petugas SIPELKA (Vibrant Flores Colors) */}
+        <div className="relative overflow-hidden bg-rose-50/35 p-6 sm:p-7 rounded-3xl border-2 border-rose-300/80 shadow-sm">
+          <div className="absolute inset-0 pointer-events-none select-none z-0" aria-hidden="true">
+            <img
+              src={formBgPelangiImg}
+              alt="Latar Ibu dan Anak Tenun Flores Berwarna"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover object-right opacity-35"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-rose-50/80 to-amber-50/45" />
+          </div>
+
+          <div className="relative z-10 space-y-4">
+          <div className="border-b border-rose-200/80 pb-3 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-indigo-700 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-r from-rose-600 to-amber-500 text-white font-bold text-xs flex items-center justify-center shadow-xs">
                 05
               </div>
               <div>
                 <h2 className="text-sm font-extrabold text-blue-950 uppercase tracking-wide flex items-center gap-2">
-                  <Users className="w-4 h-4 text-indigo-700" />
+                  <Users className="w-4 h-4 text-rose-600" />
                   5. Penugasan Tim Penanganan Terpadu & Sinkronisasi Petugas
                 </h2>
-                <p className="text-xs text-indigo-900/80">
+                <p className="text-xs text-slate-700">
                   Data petugas yang dipilih akan tersinkron otomatis ke lembar penanganan, berita acara, dan riwayat kasus
                 </p>
               </div>
             </div>
-            <span className="hidden sm:inline-flex text-[10px] font-bold text-indigo-800 bg-indigo-100 px-2.5 py-1 rounded-full border border-indigo-200">
+            <span className="hidden sm:inline-flex text-[10px] font-bold text-rose-900 bg-rose-100/90 px-2.5 py-1 rounded-full border border-rose-200">
               Sinkronisasi SIPELKA
             </span>
           </div>
@@ -1166,6 +1230,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               </select>
               <p className="text-[10px] text-slate-500">Nama pejabat yang tercantum pada lembar pengesahan berita acara dan laporan resmi.</p>
             </div>
+          </div>
           </div>
         </div>
 
