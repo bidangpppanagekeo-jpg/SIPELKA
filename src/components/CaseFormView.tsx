@@ -266,7 +266,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               petugas: formData.petugasPendamping || 'Staf PPPA',
               instansi: 'UPTD PPA Dinas PMDP3A Kab. Nagekeo',
               tindakan: 'Penerimaan Laporan & Penginputan Data ke SIPELKA',
-              hasilDanCatatan: 'Berkas kasus berhasil didaftarkan ke sistem SIMFONI PPA Nagekeo.',
+              hasilDanCatatan: 'Berkas kasus berhasil didaftarkan ke sistem SIPELKA Nagekeo.',
               statusLayanan: (initialCase?.statusPenanganan || formData.statusPenanganan || 'Pengaduan Masuk') as KasusKekerasan['statusPenanganan']
             }
           ];
@@ -314,7 +314,7 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
-              <span>Formulir Asesmen Terpadu SIMFONI PPA</span>
+              <span>Formulir Asesmen Terpadu SIPELKA</span>
               <span>·</span>
               <span className="text-blue-950">Dinas PMDP3A Nagekeo</span>
             </div>

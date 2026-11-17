@@ -93,7 +93,7 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
-              <span>Pelaporan Terpadu SIMFONI PPA</span>
+              <span>Pelaporan Terpadu SIPELKA</span>
               <span>·</span>
               <span className="text-blue-950">Dinas PMDP3A Kabupaten Nagekeo</span>
             </div>
@@ -101,7 +101,7 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
               Rekapitulasi & Pelaporan Resmi Data Kasus PPPA
             </h1>
             <p className="text-xs sm:text-sm text-slate-700 font-medium max-w-2xl leading-relaxed">
-              Format instrumen baku Sistem Informasi Online Perlindungan Perempuan dan Anak (SIMFONI PPA) Kementerian PPPA Republik Indonesia.
+              Format instrumen baku Sistem Informasi Pelayanan Kasus (SIPELKA) Dinas PMDP3A Kabupaten Nagekeo.
             </p>
           </div>
 
@@ -169,7 +169,7 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
         </div>
       </div>
 
-      {/* Matriks SIMFONI PPA KemenPPPA */}
+      {/* Matriks SIPELKA Nagekeo */}
       <div className="bg-white p-6 sm:p-7 rounded-3xl border-2 border-blue-200 shadow-sm space-y-4">
         <div className="border-b border-blue-100 pb-3 flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
@@ -180,7 +180,7 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
               Matriks Rekapitulasi Kasus Berdasarkan Bentuk Kekerasan & Kategori Korban
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Format baku Sistem Informasi Online Perlindungan Perempuan dan Anak (SIMFONI PPA)
+              Format baku Sistem Informasi Pelayanan Kasus (SIPELKA) Dinas PMDP3A Kabupaten Nagekeo
             </p>
           </div>
         </div>
@@ -331,7 +331,7 @@ export const OfficialReportView: React.FC<OfficialReportViewProps> = ({
 
           <div className="p-3 bg-white/85 rounded-xl border border-sky-300 shadow-2xs">
             <span className="text-[10px] font-bold text-sky-800 uppercase tracking-wider block">
-              {activeAdmin?.jabatan || 'Pengelola Data SIMFONI PPA'}
+              {activeAdmin?.jabatan || 'Pengelola Data SIPELKA'}
             </span>
             <div className="font-bold text-slate-900 mt-1">
               {activeAdmin?.nama || 'Yohanes Sina, S.Sos'}

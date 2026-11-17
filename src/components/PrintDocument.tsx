@@ -313,7 +313,7 @@ export const PrintDocument: React.FC<PrintDocumentProps> = ({
             </div>
             <div>
               <p>Mbay, {currentDate}</p>
-              <p className="mb-14">{activeAdmin?.jabatan || 'Pengelola Data SIMFONI PPA Nagekeo'},</p>
+              <p className="mb-14">{activeAdmin?.jabatan || 'Pengelola Data SIPELKA Nagekeo'},</p>
               <p className="font-bold underline">
                 {activeAdmin?.nama || 'Yohanes Sina, S.Sos'}
               </p>

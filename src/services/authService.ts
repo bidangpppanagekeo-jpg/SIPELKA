@@ -13,7 +13,7 @@ const DEFAULT_ADMIN: AdminUser = {
   email: 'bidangpppanagekeo@gmail.com',
   role: 'superadmin',
   instansi: 'Dinas PMDP3A Kabupaten Nagekeo',
-  jabatan: 'Pengelola Data SIMFONI & Admin SIPELKA',
+  jabatan: 'Administrator & Pengelola Data SIPELKA',
   nipOrIdentitas: '19880914 201101 1 008'
 };
 

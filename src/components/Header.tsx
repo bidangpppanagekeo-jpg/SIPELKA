@@ -48,7 +48,7 @@ const TAB_META: Record<AppTab, { title: string; subtitle: string }> = {
   },
   laporan: {
     title: 'Rekap & Laporan Resmi',
-    subtitle: 'Cetak Berita Acara Pengaduan & Rekapitulasi Standar SIMFONI PPA'
+    subtitle: 'Cetak Berita Acara Pengaduan & Rekapitulasi Standar SIPELKA'
   },
   sop: {
     title: 'SOP & Jejaring Rujukan',

@@ -58,7 +58,7 @@ export const GuideView: React.FC<GuideViewProps> = ({
       items: [
         {
           label: 'Nomor Registrasi Resmi',
-          desc: 'Terisi otomatis oleh sistem dengan format standar SIMFONI: REG/PPA-NGK/TAHUN/BULAN/NOMOR (contoh: REG/PPA-NGK/2026/10/002). Jangan mengubah format nomor ini agar sinkronisasi Google Sheet berjalan tertib.'
+          desc: 'Terisi otomatis oleh sistem dengan format standar SIPELKA: REG/PPA-NGK/TAHUN/BULAN/NOMOR (contoh: REG/PPA-NGK/2026/10/002). Jangan mengubah format nomor ini agar sinkronisasi Google Sheet berjalan tertib.'
         },
         {
           label: 'Tanggal Lapor & Tanggal Kejadian',
@@ -340,7 +340,7 @@ export const GuideView: React.FC<GuideViewProps> = ({
                 <h2 className="text-base sm:text-lg font-black text-sky-950 flex items-center gap-2 flex-wrap">
                   <span>Panduan Langkah Demi Langkah Input Kasus Baru (5 Bagian)</span>
                   <span className="text-[10px] font-extrabold text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full border border-amber-300">
-                    Standar SIMFONI PPA
+                    Standar SIPELKA
                   </span>
                 </h2>
                 <p className="text-xs text-slate-700 font-medium mt-0.5">

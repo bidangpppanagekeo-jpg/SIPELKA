@@ -266,7 +266,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
-              <span>Ringkasan Terpadu SIMFONI PPA</span>
+              <span>Ringkasan Terpadu SIPELKA</span>
               <span aria-hidden="true">·</span>
               <span className="text-blue-950">Dinas PMDP3A Nagekeo</span>
             </div>

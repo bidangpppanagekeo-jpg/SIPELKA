@@ -219,7 +219,7 @@ export const INITIAL_PEGAWAI_DATA: PegawaiSIPELKA[] = [
     nama: 'Yohanes Sina, S.Sos',
     nipOrIdentitas: '19880914 201101 1 008',
     kategori: 'Admin SIPELKA',
-    jabatan: 'Administrator SIPELKA & Pengelola Data SIMFONI PPA',
+    jabatan: 'Administrator & Pengelola Data SIPELKA',
     instansi: 'Dinas PMDP3A Kab. Nagekeo',
     telepon: '0813-3982-1102',
     email: 'yohanes.sipelka@nagekeokab.go.id',
@@ -236,7 +236,7 @@ export const INITIAL_PEGAWAI_DATA: PegawaiSIPELKA[] = [
     instansi: 'Dinas PMDP3A Kab. Nagekeo',
     telepon: '0822-4712-3345',
     email: 'theresia.loda@nagekeokab.go.id',
-    keahlian: 'Entri Data SIMFONI PPA, Validasi Dokumen Laporan',
+    keahlian: 'Entri Data SIPELKA, Validasi Dokumen Laporan',
     status: 'Aktif',
     tanggalBergabung: '2022-01-10'
   },
