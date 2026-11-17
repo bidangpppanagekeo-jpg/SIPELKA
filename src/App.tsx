@@ -12,11 +12,9 @@ import {
   addProgressNote,
   getAnonymizedPreference,
   setAnonymizedPreference,
-  resetDefaultCases,
   getStoredPegawai,
   savePegawai,
   deletePegawai,
-  resetDefaultPegawai,
   getGoogleSheetConfig,
   sendDataToGoogleSheetWebhook
 } from './services/storageService';
@@ -35,7 +33,6 @@ import { GoogleSheetIntegrationView } from './components/GoogleSheetIntegrationV
 import { GuideView } from './components/GuideView';
 import { CaseDetailModal } from './components/CaseDetailModal';
 import { PrintDocument } from './components/PrintDocument';
-import sawahNagekeoImg from './assets/images/pemandangan_sawah_nagekeo_1794803689160.jpg';
 
 export default function App() {
   const [authSession, setAuthSession] = useState<AuthSession>(() => getAuthSession());
@@ -48,6 +45,18 @@ export default function App() {
   const [officerFilterQuery, setOfficerFilterQuery] = useState<string>('');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState<boolean>(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [selectedYear, setSelectedYear] = useState<string>('2026');
+  const [selectedQuarter, setSelectedQuarter] = useState<string>('Semua');
+
+  const availableYears = React.useMemo(() => {
+    const years = new Set<string>(['2026']);
+    cases.forEach((c) => {
+      if (c.tanggalLapor && c.tanggalLapor.length >= 4) {
+        years.add(c.tanggalLapor.slice(0, 4));
+      }
+    });
+    return Array.from(years).sort((a, b) => b.localeCompare(a));
+  }, [cases]);
 
   // Printing state
   const [printConfig, setPrintConfig] = useState<{
@@ -208,14 +217,6 @@ export default function App() {
     }
   };
 
-  const handleResetData = () => {
-    if (window.confirm('Muat ulang data sampel kasus di Kabupaten Nagekeo?')) {
-      const def = resetDefaultCases();
-      setCases(def);
-      showToast('Data telah direset ke daftar sampel kasus Kabupaten Nagekeo.');
-    }
-  };
-
   // Pegawai Handlers
   const handleSavePegawai = (p: PegawaiSIPELKA) => {
     const isExisting = pegawaiList.some((item) => item.id === p.id);
@@ -275,26 +276,6 @@ export default function App() {
     }
   };
 
-  const handleResetPegawai = () => {
-    if (window.confirm('Muat ulang sampel data pegawai & tim penanganan Nagekeo?')) {
-      const def = resetDefaultPegawai();
-      setPegawaiList(def);
-
-      const sheetCfg = getGoogleSheetConfig();
-      if (sheetCfg.autoSync && sheetCfg.webhookUrl) {
-        sendDataToGoogleSheetWebhook({
-          action: 'SYNC_ALL_PEGAWAI',
-          app: 'SIPELKA Nagekeo',
-          timestamp: new Date().toISOString(),
-          pegawaiCount: def.length,
-          pegawai: def
-        }).catch((err) => console.error('Reset pegawai sync webhook error:', err));
-      }
-
-      showToast('Data pegawai berhasil dimuat ulang ke daftar sampel.');
-    }
-  };
-
   const handleViewOfficerCases = (officerName: string) => {
     setOfficerFilterQuery(officerName);
     setCurrentTab('register');
@@ -350,23 +331,8 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-blue-50 flex font-sans relative z-0 text-slate-800">
-      {/* Subtle panoramic Nagekeo rice fields scenery backdrop */}
-      <div className="fixed inset-0 pointer-events-none -z-10 print:hidden" aria-hidden="true">
-        <img
-          src={sawahNagekeoImg}
-          alt="Pemandangan Sawah Nagekeo"
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-cover object-center opacity-55 brightness-105 saturate-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-sky-50/35 to-white/45" />
-      </div>
-
-      {/* Background subtle light ambient effects */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-sky-200/20 rounded-full blur-3xl pointer-events-none -z-10 print:hidden" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-amber-100/30 rounded-full blur-3xl pointer-events-none -z-10 print:hidden" />
-
-      {/* Modern Sidebar Navigation on the Left */}
+    <div className="min-h-screen bg-[#F2F5FA] flex font-sans relative z-0 text-slate-800">
+      {/* Deep Navy Institutional Sidebar on the Left */}
       <Sidebar
         currentTab={currentTab}
         onSelectTab={handleSelectTab}
@@ -389,6 +355,13 @@ export default function App() {
           isAnonymized={isAnonymized}
           onToggleAnonymized={handleToggleAnonymized}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+          selectedYear={selectedYear}
+          onChangeYear={setSelectedYear}
+          availableYears={availableYears}
+          selectedQuarter={selectedQuarter}
+          onChangeQuarter={setSelectedQuarter}
+          currentUser={authSession.user}
+          onLogout={handleLogout}
         />
 
         {/* Toast Notification */}
@@ -400,11 +373,13 @@ export default function App() {
         )}
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-7 py-5">
         {currentTab === 'dashboard' && (
           <DashboardView
             cases={cases}
             isAnonymized={isAnonymized}
+            selectedYear={selectedYear}
+            selectedQuarter={selectedQuarter}
             onSelectCase={(c) => setSelectedCaseForDetail(c)}
             onNavigateToTab={(tab) => handleSelectTab(tab)}
           />
@@ -420,7 +395,6 @@ export default function App() {
             onDeleteCase={handleDeleteCase}
             onPrintCase={handlePrintCase}
             onOpenNewCase={handleOpenNewCase}
-            onResetData={handleResetData}
             isReadOnly={isPimpinan}
           />
         )}
@@ -446,7 +420,6 @@ export default function App() {
             cases={cases}
             onSavePegawai={handleSavePegawai}
             onDeletePegawai={handleDeletePegawai}
-            onResetPegawai={handleResetPegawai}
             onViewOfficerCases={handleViewOfficerCases}
             onOpenIntegrasi={isPimpinan ? undefined : () => handleSelectTab('integrasi')}
             showToast={showToast}

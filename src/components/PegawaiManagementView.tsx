@@ -35,7 +35,6 @@ interface PegawaiManagementViewProps {
   cases: KasusKekerasan[];
   onSavePegawai: (p: PegawaiSIPELKA) => void;
   onDeletePegawai: (id: string) => void;
-  onResetPegawai: () => void;
   onViewOfficerCases: (officerName: string) => void;
   onOpenIntegrasi?: () => void;
   showToast?: (msg: string) => void;
@@ -55,7 +54,6 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
   cases,
   onSavePegawai,
   onDeletePegawai,
-  onResetPegawai,
   onViewOfficerCases,
   onOpenIntegrasi,
   showToast,

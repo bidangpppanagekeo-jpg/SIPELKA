@@ -11,8 +11,7 @@ import {
   Eye,
   FileText,
   Trash2,
-  Edit,
-  RotateCcw
+  Edit
 } from 'lucide-react';
 
 interface CaseListViewProps {
@@ -24,7 +23,6 @@ interface CaseListViewProps {
   onDeleteCase: (id: string) => void;
   onPrintCase: (c: KasusKekerasan) => void;
   onOpenNewCase: () => void;
-  onResetData: () => void;
   isReadOnly?: boolean;
 }
 
@@ -37,7 +35,6 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
   onDeleteCase,
   onPrintCase,
   onOpenNewCase,
-  onResetData,
   isReadOnly = false
 }) => {
   const [filters, setFilters] = useState<FilterKasusState>({
@@ -476,19 +473,11 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
           </table>
         </div>
 
-        {/* Footer info & Data Reset */}
+        {/* Footer info */}
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div>
             Standar pelaporan mengacu pada Petunjuk Teknis SIMFONI PPA Kementerian PPPA RI.
           </div>
-          <button
-            onClick={onResetData}
-            className="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 transition-colors"
-            title="Muat ulang data sampel kasus Nagekeo"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset ke Contoh Data Nagekeo</span>
-          </button>
         </div>
       </div>
 
