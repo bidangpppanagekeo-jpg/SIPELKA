@@ -28,6 +28,7 @@ import {
 interface GoogleSheetIntegrationViewProps {
   cases: KasusKekerasan[];
   pegawaiList: PegawaiSIPELKA[];
+  initialConfig?: GoogleSheetConfig;
   showToast: (msg: string) => void;
   onConfigSaved?: (cfg: GoogleSheetConfig) => Promise<void> | void;
   onRefreshFromSheet?: () => Promise<void> | void;
@@ -36,14 +37,16 @@ interface GoogleSheetIntegrationViewProps {
 export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProps> = ({
   cases,
   pegawaiList,
+  initialConfig,
   showToast,
   onConfigSaved,
   onRefreshFromSheet
 }) => {
   const [config, setConfig] = useState<GoogleSheetConfig>({
-    sheetUrl: '',
-    webhookUrl: '',
-    autoSync: true
+    sheetUrl: initialConfig?.sheetUrl || '',
+    webhookUrl: initialConfig?.webhookUrl || '',
+    autoSync: initialConfig?.autoSync ?? true,
+    lastSyncedAt: initialConfig?.lastSyncedAt
   });
 
   const [isTesting, setIsTesting] = useState(false);
@@ -56,7 +59,10 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
   useEffect(() => {
     let active = true;
     fetchSheetConfig().then((cfg) => {
-      if (active) setConfig(cfg);
+      if (!active) return;
+      if (cfg.sheetUrl || cfg.webhookUrl) {
+        setConfig(cfg);
+      }
     });
     return () => {
       active = false;
@@ -73,15 +79,23 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       webhookUrl: config.webhookUrl.trim()
     };
     try {
-      const saved = await saveGoogleSheetConfig(cleanedConfig);
-      setConfig(saved);
-      setTestResult({
-        success: true,
-        message: 'Konfigurasi URL Google Sheet & Webhook berhasil disimpan di server untuk semua pengguna.'
-      });
-      showToast('Konfigurasi Google Sheet & Webhook tersimpan di server untuk semua pengguna.');
+      const result = await saveGoogleSheetConfig(cleanedConfig);
+      setConfig(result.config);
+      if (result.persistedOnServer) {
+        setTestResult({
+          success: true,
+          message: 'Konfigurasi URL Google Sheet & Webhook berhasil disimpan di server untuk semua pengguna.'
+        });
+        showToast('Konfigurasi Google Sheet & Webhook tersimpan di server untuk semua pengguna.');
+      } else {
+        setTestResult({
+          success: true,
+          message: result.notice || 'Webhook diaktifkan untuk sesi ini.'
+        });
+        showToast('Webhook terhubung untuk sesi ini (lihat catatan di bawah).');
+      }
       if (onConfigSaved) {
-        await onConfigSaved(saved);
+        await onConfigSaved(result.config);
       }
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : 'Gagal menyimpan konfigurasi Google Sheet.';

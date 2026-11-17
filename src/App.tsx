@@ -82,12 +82,25 @@ export default function App() {
     }, 3500);
   }, []);
 
+  const sheetConfigRef = React.useRef<GoogleSheetConfig>(sheetConfig);
+  React.useEffect(() => {
+    sheetConfigRef.current = sheetConfig;
+  }, [sheetConfig]);
+
   const refreshLiveSheetData = useCallback(async (silent: boolean = false) => {
     setIsLoadingSheetData(true);
     try {
-      const cfg = await fetchSheetConfig();
-      const liveData = await fetchLatestFromGoogleSheet(cfg);
-      setSheetConfig(cfg);
+      const fetchedCfg = await fetchSheetConfig();
+      const currentCfg = sheetConfigRef.current;
+      const activeCfg =
+        fetchedCfg.webhookUrl || fetchedCfg.sheetUrl
+          ? fetchedCfg
+          : currentCfg.webhookUrl || currentCfg.sheetUrl
+          ? currentCfg
+          : fetchedCfg;
+
+      const liveData = await fetchLatestFromGoogleSheet(activeCfg);
+      setSheetConfig(activeCfg);
       setCases(liveData.cases);
       setPegawaiList(liveData.pegawai);
       setSheetSyncNotice({
@@ -585,10 +598,23 @@ export default function App() {
           <GoogleSheetIntegrationView
             cases={cases}
             pegawaiList={pegawaiList}
+            initialConfig={sheetConfig}
             showToast={showToast}
             onConfigSaved={async (cfg) => {
               setSheetConfig(cfg);
-              await refreshLiveSheetData(false);
+              setIsLoadingSheetData(true);
+              try {
+                const liveData = await fetchLatestFromGoogleSheet(cfg);
+                setCases(liveData.cases);
+                setPegawaiList(liveData.pegawai);
+                setSheetSyncNotice({
+                  configured: liveData.configured,
+                  message: liveData.message,
+                  needsScriptUpdate: liveData.needsScriptUpdate
+                });
+              } finally {
+                setIsLoadingSheetData(false);
+              }
             }}
             onRefreshFromSheet={() => refreshLiveSheetData(false)}
           />

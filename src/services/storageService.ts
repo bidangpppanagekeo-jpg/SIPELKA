@@ -165,7 +165,13 @@ export async function fetchSheetConfig(): Promise<GoogleSheetConfig> {
   }
 }
 
-export async function saveGoogleSheetConfig(config: GoogleSheetConfig): Promise<GoogleSheetConfig> {
+export interface SaveSheetConfigResult {
+  config: GoogleSheetConfig;
+  persistedOnServer: boolean;
+  notice?: string;
+}
+
+export async function saveGoogleSheetConfig(config: GoogleSheetConfig): Promise<SaveSheetConfigResult> {
   const normalizedConfig: GoogleSheetConfig = {
     sheetUrl: (config.sheetUrl || '').trim(),
     webhookUrl: (config.webhookUrl || '').trim(),
@@ -180,9 +186,44 @@ export async function saveGoogleSheetConfig(config: GoogleSheetConfig): Promise<
   });
 
   const parsed = await parseJsonSafely<GoogleSheetConfig & { error?: string }>(res);
-  if (parsed.isHtml) {
-    throw new Error(`Endpoint penyimpanan server (/api/sheet-config) mengembalikan HTML (HTTP ${res.status}). Pastikan server backend berjalan.`);
+
+  // Jika dibuka melalui hosting statis (HTTP 405 Method Not Allowed / 404 / HTML SPA fallback)
+  if (parsed.isHtml || res.status === 405 || res.status === 404) {
+    if (normalizedConfig.webhookUrl) {
+      try {
+        const testUrl = new URL(normalizedConfig.webhookUrl);
+        testUrl.searchParams.set('action', 'GET_ALL');
+        testUrl.searchParams.set('_ts', String(Date.now()));
+        const directRes = await fetch(testUrl.toString(), { method: 'GET', redirect: 'follow' });
+        const directParsed = await parseJsonSafely<{ status?: string }>(directRes);
+
+        if (!directParsed.isHtml && directParsed.data?.status === 'success') {
+          return {
+            config: normalizedConfig,
+            persistedOnServer: false,
+            notice:
+              `URL Webhook valid & data berhasil terhubung untuk sesi ini. Namun penyimpanan permanen ke server ditolak (HTTP ${res.status}) karena URL aplikasi ini berjalan di mode statis tanpa backend API. Untuk menyimpan permanen bagi semua pengguna, buka melalui Development App URL atau atur GOOGLE_SHEET_URL & GOOGLE_SHEET_WEBHOOK_URL (serta VITE_*) pada Secrets.`
+          };
+        }
+
+        if (!directParsed.isHtml) {
+          return {
+            config: normalizedConfig,
+            persistedOnServer: false,
+            notice:
+              `Webhook diaktifkan untuk sesi ini, tetapi doGet() Apps Script belum mengembalikan JSON data (perbarui Code.gs & Deploy versi baru). Selain itu, penyimpanan permanen server ditolak (HTTP ${res.status}) karena aplikasi berjalan di mode statis.`
+          };
+        }
+      } catch {
+        // Lanjut ke pesan error yang jelas di bawah
+      }
+    }
+
+    throw new Error(
+      `Penyimpanan konfigurasi ke server ditolak (HTTP ${res.status}: metode POST tidak diizinkan pada mode hosting statis). Buka aplikasi melalui Development App URL agar server backend menyimpan konfigurasi untuk semua pengguna.`
+    );
   }
+
   if (!res.ok || !parsed.data) {
     const rawDetail = parsed.rawText && parsed.rawText.trim().length < 180 ? parsed.rawText.trim() : '';
     throw new Error(
@@ -191,7 +232,10 @@ export async function saveGoogleSheetConfig(config: GoogleSheetConfig): Promise<
     );
   }
 
-  return parsed.data;
+  return {
+    config: parsed.data,
+    persistedOnServer: true
+  };
 }
 
 export async function fetchLatestFromGoogleSheet(configOverride?: GoogleSheetConfig): Promise<LiveSheetDataResult> {
@@ -202,7 +246,7 @@ export async function fetchLatestFromGoogleSheet(configOverride?: GoogleSheetCon
     });
     const parsed = await parseJsonSafely<Partial<LiveSheetDataResult> & { error?: string }>(res);
 
-    if (!parsed.isHtml && parsed.data) {
+    if (!parsed.isHtml && parsed.data && res.status !== 404 && res.status !== 405) {
       return {
         configured: Boolean(parsed.data.configured),
         source: parsed.data.source,
@@ -214,7 +258,7 @@ export async function fetchLatestFromGoogleSheet(configOverride?: GoogleSheetCon
       };
     }
 
-    // Fallback langsung ke Apps Script Web App GET jika /api/sheet-data mengembalikan HTML (mis. mode pratinjau statis)
+    // Fallback langsung ke Apps Script Web App GET jika /api/sheet-data mengembalikan HTML atau 404/405 (mode statis)
     const fallbackWebhook = (
       configOverride?.webhookUrl ||
       getEnvSheetConfigFallback().webhookUrl
@@ -316,8 +360,8 @@ export async function sendDataToGoogleSheetWebhook(
       syncedAt?: string;
     }>(res);
 
-    // Jika /api/sheet-sync mengembalikan HTML (pratinjau statis), kirim langsung ke Apps Script Webhook
-    if (parsed.isHtml && config?.webhookUrl) {
+    // Jika /api/sheet-sync mengembalikan HTML atau 404/405 (mode statis), kirim langsung ke Apps Script Webhook
+    if ((parsed.isHtml || res.status === 404 || res.status === 405) && config?.webhookUrl) {
       const targetUrl = new URL(config.webhookUrl);
       if (sanitizedPayload.action) targetUrl.searchParams.set('action', String(sanitizedPayload.action));
       if (sanitizedPayload.nomorRegistrasi) targetUrl.searchParams.set('nomorRegistrasi', String(sanitizedPayload.nomorRegistrasi));
@@ -350,10 +394,10 @@ export async function sendDataToGoogleSheetWebhook(
       };
     }
 
-    if (parsed.isHtml) {
+    if (parsed.isHtml || res.status === 404 || res.status === 405) {
       return {
         success: false,
-        message: 'Server sinkronisasi tidak mengembalikan respons JSON. Pastikan URL Webhook sudah diatur.'
+        message: `Server sinkronisasi menolak permintaan (HTTP ${res.status}). Pastikan URL Webhook sudah diisi atau buka melalui Development App URL.`
       };
     }
 
