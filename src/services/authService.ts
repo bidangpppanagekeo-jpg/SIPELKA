@@ -32,12 +32,15 @@ interface LockoutState {
 
 /**
  * Mendapatkan status sesi login saat ini (Hanya mengizinkan sesi Admin resmi)
+ * Sesi hanya disimpan di sessionStorage agar ketika pengguna menutup tab/peramban,
+ * aplikasi akan selalu memulai dari halaman login ulang.
  */
 export function getAuthSession(): AuthSession {
   try {
-    const stored =
-      localStorage.getItem(AUTH_STORAGE_KEY) ||
-      sessionStorage.getItem(AUTH_STORAGE_KEY);
+    // Pastikan tidak ada sesi persisten di localStorage
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+
+    const stored = sessionStorage.getItem(AUTH_STORAGE_KEY);
 
     if (!stored) {
       return { isAuthenticated: false, user: null };
@@ -110,8 +113,7 @@ export function checkLockout(): { isLocked: boolean; remainingSeconds: number } 
  */
 export function loginAdmin(
   usernameOrEmailInput: string,
-  passwordInput: string = '',
-  rememberMe: boolean = true
+  passwordInput: string = ''
 ): { success: boolean; message: string; user?: AdminUser } {
   // 1. Sanitasi input dari serangan SQL Injection / Script Injection
   const cleanInput = sanitizeInput(usernameOrEmailInput || '').trim();
@@ -246,13 +248,9 @@ export function loginAdmin(
     loginTime: new Date().toISOString()
   };
 
-  if (rememberMe) {
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
-    sessionStorage.removeItem(AUTH_STORAGE_KEY);
-  } else {
-    sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-  }
+  // Simpan sesi hanya pada sessionStorage agar sesi berakhir otomatis saat web/tab ditutup
+  sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+  localStorage.removeItem(AUTH_STORAGE_KEY);
 
   return {
     success: true,

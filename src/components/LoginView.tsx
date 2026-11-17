@@ -27,7 +27,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
 }) => {
   const [usernameOrEmail, setUsernameOrEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [rememberMe, setRememberMe] = useState<boolean>(true);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -38,7 +37,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
     setIsLoading(true);
 
     setTimeout(() => {
-      const result = loginAdmin(usernameOrEmail, password, rememberMe);
+      const result = loginAdmin(usernameOrEmail, password);
       setIsLoading(false);
 
       if (result.success && result.user) {
@@ -185,19 +184,12 @@ export const LoginView: React.FC<LoginViewProps> = ({
               </div>
             </div>
 
-            {/* Remember Me Checkbox */}
-            <div className="flex items-center justify-between text-xs pt-1">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
-                />
-                <span className="text-slate-600 font-medium">
-                  Ingat sesi pada peramban ini
-                </span>
-              </label>
+            {/* Session Security Info */}
+            <div className="flex items-center gap-2 text-[11px] text-slate-500 pt-1 bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>
+                Demi keamanan, sesi login otomatis berakhir saat halaman atau peramban ditutup.
+              </span>
             </div>
 
             {/* Submit Button */}

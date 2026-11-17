@@ -5,6 +5,8 @@ import {
   signInWithPopup,
   signOut,
   onAuthStateChanged,
+  setPersistence,
+  browserSessionPersistence,
   User
 } from 'firebase/auth';
 import {
@@ -22,6 +24,9 @@ import type { GoogleSheetConfig } from './storageService';
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
+void setPersistence(auth, browserSessionPersistence).catch((err) => {
+  console.warn('Gagal mengatur session persistence Firebase Auth:', err);
+});
 
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });

@@ -13,6 +13,7 @@ import {
 } from './services/storageService';
 import { enableClientSecurityShield } from './services/securityService';
 import { getAuthSession, logoutAdmin } from './services/authService';
+import { signOutGoogleAdmin } from './services/firebaseService';
 import { sanitizeObjectData } from './services/securityService';
 import { Header } from './components/Header';
 import { Sidebar, AppTab } from './components/Sidebar';
@@ -142,6 +143,7 @@ export default function App() {
     } else {
       setCases([]);
       setPegawaiList([]);
+      void signOutGoogleAdmin().catch(() => {});
     }
   }, [authSession.isAuthenticated, authSession.user, refreshLiveSheetData]);
 
@@ -421,6 +423,7 @@ export default function App() {
   const handleLogout = () => {
     if (window.confirm('Keluar dari aplikasi SIPELKA? Sesi administrator Anda akan diakhiri.')) {
       logoutAdmin();
+      void signOutGoogleAdmin().catch(() => {});
       setAuthSession({ isAuthenticated: false, user: null });
       setCases([]);
       setPegawaiList([]);
