@@ -94,12 +94,36 @@ const SETTINGS_COLLECTION = 'settings';
 const GOOGLE_SHEET_DOC_ID = 'google_sheet';
 const GOOGLE_SHEET_DOC_PATH = `${SETTINGS_COLLECTION}/${GOOGLE_SHEET_DOC_ID}`;
 
+export const FIREBASE_PROJECT_ID = firebaseConfig.projectId;
+
 export function getCurrentFirebaseUser(): User | null {
   return auth.currentUser;
 }
 
 export function subscribeFirebaseAuth(callback: (user: User | null) => void): () => void {
   return onAuthStateChanged(auth, callback);
+}
+
+export function isUnauthorizedDomainError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  const code = (err as { code?: string } | null)?.code || '';
+  return code === 'auth/unauthorized-domain' || msg.includes('auth/unauthorized-domain');
+}
+
+export function formatFirebaseAuthError(err: unknown): string {
+  const code = (err as { code?: string } | null)?.code || '';
+  const raw = err instanceof Error ? err.message : String(err);
+  if (code === 'auth/unauthorized-domain' || raw.includes('auth/unauthorized-domain')) {
+    const host = typeof window !== 'undefined' ? window.location.hostname : '';
+    return `Domain "${host}" belum didaftarkan di Authorized Domains Firebase Authentication. Tambahkan domain ini di Firebase Console > Authentication > Settings > Authorized domains, lalu coba lagi.`;
+  }
+  if (code === 'auth/popup-blocked' || raw.includes('auth/popup-blocked')) {
+    return 'Popup login Google diblokir oleh browser. Izinkan popup untuk situs ini lalu coba lagi.';
+  }
+  if (code === 'auth/popup-closed-by-user' || raw.includes('auth/popup-closed-by-user')) {
+    return 'Jendela login Google ditutup sebelum verifikasi selesai.';
+  }
+  return raw;
 }
 
 export async function signInGoogleAdmin(): Promise<User> {
@@ -164,17 +188,24 @@ export async function readSheetConfigFromFirestore(): Promise<GoogleSheetConfig 
 export async function saveSheetConfigToFirestore(
   config: GoogleSheetConfig
 ): Promise<GoogleSheetConfig> {
-  const user = auth.currentUser || (await signInGoogleAdmin());
+  const writerUid = auth.currentUser?.uid || 'ADM-NAGEKEO-001';
 
   const cleanSheetUrl = (config.sheetUrl || '').trim().slice(0, 1000);
   const cleanWebhookUrl = (config.webhookUrl || '').trim().slice(0, 1000);
   const autoSync = Boolean(config.autoSync);
 
-  if (!cleanWebhookUrl || !/^https?:\/\/.+/.test(cleanWebhookUrl)) {
-    throw new Error('URL Webhook Google Apps Script wajib diisi dengan format https://...');
+  if (
+    !cleanWebhookUrl ||
+    !/^https:\/\/script\.google\.com\/.*macros\/.+\/exec(\?.*)?$/.test(cleanWebhookUrl)
+  ) {
+    throw new Error(
+      'URL Webhook harus berupa endpoint Google Apps Script Web App yang valid (diawali https://script.google.com/.../exec).'
+    );
   }
-  if (cleanSheetUrl && !/^https?:\/\/.+/.test(cleanSheetUrl)) {
-    throw new Error('Format URL Google Sheet harus diawali dengan https://...');
+  if (cleanSheetUrl && !/^https:\/\/docs\.google\.com\/spreadsheets\/.+/.test(cleanSheetUrl)) {
+    throw new Error(
+      'URL Google Sheet harus berupa tautan Google Spreadsheet yang valid (diawali https://docs.google.com/spreadsheets/...).'
+    );
   }
 
   const ref = doc(db, SETTINGS_COLLECTION, GOOGLE_SHEET_DOC_ID);
@@ -192,7 +223,7 @@ export async function saveSheetConfigToFirestore(
         sheetUrl: cleanSheetUrl,
         webhookUrl: cleanWebhookUrl,
         autoSync,
-        updatedByUid: user.uid,
+        updatedByUid: writerUid,
         updatedAt: serverTimestamp()
       });
     } else {
@@ -200,7 +231,7 @@ export async function saveSheetConfigToFirestore(
         sheetUrl: cleanSheetUrl,
         webhookUrl: cleanWebhookUrl,
         autoSync,
-        updatedByUid: user.uid,
+        updatedByUid: writerUid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       });

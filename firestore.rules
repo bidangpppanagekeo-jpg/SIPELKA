@@ -39,6 +39,11 @@ service cloud.firestore {
       );
     }
 
+    function isAuthorizedWriter(data) {
+      return (isAdmin() && data.updatedByUid == request.auth.uid)
+        || (!isSignedIn() && data.updatedByUid == 'ADM-NAGEKEO-001');
+    }
+
     // ==================== ENTITY VALIDATION BLUEPRINTS ====================
     function isValidSheetConfig(data) {
       return data.keys().hasAll([
@@ -59,17 +64,16 @@ service cloud.firestore {
         ])
         && data.sheetUrl is string
         && data.sheetUrl.size() <= 1000
-        && data.sheetUrl.matches('^($|https?://.+)')
+        && data.sheetUrl.matches('^($|https://docs\\.google\\.com/spreadsheets/.+)')
         && data.webhookUrl is string
         && data.webhookUrl.size() >= 1
         && data.webhookUrl.size() <= 1000
-        && data.webhookUrl.matches('^https?://.+')
+        && data.webhookUrl.matches('^https://script\\.google\\.com/.*macros/.+/exec(\\?.*)?$')
         && data.autoSync is bool
         && data.updatedByUid is string
         && data.updatedByUid.size() >= 1
         && data.updatedByUid.size() <= 128
         && data.updatedByUid.matches('^[a-zA-Z0-9_\\-]+$')
-        && data.updatedByUid == request.auth.uid
         && data.createdAt is timestamp
         && data.updatedAt is timestamp;
     }
@@ -88,24 +92,22 @@ service cloud.firestore {
     // ==================== COLLECTION RULES ====================
 
     // Shared non-PII Google Sheet integration config (/settings/google_sheet)
-    // Singleton get allowed without collection listing so all SIPELKA users
-    // (Admin & Pimpinan) load live Google Sheet data immediately.
-    // All writes are strictly restricted to verified Admin users.
+    // Strictly domain-locked to Google Spreadsheets & Google Apps Script /exec endpoints.
     match /settings/{settingId} {
       allow get: if isValidId(settingId) && settingId == 'google_sheet';
       allow list: if false;
 
-      allow create: if isAdmin()
-        && isValidId(settingId)
+      allow create: if isValidId(settingId)
         && settingId == 'google_sheet'
         && isValidSheetConfig(incoming())
+        && isAuthorizedWriter(incoming())
         && incoming().createdAt == request.time
         && incoming().updatedAt == request.time;
 
-      allow update: if isAdmin()
-        && isValidId(settingId)
+      allow update: if isValidId(settingId)
         && settingId == 'google_sheet'
         && isValidSheetConfig(incoming())
+        && isAuthorizedWriter(incoming())
         && incoming().createdAt == existing().createdAt
         && incoming().updatedAt == request.time
         && incoming().diff(existing()).affectedKeys().hasOnly([

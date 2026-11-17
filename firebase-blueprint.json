@@ -10,14 +10,14 @@
           "description": "Google Spreadsheet URL for quick link and gviz fallback.",
           "minLength": 0,
           "maxLength": 1000,
-          "pattern": "^($|https?://.+)"
+          "pattern": "^($|https://docs\\.google\\.com/spreadsheets/.+)"
         },
         "webhookUrl": {
           "type": "string",
           "description": "Google Apps Script Web App /exec endpoint URL.",
           "minLength": 1,
           "maxLength": 1000,
-          "pattern": "^https?://.+"
+          "pattern": "^https://script\\.google\\.com/.*macros/.+/exec(\\?.*)?$"
         },
         "autoSync": {
           "type": "boolean",
@@ -25,7 +25,7 @@
         },
         "updatedByUid": {
           "type": "string",
-          "description": "Firebase Auth UID of the administrator who last saved this configuration.",
+          "description": "Administrator identifier that last saved this configuration.",
           "minLength": 1,
           "maxLength": 128,
           "pattern": "^[a-zA-Z0-9_\\-]+$"
