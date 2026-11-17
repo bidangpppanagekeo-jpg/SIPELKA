@@ -4,37 +4,133 @@ export const DAFTAR_KECAMATAN: { nama: KecamatanNagekeo; ibukota: string; desa: 
   {
     nama: 'Aesesa',
     ibukota: 'Mbay (Ibukota Kabupaten)',
-    desa: ['Danga', 'Mbay I', 'Mbay II', 'Aeramo', 'Lape', 'Nangadhero', 'Marapokot', 'Towak', 'Tedamude', 'Waekokak', 'Tadambaleke']
+    desa: [
+      'Kelurahan Danga',
+      'Kelurahan Mbay I',
+      'Kelurahan Mbay II',
+      'Desa Aeramo',
+      'Desa Lape',
+      'Desa Nangadhero',
+      'Desa Marapokot',
+      'Desa Towak',
+      'Desa Tedamude',
+      'Desa Waekokak',
+      'Desa Tadambaleke',
+      'Desa Nggolonio',
+      'Desa Olaawa',
+      'Desa Watusipi'
+    ]
   },
   {
     nama: 'Aesesa Selatan',
     ibukota: 'Jerebuu',
-    desa: ['Rendu Tutubhada', 'Renduwawo', 'Rendubutowe', 'Wajomara']
+    desa: [
+      'Desa Rendu Tutubhada',
+      'Desa Renduwawo',
+      'Desa Rendubutowe',
+      'Desa Wajomara',
+      'Desa Kelimado'
+    ]
   },
   {
     nama: 'Boawae',
     ibukota: 'Boawae',
-    desa: ['Ngedukelu', 'Raba', 'Raja', 'Raja Selatan', 'Aloraja', 'Kelewae', 'Mulakoli', 'Wea Au', 'Golo Ndari', 'Rowa', 'Legude']
+    desa: [
+      'Kelurahan Boawae',
+      'Desa Ngedukelu',
+      'Desa Raba',
+      'Desa Raja',
+      'Desa Raja Selatan',
+      'Desa Aloraja',
+      'Desa Kelewae',
+      'Desa Mulakoli',
+      'Desa Wea Au',
+      'Desa Golo Ndari',
+      'Desa Rowa',
+      'Desa Legude',
+      'Desa Focolodora',
+      'Desa Gerodhere',
+      'Desa Labolewa',
+      'Desa Nagerawe',
+      'Desa Nagepawesa',
+      'Desa Odorigi',
+      'Desa Olakulu',
+      'Desa Pautola',
+      'Desa Podenora',
+      'Desa Wolowea',
+      'Desa Wolowea Barat',
+      'Desa Wolowea Timur'
+    ]
   },
   {
     nama: 'Mauponggo',
     ibukota: 'Mauponggo',
-    desa: ['Mauponggo', 'Woloede', 'Bela', 'Keli', 'Sawu', 'Selalejo', 'Ua', 'Wolotelu', 'Aewora', 'Lokalaba', 'Jawapapa']
+    desa: [
+      'Kelurahan Mauponggo',
+      'Desa Woloede',
+      'Desa Bela',
+      'Desa Keli',
+      'Desa Sawu',
+      'Desa Selalejo',
+      'Desa Selalejo Timur',
+      'Desa Ua',
+      'Desa Wolotelu',
+      'Desa Aewora',
+      'Desa Lokalaba',
+      'Desa Jawapapa',
+      'Desa Kotagora',
+      'Desa Maukeli',
+      'Desa Wuliwalo'
+    ]
   },
   {
     nama: 'Nangaroro',
     ibukota: 'Nangaroro',
-    desa: ['Nangaroro', 'Bagesalu', 'Degulesa', 'Koliwumbu', 'Utetoto', 'Woewutu', 'Tonggo', 'Woedoana', 'Pagomogo']
+    desa: [
+      'Kelurahan Nangaroro',
+      'Desa Bagesalu',
+      'Desa Degulesa',
+      'Desa Koliwumbu',
+      'Desa Utetoto',
+      'Desa Woewutu',
+      'Desa Tonggo',
+      'Desa Woedoana',
+      'Desa Pagomogo',
+      'Desa Bidadari',
+      'Desa Denatana',
+      'Desa Natawale',
+      'Desa Reda Loka',
+      'Desa Watu Mori'
+    ]
   },
   {
     nama: 'Keo Tengah',
     ibukota: 'Maundai',
-    desa: ['Kotowuji Barat', 'Kotowuji Timur', 'Udiworowatu', 'Wajo', 'Lewangera', 'Ladolima', 'Ladolima Timur', 'Witurombaua']
+    desa: [
+      'Desa Kotowuji Barat',
+      'Desa Kotowuji Timur',
+      'Desa Udiworowatu',
+      'Desa Wajo',
+      'Desa Lewangera',
+      'Desa Ladolima',
+      'Desa Ladolima Timur',
+      'Desa Ladolima Utara',
+      'Desa Witurombaua',
+      'Desa Donggobelu',
+      'Desa Ngera',
+      'Desa Keo Nampar'
+    ]
   },
   {
     nama: 'Wolowae',
     ibukota: 'Tendatoto',
-    desa: ['Anakoli', 'Tendatoto', 'Totomala']
+    desa: [
+      'Desa Anakoli',
+      'Desa Tendatoto',
+      'Desa Totomala',
+      'Desa Maronggela',
+      'Desa Natatoto'
+    ]
   }
 ];
 

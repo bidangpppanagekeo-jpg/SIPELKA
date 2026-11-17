@@ -121,6 +121,8 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
     pekerjaanKorban: initialCase?.pekerjaanKorban || 'Ibu Rumah Tangga',
     alamatKorban: initialCase?.alamatKorban || '',
     kecamatanKorban: initialCase?.kecamatanKorban || 'Aesesa',
+    desaKelurahanKorban: initialCase?.desaKelurahanKorban || 'Kelurahan Danga',
+    rtRwKorban: initialCase?.rtRwKorban || '',
     disabilitas: initialCase?.disabilitas || false,
     jenisDisabilitas: initialCase?.jenisDisabilitas || '',
 
@@ -246,7 +248,13 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
       }
     }
 
-    const sanitizedFormData = sanitizeObjectData(formData);
+    const constructedAlamat = `${formData.rtRwKorban ? `RT/RW ${formData.rtRwKorban}, ` : ''}${formData.desaKelurahanKorban ? `${formData.desaKelurahanKorban}, ` : ''}Kec. ${formData.kecamatanKorban || 'Aesesa'}`;
+    const formWithAddress = {
+      ...formData,
+      alamatKorban: constructedAlamat
+    };
+
+    const sanitizedFormData = sanitizeObjectData(formWithAddress);
 
     const existingHistory =
       formData.riwayatPenanganan && formData.riwayatPenanganan.length > 0
@@ -706,7 +714,16 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               </label>
               <select
                 value={formData.kecamatanKorban}
-                onChange={(e) => setFormData({ ...formData, kecamatanKorban: e.target.value as any })}
+                onChange={(e) => {
+                  const newKec = e.target.value as KecamatanNagekeo;
+                  const kecObj = DAFTAR_KECAMATAN.find((k) => k.nama === newKec);
+                  const firstDesa = kecObj?.desa[0] || '';
+                  setFormData({
+                    ...formData,
+                    kecamatanKorban: newKec,
+                    desaKelurahanKorban: firstDesa
+                  });
+                }}
                 className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
               >
                 {DAFTAR_KECAMATAN.map((k) => (
@@ -717,15 +734,32 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               </select>
             </div>
 
+            <div>
+              <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
+                Desa / Kelurahan Domisili (2026)
+              </label>
+              <select
+                value={formData.desaKelurahanKorban || ''}
+                onChange={(e) => setFormData({ ...formData, desaKelurahanKorban: e.target.value })}
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
+              >
+                {(DAFTAR_KECAMATAN.find((k) => k.nama === formData.kecamatanKorban)?.desa || []).map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="sm:col-span-2">
               <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
-                Alamat Domisili Lengkap
+                RT / RW / Dusun / Nama Jalan
               </label>
               <input
                 type="text"
-                value={formData.alamatKorban}
-                onChange={(e) => setFormData({ ...formData, alamatKorban: e.target.value })}
-                placeholder="RT/RW, Dusun, Desa/Kelurahan"
+                value={formData.rtRwKorban || ''}
+                onChange={(e) => setFormData({ ...formData, rtRwKorban: e.target.value })}
+                placeholder="Contoh: RT 04 / RW 02, Dusun Wolokoli"
                 className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
               />
             </div>
@@ -734,13 +768,19 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
               <label className="inline-block font-bold text-slate-900 mb-1.5 bg-white/92 backdrop-blur-xs px-2.5 py-0.5 rounded-md border border-white/80 shadow-2xs">
                 Pendidikan Terakhir
               </label>
-              <input
-                type="text"
-                value={formData.pendidikanKorban}
+              <select
+                value={formData.pendidikanKorban || 'SMA'}
                 onChange={(e) => setFormData({ ...formData, pendidikanKorban: e.target.value })}
-                placeholder="SD / SMP / SMA / Perguruan Tinggi / Tidak Sekolah"
-                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
-              />
+                className="w-full px-3 py-2 bg-white/95 backdrop-blur-xs border border-slate-300 rounded-lg font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-xs"
+              >
+                <option value="SD">SD</option>
+                <option value="SMP">SMP</option>
+                <option value="SMA">SMA</option>
+                <option value="SI">SI (Sarjana)</option>
+                <option value="D3">D3</option>
+                <option value="Tidak Sekolah">Tidak Sekolah</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
             </div>
 
             <div>

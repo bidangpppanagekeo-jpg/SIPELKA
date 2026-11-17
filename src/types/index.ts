@@ -113,6 +113,8 @@ export interface KasusKekerasan {
   pekerjaanKorban: string;
   alamatKorban: string;
   kecamatanKorban: KecamatanNagekeo;
+  desaKelurahanKorban?: string;
+  rtRwKorban?: string;
   disabilitas: boolean;
   jenisDisabilitas?: string;
 
