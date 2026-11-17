@@ -166,18 +166,29 @@ export async function fetchSheetConfig(): Promise<GoogleSheetConfig> {
 }
 
 export async function saveGoogleSheetConfig(config: GoogleSheetConfig): Promise<GoogleSheetConfig> {
+  const normalizedConfig: GoogleSheetConfig = {
+    sheetUrl: (config.sheetUrl || '').trim(),
+    webhookUrl: (config.webhookUrl || '').trim(),
+    autoSync: Boolean(config.autoSync),
+    lastSyncedAt: config.lastSyncedAt
+  };
+
   const res = await fetch('/api/sheet-config', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(config)
+    body: JSON.stringify(normalizedConfig)
   });
 
   const parsed = await parseJsonSafely<GoogleSheetConfig & { error?: string }>(res);
   if (parsed.isHtml) {
-    throw new Error('Server API konfigurasi tidak merespons JSON. Pastikan server backend aplikasi sedang berjalan.');
+    throw new Error(`Endpoint penyimpanan server (/api/sheet-config) mengembalikan HTML (HTTP ${res.status}). Pastikan server backend berjalan.`);
   }
   if (!res.ok || !parsed.data) {
-    throw new Error(parsed.data?.error || 'Gagal menyimpan konfigurasi Google Sheet.');
+    const rawDetail = parsed.rawText && parsed.rawText.trim().length < 180 ? parsed.rawText.trim() : '';
+    throw new Error(
+      parsed.data?.error ||
+        (rawDetail ? `Gagal menyimpan konfigurasi (${res.status}): ${rawDetail}` : `Gagal menyimpan konfigurasi Google Sheet (HTTP ${res.status}).`)
+    );
   }
 
   return parsed.data;

@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import type { KasusKekerasan, PegawaiSIPELKA } from './src/types/index.ts';
 
@@ -11,9 +12,22 @@ interface SheetConfig {
   lastSyncedAt?: string;
 }
 
-const PORT = Number(process.env.PORT || 3000);
+function resolvePort(): number {
+  const portFlagIdx = process.argv.indexOf('--port');
+  if (portFlagIdx !== -1 && process.argv[portFlagIdx + 1]) {
+    const parsedFlag = Number(process.argv[portFlagIdx + 1]);
+    if (Number.isFinite(parsedFlag) && parsedFlag > 0) return parsedFlag;
+  }
+  return Number(process.env.PORT || 3000);
+}
+
+const PORT = resolvePort();
 const DATA_DIR = path.resolve(import.meta.dirname, '.sipelka-data');
 const CONFIG_FILE = path.join(DATA_DIR, 'sheet-config.json');
+const TMP_DATA_DIR = path.join(os.tmpdir(), 'sipelka-nagekeo-data');
+const TMP_CONFIG_FILE = path.join(TMP_DATA_DIR, 'sheet-config.json');
+
+let inMemoryConfig: SheetConfig | null = null;
 
 function getEnvDefaultConfig(): SheetConfig {
   return {
@@ -23,31 +37,59 @@ function getEnvDefaultConfig(): SheetConfig {
   };
 }
 
-async function readSheetConfig(): Promise<SheetConfig> {
+function mergeWithEnvDefaults(parsed: Partial<SheetConfig>): SheetConfig {
   const envDefaults = getEnvDefaultConfig();
-  try {
-    const raw = await fs.readFile(CONFIG_FILE, 'utf-8');
-    const parsed = JSON.parse(raw) as Partial<SheetConfig>;
-    return {
-      sheetUrl: typeof parsed.sheetUrl === 'string' && parsed.sheetUrl.trim() ? parsed.sheetUrl.trim() : envDefaults.sheetUrl,
-      webhookUrl: typeof parsed.webhookUrl === 'string' && parsed.webhookUrl.trim() ? parsed.webhookUrl.trim() : envDefaults.webhookUrl,
-      autoSync: typeof parsed.autoSync === 'boolean' ? parsed.autoSync : true,
-      lastSyncedAt: parsed.lastSyncedAt
-    };
-  } catch {
-    return envDefaults;
+  return {
+    sheetUrl: typeof parsed.sheetUrl === 'string' && parsed.sheetUrl.trim() ? parsed.sheetUrl.trim() : envDefaults.sheetUrl,
+    webhookUrl: typeof parsed.webhookUrl === 'string' && parsed.webhookUrl.trim() ? parsed.webhookUrl.trim() : envDefaults.webhookUrl,
+    autoSync: typeof parsed.autoSync === 'boolean' ? parsed.autoSync : true,
+    lastSyncedAt: parsed.lastSyncedAt
+  };
+}
+
+async function readSheetConfig(): Promise<SheetConfig> {
+  if (inMemoryConfig) {
+    return inMemoryConfig;
   }
+  for (const filePath of [CONFIG_FILE, TMP_CONFIG_FILE]) {
+    try {
+      const raw = await fs.readFile(filePath, 'utf-8');
+      const parsed = JSON.parse(raw) as Partial<SheetConfig>;
+      const merged = mergeWithEnvDefaults(parsed);
+      inMemoryConfig = merged;
+      return merged;
+    } catch {
+      // Try next fallback location
+    }
+  }
+  return getEnvDefaultConfig();
 }
 
 async function writeSheetConfig(config: SheetConfig): Promise<SheetConfig> {
-  await fs.mkdir(DATA_DIR, { recursive: true });
   const normalized: SheetConfig = {
     sheetUrl: (config.sheetUrl || '').trim(),
     webhookUrl: (config.webhookUrl || '').trim(),
     autoSync: typeof config.autoSync === 'boolean' ? config.autoSync : true,
     lastSyncedAt: config.lastSyncedAt
   };
-  await fs.writeFile(CONFIG_FILE, JSON.stringify(normalized, null, 2), 'utf-8');
+
+  inMemoryConfig = normalized;
+
+  const locations = [
+    { dir: DATA_DIR, file: CONFIG_FILE },
+    { dir: TMP_DATA_DIR, file: TMP_CONFIG_FILE }
+  ];
+
+  for (const loc of locations) {
+    try {
+      await fs.mkdir(loc.dir, { recursive: true });
+      await fs.writeFile(loc.file, JSON.stringify(normalized, null, 2), 'utf-8');
+      break;
+    } catch (err) {
+      console.warn(`Tidak dapat menulis config ke ${loc.file}:`, err);
+    }
+  }
+
   return normalized;
 }
 

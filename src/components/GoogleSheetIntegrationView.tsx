@@ -66,15 +66,30 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSavingConfig(true);
+    setTestResult(null);
+    const cleanedConfig: GoogleSheetConfig = {
+      ...config,
+      sheetUrl: config.sheetUrl.trim(),
+      webhookUrl: config.webhookUrl.trim()
+    };
     try {
-      const saved = await saveGoogleSheetConfig(config);
+      const saved = await saveGoogleSheetConfig(cleanedConfig);
       setConfig(saved);
+      setTestResult({
+        success: true,
+        message: 'Konfigurasi URL Google Sheet & Webhook berhasil disimpan di server untuk semua pengguna.'
+      });
       showToast('Konfigurasi Google Sheet & Webhook tersimpan di server untuk semua pengguna.');
       if (onConfigSaved) {
         await onConfigSaved(saved);
       }
     } catch (err: unknown) {
-      showToast(err instanceof Error ? err.message : 'Gagal menyimpan konfigurasi Google Sheet.');
+      const errMsg = err instanceof Error ? err.message : 'Gagal menyimpan konfigurasi Google Sheet.';
+      setTestResult({
+        success: false,
+        message: errMsg
+      });
+      showToast(errMsg);
     } finally {
       setIsSavingConfig(false);
     }
