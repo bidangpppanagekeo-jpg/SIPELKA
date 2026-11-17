@@ -85,10 +85,8 @@ export default function App() {
   const refreshLiveSheetData = useCallback(async (silent: boolean = false) => {
     setIsLoadingSheetData(true);
     try {
-      const [cfg, liveData] = await Promise.all([
-        fetchSheetConfig(),
-        fetchLatestFromGoogleSheet()
-      ]);
+      const cfg = await fetchSheetConfig();
+      const liveData = await fetchLatestFromGoogleSheet(cfg);
       setSheetConfig(cfg);
       setCases(liveData.cases);
       setPegawaiList(liveData.pegawai);

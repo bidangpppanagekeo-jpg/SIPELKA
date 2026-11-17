@@ -362,6 +362,9 @@ async function startServer() {
       return;
     }
 
+    let webhookHtmlDetected = false;
+    let webhookPlainTextDetected = false;
+
     // 1. Primary: Read directly from Apps Script Web App doGet JSON endpoint
     if (config.webhookUrl) {
       try {
@@ -379,8 +382,9 @@ async function startServer() {
         });
 
         const text = await upstream.text();
-        if (text.trim().startsWith('{')) {
-          const parsed = JSON.parse(text) as {
+        const trimmed = text.trim();
+        if (trimmed.startsWith('{')) {
+          const parsed = JSON.parse(trimmed) as {
             status?: string;
             cases?: Record<string, unknown>[];
             pegawai?: Record<string, unknown>[];
@@ -405,6 +409,10 @@ async function startServer() {
             });
             return;
           }
+        } else if (trimmed.startsWith('<')) {
+          webhookHtmlDetected = true;
+        } else if (trimmed.length > 0) {
+          webhookPlainTextDetected = true;
         }
       } catch (err) {
         console.warn('Apps Script doGet fetch warning:', err);
@@ -433,12 +441,14 @@ async function startServer() {
         return;
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'Gagal membaca Google Spreadsheet.';
-        res.status(502).json({
+        res.status(200).json({
           configured: true,
           needsScriptUpdate: Boolean(config.webhookUrl),
           cases: [],
           pegawai: [],
-          message: config.webhookUrl
+          message: webhookHtmlDetected
+            ? 'Akses Web App Apps Script mengembalikan halaman login/HTML. Pastikan opsi "Who has access / Yang memiliki akses" disetel ke "Anyone / Siapa saja" dan Code.gs telah di-Deploy versi baru.'
+            : config.webhookUrl || webhookPlainTextDetected
             ? 'Webhook Apps Script aktif, namun fungsi doGet() belum mengembalikan JSON data. Perbarui Code.gs di menu Integrasi Sheet lalu Deploy versi baru.'
             : `Gagal membaca Google Spreadsheet: ${msg}`
         });
@@ -446,13 +456,14 @@ async function startServer() {
       }
     }
 
-    res.status(502).json({
+    res.status(200).json({
       configured: true,
       needsScriptUpdate: Boolean(config.webhookUrl),
       cases: [],
       pegawai: [],
-      message:
-        'Skrip Apps Script belum mengembalikan data JSON. Perbarui Code.gs pada menu Integrasi Sheet lalu Deploy versi baru.'
+      message: webhookHtmlDetected
+        ? 'Akses Web App Apps Script mengembalikan halaman HTML. Pastikan "Who has access / Yang memiliki akses" diatur ke "Anyone / Siapa saja" saat Deploy.'
+        : 'Skrip Apps Script belum mengembalikan data JSON. Perbarui Code.gs pada menu Integrasi Sheet lalu Deploy versi baru.'
     });
   });
 
@@ -497,17 +508,27 @@ async function startServer() {
       });
 
       const rawText = await upstream.text();
+      const trimmed = rawText.trim();
       let parsed: Record<string, unknown> | null = null;
-      if (rawText.trim().startsWith('{')) {
+      if (trimmed.startsWith('{')) {
         try {
-          parsed = JSON.parse(rawText) as Record<string, unknown>;
+          parsed = JSON.parse(trimmed) as Record<string, unknown>;
         } catch {
           parsed = null;
         }
       }
 
+      if (trimmed.startsWith('<')) {
+        res.status(200).json({
+          success: false,
+          message:
+            'Google Apps Script mengembalikan halaman HTML (akses ditolak atau perlu otorisasi ulang). Pastikan Deploy Web App diatur ke "Anyone / Siapa saja".'
+        });
+        return;
+      }
+
       if (!upstream.ok || (parsed && parsed.status === 'error')) {
-        res.status(502).json({
+        res.status(200).json({
           success: false,
           message: String(parsed?.message || `Google Apps Script error (HTTP ${upstream.status}).`)
         });
@@ -530,8 +551,12 @@ async function startServer() {
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Gagal terhubung ke Webhook Google Sheet.';
-      res.status(502).json({ success: false, message });
+      res.status(200).json({ success: false, message });
     }
+  });
+
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ error: 'Endpoint API tidak ditemukan.' });
   });
 
   if (process.env.NODE_ENV !== 'production') {

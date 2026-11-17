@@ -698,12 +698,15 @@ function doGet(e) {
           ? String(row[7]).split(',').map(function(x) { return x.trim(); }).filter(Boolean)
           : (detailObj.bentukKekerasan || []);
 
+        var rawUsia = String(row[4] || '').replace(/[^0-9]/g, '');
+        var parsedUsia = rawUsia ? parseInt(rawUsia, 10) : (Number(detailObj.usiaKorban || 0) || 0);
+
         var mergedCase = Object.assign({}, detailObj, {
           id: detailObj.id || ('SHEET-KASUS-' + r),
           nomorRegistrasi: String(row[1] || detailObj.nomorRegistrasi || ''),
           tanggalLapor: tanggalStr,
           namaKorban: String(row[3] || detailObj.namaKorban || ''),
-          usiaKorban: Number(row[4] || detailObj.usiaKorban || 0),
+          usiaKorban: parsedUsia,
           kategoriKorban: String(row[5] || detailObj.kategoriKorban || 'Perempuan Dewasa'),
           kecamatanTKP: String(row[6] || detailObj.kecamatanTKP || 'Aesesa'),
           bentukKekerasan: bentukArr,
