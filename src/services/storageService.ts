@@ -223,34 +223,38 @@ export async function saveGoogleSheetConfig(config: GoogleSheetConfig): Promise<
 
 export async function fetchLatestFromGoogleSheet(configOverride?: GoogleSheetConfig): Promise<LiveSheetDataResult> {
   try {
-    const apiUrl = new URL('/api/sheet-data', window.location.origin);
-    apiUrl.searchParams.set('_ts', String(Date.now()));
-    if (configOverride?.webhookUrl) {
-      apiUrl.searchParams.set('webhookUrl', configOverride.webhookUrl);
-    }
-    if (configOverride?.sheetUrl) {
-      apiUrl.searchParams.set('sheetUrl', configOverride.sheetUrl);
+    try {
+      const apiUrl = new URL('/api/sheet-data', window.location.origin);
+      apiUrl.searchParams.set('_ts', String(Date.now()));
+      if (configOverride?.webhookUrl) {
+        apiUrl.searchParams.set('webhookUrl', configOverride.webhookUrl);
+      }
+      if (configOverride?.sheetUrl) {
+        apiUrl.searchParams.set('sheetUrl', configOverride.sheetUrl);
+      }
+
+      const res = await fetch(apiUrl.pathname + apiUrl.search, {
+        method: 'GET',
+        cache: 'no-store'
+      });
+      const parsed = await parseJsonSafely<Partial<LiveSheetDataResult> & { error?: string }>(res);
+
+      if (res.ok && !parsed.isHtml && parsed.data) {
+        return {
+          configured: Boolean(parsed.data.configured),
+          source: parsed.data.source,
+          cases: Array.isArray(parsed.data.cases) ? parsed.data.cases : [],
+          pegawai: Array.isArray(parsed.data.pegawai) ? parsed.data.pegawai : [],
+          fetchedAt: parsed.data.fetchedAt,
+          message: parsed.data.message || parsed.data.error,
+          needsScriptUpdate: Boolean(parsed.data.needsScriptUpdate)
+        };
+      }
+    } catch {
+      // Abaikan error proxy/hosting statis (misalnya Cloudflare) dan lanjutkan fallback langsung ke Apps Script
     }
 
-    const res = await fetch(apiUrl.pathname + apiUrl.search, {
-      method: 'GET',
-      cache: 'no-store'
-    });
-    const parsed = await parseJsonSafely<Partial<LiveSheetDataResult> & { error?: string }>(res);
-
-    if (!parsed.isHtml && parsed.data && res.status !== 404 && res.status !== 405) {
-      return {
-        configured: Boolean(parsed.data.configured),
-        source: parsed.data.source,
-        cases: Array.isArray(parsed.data.cases) ? parsed.data.cases : [],
-        pegawai: Array.isArray(parsed.data.pegawai) ? parsed.data.pegawai : [],
-        fetchedAt: parsed.data.fetchedAt,
-        message: parsed.data.message || parsed.data.error,
-        needsScriptUpdate: Boolean(parsed.data.needsScriptUpdate)
-      };
-    }
-
-    // Fallback langsung ke Apps Script Web App GET jika /api/sheet-data mengembalikan HTML atau 404/405 (mode statis)
+    // Fallback langsung ke Apps Script Web App GET jika /api/sheet-data mengembalikan HTML/error (mode statis / Cloudflare)
     const fallbackWebhook = (
       configOverride?.webhookUrl ||
       getEnvSheetConfigFallback().webhookUrl
@@ -335,25 +339,38 @@ export async function sendDataToGoogleSheetWebhook(
 ): Promise<{ success: boolean; message: string; data?: unknown; syncedAt?: string }> {
   try {
     const sanitizedPayload = sanitizeObjectData(payload);
-    const res = await fetch('/api/sheet-sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        payload: sanitizedPayload,
-        webhookUrl: config?.webhookUrl || undefined
-      })
-    });
 
-    const parsed = await parseJsonSafely<{
+    let res: Response | null = null;
+    let parsed: SafeJsonParseResult<{
       success?: boolean;
       message?: string;
       error?: string;
       data?: unknown;
       syncedAt?: string;
-    }>(res);
+    }> = { data: null, isHtml: false, rawText: '' };
 
-    // Jika /api/sheet-sync mengembalikan HTML atau 404/405 (mode statis), kirim langsung ke Apps Script Webhook
-    if ((parsed.isHtml || res.status === 404 || res.status === 405) && config?.webhookUrl) {
+    try {
+      res = await fetch('/api/sheet-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          payload: sanitizedPayload,
+          webhookUrl: config?.webhookUrl || undefined
+        })
+      });
+      parsed = await parseJsonSafely<{
+        success?: boolean;
+        message?: string;
+        error?: string;
+        data?: unknown;
+        syncedAt?: string;
+      }>(res);
+    } catch {
+      res = null;
+    }
+
+    // Jika /api/sheet-sync mengembalikan HTML, non-JSON, atau gagal di hosting statis/Cloudflare, kirim langsung ke Apps Script Webhook
+    if ((!res || parsed.isHtml || !parsed.data || !res.ok) && config?.webhookUrl) {
       const targetUrl = new URL(config.webhookUrl);
       if (sanitizedPayload.action) targetUrl.searchParams.set('action', String(sanitizedPayload.action));
       if (sanitizedPayload.nomorRegistrasi) targetUrl.searchParams.set('nomorRegistrasi', String(sanitizedPayload.nomorRegistrasi));
@@ -386,10 +403,10 @@ export async function sendDataToGoogleSheetWebhook(
       };
     }
 
-    if (parsed.isHtml || res.status === 404 || res.status === 405) {
+    if (!res || parsed.isHtml || !parsed.data) {
       return {
         success: false,
-        message: `Server sinkronisasi menolak permintaan (HTTP ${res.status}). Pastikan URL Webhook sudah diisi atau buka melalui Development App URL.`
+        message: `Server sinkronisasi menolak permintaan${res ? ` (HTTP ${res.status})` : ''}. Pastikan URL Webhook sudah diisi pada menu Integrasi Sheet.`
       };
     }
 
