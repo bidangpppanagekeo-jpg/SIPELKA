@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { KasusKekerasan, PegawaiSIPELKA } from '../types';
 import {
-  getGoogleSheetConfig,
+  fetchSheetConfig,
   saveGoogleSheetConfig,
   sendDataToGoogleSheetWebhook,
   GoogleSheetConfig
@@ -29,12 +29,16 @@ interface GoogleSheetIntegrationViewProps {
   cases: KasusKekerasan[];
   pegawaiList: PegawaiSIPELKA[];
   showToast: (msg: string) => void;
+  onConfigSaved?: (cfg: GoogleSheetConfig) => Promise<void> | void;
+  onRefreshFromSheet?: () => Promise<void> | void;
 }
 
 export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProps> = ({
   cases,
   pegawaiList,
-  showToast
+  showToast,
+  onConfigSaved,
+  onRefreshFromSheet
 }) => {
   const [config, setConfig] = useState<GoogleSheetConfig>({
     sheetUrl: '',
@@ -43,19 +47,37 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
   });
 
   const [isTesting, setIsTesting] = useState(false);
+  const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
   const [isSyncingAll, setIsSyncingAll] = useState(false);
   const [isSyncingPegawai, setIsSyncingPegawai] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
-    setConfig(getGoogleSheetConfig());
+    let active = true;
+    fetchSheetConfig().then((cfg) => {
+      if (active) setConfig(cfg);
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    saveGoogleSheetConfig(config);
-    showToast('Konfigurasi Google Sheet & Webhook berhasil disimpan.');
+    setIsSavingConfig(true);
+    try {
+      const saved = await saveGoogleSheetConfig(config);
+      setConfig(saved);
+      showToast('Konfigurasi Google Sheet & Webhook tersimpan di server untuk semua pengguna.');
+      if (onConfigSaved) {
+        await onConfigSaved(saved);
+      }
+    } catch (err: unknown) {
+      showToast(err instanceof Error ? err.message : 'Gagal menyimpan konfigurasi Google Sheet.');
+    } finally {
+      setIsSavingConfig(false);
+    }
   };
 
   const handleTestConnection = async () => {
@@ -477,7 +499,18 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // Data Kasus (Kolom A Waktu, Kolom B No. Reg, dst)
+    // Data Kasus (Kolom A Waktu, Kolom B No. Reg, ..., Kolom N JSON Detail Lengkap)
+    var jsonDetail = '';
+    try {
+      var cleanObj = JSON.parse(JSON.stringify(data));
+      delete cleanObj.action;
+      delete cleanObj.timestamp;
+      delete cleanObj.originalNomorRegistrasi;
+      jsonDetail = JSON.stringify(cleanObj);
+    } catch (errJson) {
+      jsonDetail = '';
+    }
+
     var rowData = [
       waktuSekarang,
       data.nomorRegistrasi || targetReg || '',
@@ -491,8 +524,30 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       data.hubunganPelaku || '',
       data.tingkatUrgensi || '',
       data.statusPenanganan || '',
-      data.petugasPendamping || ''
+      data.petugasPendamping || '',
+      jsonDetail
     ];
+
+    // Pastikan baris header memiliki kolom JSON_DETAIL jika sheet baru
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        'WAKTU INPUT',
+        'NO. REGISTRASI',
+        'TANGGAL LAPOR',
+        'NAMA KORBAN',
+        'USIA',
+        'KATEGORI KORBAN',
+        'KECAMATAN TKP',
+        'BENTUK KEKERASAN',
+        'NAMA PELAKU',
+        'HUBUNGAN PELAKU',
+        'TINGKAT URGENSI',
+        'STATUS PENANGANAN',
+        'PETUGAS PENDAMPING',
+        'JSON_DETAIL'
+      ]);
+      values = sheet.getDataRange().getValues();
+    }
 
     // 2. AKSI EDIT KASUS (EDIT_CASE)
     if (action === 'EDIT_CASE') {
@@ -565,10 +620,13 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
         'HUBUNGAN PELAKU',
         'TINGKAT URGENSI',
         'STATUS PENANGANAN',
-        'PETUGAS PENDAMPING'
+        'PETUGAS PENDAMPING',
+        'JSON_DETAIL'
       ]);
 
       data.cases.forEach(function(c) {
+        var cJson = '';
+        try { cJson = JSON.stringify(c); } catch (eJson) { cJson = ''; }
         sheet.appendRow([
           waktuSekarang,
           c.nomorRegistrasi || '',
@@ -582,7 +640,8 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
           c.hubunganPelaku || '',
           c.tingkatUrgensi || '',
           c.statusPenanganan || '',
-          c.petugasPendamping || ''
+          c.petugasPendamping || '',
+          cJson
         ]);
       });
 
@@ -607,8 +666,97 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
 }
 
 function doGet(e) {
-  return ContentService.createTextOutput("Webhook SIPELKA Nagekeo Aktif (Kasus & Data Pegawai).")
-    .setMimeType(ContentService.MimeType.TEXT);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheets = ss.getSheets();
+    var caseSheet = sheets[0];
+    for (var i = 0; i < sheets.length; i++) {
+      if (sheets[i].getName() !== 'Data Pegawai') {
+        caseSheet = sheets[i];
+        break;
+      }
+    }
+
+    var casesList = [];
+    if (caseSheet && caseSheet.getLastRow() > 1) {
+      var cValues = caseSheet.getDataRange().getValues();
+      for (var r = 1; r < cValues.length; r++) {
+        var row = cValues[r];
+        if (!row[1] && !row[3]) continue;
+        var detailObj = {};
+        if (row[13] && String(row[13]).trim().charAt(0) === '{') {
+          try {
+            detailObj = JSON.parse(String(row[13]));
+          } catch (errParse) {
+            detailObj = {};
+          }
+        }
+        var tanggalStr = row[2] instanceof Date
+          ? Utilities.formatDate(row[2], Session.getScriptTimeZone() || "GMT+8", "yyyy-MM-dd")
+          : String(row[2] || detailObj.tanggalLapor || '').slice(0, 10);
+        var bentukArr = row[7]
+          ? String(row[7]).split(',').map(function(x) { return x.trim(); }).filter(Boolean)
+          : (detailObj.bentukKekerasan || []);
+
+        var mergedCase = Object.assign({}, detailObj, {
+          id: detailObj.id || ('SHEET-KASUS-' + r),
+          nomorRegistrasi: String(row[1] || detailObj.nomorRegistrasi || ''),
+          tanggalLapor: tanggalStr,
+          namaKorban: String(row[3] || detailObj.namaKorban || ''),
+          usiaKorban: Number(row[4] || detailObj.usiaKorban || 0),
+          kategoriKorban: String(row[5] || detailObj.kategoriKorban || 'Perempuan Dewasa'),
+          kecamatanTKP: String(row[6] || detailObj.kecamatanTKP || 'Aesesa'),
+          bentukKekerasan: bentukArr,
+          namaPelaku: String(row[8] || detailObj.namaPelaku || ''),
+          hubunganPelaku: String(row[9] || detailObj.hubunganPelaku || 'Lainnya'),
+          tingkatUrgensi: String(row[10] || detailObj.tingkatUrgensi || 'Sedang'),
+          statusPenanganan: String(row[11] || detailObj.statusPenanganan || 'Pengaduan Masuk'),
+          petugasPendamping: String(row[12] || detailObj.petugasPendamping || '-')
+        });
+        casesList.push(mergedCase);
+      }
+    }
+
+    var pegawaiList = [];
+    var pSheet = ss.getSheetByName('Data Pegawai');
+    if (pSheet && pSheet.getLastRow() > 1) {
+      var pValues = pSheet.getDataRange().getValues();
+      for (var pr = 1; pr < pValues.length; pr++) {
+        var prow = pValues[pr];
+        if (!prow[1] && !prow[2]) continue;
+        var tglGabung = prow[11] instanceof Date
+          ? Utilities.formatDate(prow[11], Session.getScriptTimeZone() || "GMT+8", "yyyy-MM-dd")
+          : String(prow[11] || '').slice(0, 10);
+        pegawaiList.push({
+          id: String(prow[1] || ('PEG-' + pr)),
+          nama: String(prow[2] || ''),
+          nipOrIdentitas: String(prow[3] || '-'),
+          kategori: String(prow[4] || 'Tenaga Pendamping Bidang PPPA'),
+          jabatan: String(prow[5] || '-'),
+          instansi: String(prow[6] || 'Dinas PMDP3A Kab. Nagekeo'),
+          telepon: String(prow[7] || '-'),
+          email: String(prow[8] || ''),
+          keahlian: String(prow[9] || ''),
+          status: String(prow[10] || 'Aktif') === 'Non-Aktif' ? 'Non-Aktif' : 'Aktif',
+          tanggalBergabung: tglGabung
+        });
+      }
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      cases: casesList,
+      pegawai: pegawaiList,
+      fetchedAt: new Date().toISOString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (errGet) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: errGet.toString(),
+      cases: [],
+      pegawai: []
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
 }`;
 
   const handleCopyCode = () => {
@@ -642,6 +790,16 @@ function doGet(e) {
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
+            {onRefreshFromSheet && (
+              <button
+                type="button"
+                onClick={() => onRefreshFromSheet()}
+                className="flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-sky-50 text-sky-950 text-xs font-extrabold rounded-xl shadow-xs transition-all border border-sky-300"
+              >
+                <RefreshCw className="w-4 h-4 text-sky-700" />
+                <span>Ambil Data Terbaru</span>
+              </button>
+            )}
             {config.webhookUrl && (
               <>
                 <button
@@ -852,9 +1010,10 @@ function doGet(e) {
             <div className="pt-3 border-t border-slate-200 flex items-center justify-end">
               <button
                 type="submit"
-                className="px-5 py-2.5 bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-400 hover:to-blue-400 text-white font-black rounded-xl shadow-md transition-all"
+                disabled={isSavingConfig}
+                className="px-5 py-2.5 bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-400 hover:to-blue-400 text-white font-black rounded-xl shadow-md transition-all disabled:opacity-60"
               >
-                Simpan Konfigurasi
+                {isSavingConfig ? 'Menyimpan...' : 'Simpan Konfigurasi'}
               </button>
             </div>
           </form>

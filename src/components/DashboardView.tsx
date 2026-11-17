@@ -26,6 +26,8 @@ interface DashboardViewProps {
   onNavigateToTab: (
     tab: 'dashboard' | 'register' | 'input' | 'laporan' | 'sop' | 'pegawai' | 'integrasi' | 'panduan'
   ) => void;
+  onRefreshData?: () => Promise<void> | void;
+  isLoadingData?: boolean;
 }
 
 const KATEGORI_CHART_STYLES: Record<
@@ -54,7 +56,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   selectedYear,
   selectedQuarter,
   onSelectCase,
-  onNavigateToTab
+  onNavigateToTab,
+  onRefreshData,
+  isLoadingData = false
 }) => {
   const [hoveredKategori, setHoveredKategori] = useState<KategoriKorban | null>(null);
   const [kecamatanCategoryFilter, setKecamatanCategoryFilter] = useState<string>('Semua');
@@ -236,7 +240,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     return counts[0] || null;
   }, [filteredCases]);
 
-  const handleRefreshTimestamp = () => {
+  const handleRefreshTimestamp = async () => {
+    if (onRefreshData) {
+      await onRefreshData();
+    }
     const now = new Date();
     setLastRefreshedAt(
       now.toLocaleDateString('id-ID', {
@@ -822,10 +829,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <button
                 type="button"
                 onClick={handleRefreshTimestamp}
-                className="p-1 text-[#1A73E8] hover:bg-blue-50 rounded-md transition-colors"
-                title="Perbarui waktu sinkronisasi"
+                disabled={isLoadingData}
+                className="p-1 text-[#1A73E8] hover:bg-blue-50 rounded-md transition-colors disabled:opacity-50"
+                title="Ambil data terbaru dari Google Spreadsheet"
               >
-                <RefreshCw className="w-3.5 h-3.5" />
+                <RefreshCw className={`w-3.5 h-3.5 ${isLoadingData ? 'animate-spin' : ''}`} />
               </button>
             </div>
           </div>

@@ -1,105 +1,131 @@
-import { CatatanPenanganan, KasusKekerasan, PegawaiSIPELKA } from '../types';
-import { INITIAL_KASUS_DATA, INITIAL_PEGAWAI_DATA } from '../data/nagekeoData';
+import { KasusKekerasan, PegawaiSIPELKA } from '../types';
 import { sanitizeObjectData } from './securityService';
 
-const STORAGE_KEY = 'sipelka_nagekeo_cases_v1';
-const PEGAWAI_STORAGE_KEY = 'sipelka_nagekeo_pegawai_v1';
-const ANONYMIZED_SETTING_KEY = 'sipelka_anonymized_mode';
+export interface GoogleSheetConfig {
+  sheetUrl: string;
+  webhookUrl: string;
+  autoSync: boolean;
+  lastSyncedAt?: string;
+}
 
-// ===================== KASUS STORAGE =====================
+export interface LiveSheetDataResult {
+  configured: boolean;
+  source?: string;
+  cases: KasusKekerasan[];
+  pegawai: PegawaiSIPELKA[];
+  fetchedAt?: string;
+  message?: string;
+  needsScriptUpdate?: boolean;
+}
 
-export function getStoredCases(): KasusKekerasan[] {
+// ===================== LIVE GOOGLE SPREADSHEET CONFIG & FETCH =====================
+
+export async function fetchSheetConfig(): Promise<GoogleSheetConfig> {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_KASUS_DATA));
-      return INITIAL_KASUS_DATA;
+    const res = await fetch(`/api/sheet-config?_ts=${Date.now()}`, {
+      method: 'GET',
+      cache: 'no-store'
+    });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
     }
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+    const data = (await res.json()) as Partial<GoogleSheetConfig>;
+    return {
+      sheetUrl: data.sheetUrl || '',
+      webhookUrl: data.webhookUrl || '',
+      autoSync: typeof data.autoSync === 'boolean' ? data.autoSync : true,
+      lastSyncedAt: data.lastSyncedAt
+    };
+  } catch (err) {
+    console.error('Gagal mengambil konfigurasi Google Sheet:', err);
+    return { sheetUrl: '', webhookUrl: '', autoSync: true };
+  }
+}
+
+export async function saveGoogleSheetConfig(config: GoogleSheetConfig): Promise<GoogleSheetConfig> {
+  const res = await fetch('/api/sheet-config', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(config)
+  });
+
+  if (!res.ok) {
+    const errBody = await res.json().catch(() => ({}));
+    throw new Error(errBody.error || 'Gagal menyimpan konfigurasi Google Sheet.');
+  }
+
+  return (await res.json()) as GoogleSheetConfig;
+}
+
+export async function fetchLatestFromGoogleSheet(): Promise<LiveSheetDataResult> {
+  try {
+    const res = await fetch(`/api/sheet-data?_ts=${Date.now()}`, {
+      method: 'GET',
+      cache: 'no-store'
+    });
+    const data = (await res.json()) as Partial<LiveSheetDataResult>;
+    return {
+      configured: Boolean(data.configured),
+      source: data.source,
+      cases: Array.isArray(data.cases) ? data.cases : [],
+      pegawai: Array.isArray(data.pegawai) ? data.pegawai : [],
+      fetchedAt: data.fetchedAt,
+      message: data.message,
+      needsScriptUpdate: Boolean(data.needsScriptUpdate)
+    };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Gagal mengambil data terbaru dari Google Spreadsheet.';
+    return {
+      configured: true,
+      cases: [],
+      pegawai: [],
+      message
+    };
+  }
+}
+
+export async function sendDataToGoogleSheetWebhook(
+  payload: Record<string, unknown>,
+  config?: GoogleSheetConfig
+): Promise<{ success: boolean; message: string; data?: unknown; syncedAt?: string }> {
+  try {
+    const sanitizedPayload = sanitizeObjectData(payload);
+    const res = await fetch('/api/sheet-sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        payload: sanitizedPayload,
+        webhookUrl: config?.webhookUrl || undefined
+      })
+    });
+
+    const body = (await res.json().catch(() => ({}))) as {
+      success?: boolean;
+      message?: string;
+      data?: unknown;
+      syncedAt?: string;
+    };
+
+    if (!res.ok || body.success === false) {
+      return {
+        success: false,
+        message: body.message || `Gagal menyinkronkan ke Google Sheet (HTTP ${res.status}).`
+      };
     }
-    return INITIAL_KASUS_DATA;
-  } catch (err) {
-    console.error('Gagal membaca data lokal SIPELKA:', err);
-    return INITIAL_KASUS_DATA;
+
+    return {
+      success: true,
+      message: body.message || 'Data berhasil dikirim ke Google Spreadsheet.',
+      data: body.data,
+      syncedAt: body.syncedAt
+    };
+  } catch (err: unknown) {
+    console.error('Gagal mengirim ke Webhook Google Sheet:', err);
+    return {
+      success: false,
+      message: err instanceof Error ? err.message : 'Gagal terhubung ke server sinkronisasi.'
+    };
   }
-}
-
-export function saveCase(caseData: KasusKekerasan): KasusKekerasan[] {
-  const current = getStoredCases();
-  const sanitized = sanitizeObjectData(caseData);
-  const existsIndex = current.findIndex((c) => c.id === sanitized.id);
-
-  let updated: KasusKekerasan[];
-  if (existsIndex >= 0) {
-    updated = [...current];
-    updated[existsIndex] = sanitized;
-  } else {
-    updated = [sanitized, ...current];
-  }
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  return updated;
-}
-
-export function deleteCase(caseId: string): KasusKekerasan[] {
-  const current = getStoredCases();
-  const filtered = current.filter((c) => c.id !== caseId);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-  return filtered;
-}
-
-export function addProgressNote(
-  caseId: string,
-  note: Omit<CatatanPenanganan, 'id'>,
-  newStatus?: KasusKekerasan['statusPenanganan']
-): KasusKekerasan[] {
-  const current = getStoredCases();
-  const targetIndex = current.findIndex((c) => c.id === caseId);
-
-  if (targetIndex === -1) return current;
-
-  const target = current[targetIndex];
-  const sanitizedNote = sanitizeObjectData(note);
-  const newNote: CatatanPenanganan = {
-    ...sanitizedNote,
-    id: 'CAT-' + Date.now().toString()
-  };
-
-  const updatedCase: KasusKekerasan = {
-    ...target,
-    statusPenanganan: newStatus || target.statusPenanganan,
-    riwayatPenanganan: [newNote, ...(target.riwayatPenanganan || [])]
-  };
-
-  const updatedList = [...current];
-  updatedList[targetIndex] = updatedCase;
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedList));
-  return updatedList;
-}
-
-export function getAnonymizedPreference(): boolean {
-  try {
-    const pref = localStorage.getItem(ANONYMIZED_SETTING_KEY);
-    return pref === 'true';
-  } catch {
-    return false;
-  }
-}
-
-export function setAnonymizedPreference(val: boolean) {
-  try {
-    localStorage.setItem(ANONYMIZED_SETTING_KEY, String(val));
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-export function resetDefaultCases(): KasusKekerasan[] {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_KASUS_DATA));
-  return INITIAL_KASUS_DATA;
 }
 
 export function generateRegistrationNumber(existingCases: KasusKekerasan[]): string {
@@ -112,54 +138,7 @@ export function generateRegistrationNumber(existingCases: KasusKekerasan[]): str
   return `REG/PPA-NGK/${year}/${month}/${seq}`;
 }
 
-// ===================== PEGAWAI STORAGE =====================
-
-export function getStoredPegawai(): PegawaiSIPELKA[] {
-  try {
-    const raw = localStorage.getItem(PEGAWAI_STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(PEGAWAI_STORAGE_KEY, JSON.stringify(INITIAL_PEGAWAI_DATA));
-      return INITIAL_PEGAWAI_DATA;
-    }
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
-    }
-    return INITIAL_PEGAWAI_DATA;
-  } catch (err) {
-    console.error('Gagal membaca data pegawai lokal SIPELKA:', err);
-    return INITIAL_PEGAWAI_DATA;
-  }
-}
-
-export function savePegawai(pegawaiData: PegawaiSIPELKA): PegawaiSIPELKA[] {
-  const current = getStoredPegawai();
-  const sanitized = sanitizeObjectData(pegawaiData);
-  const existsIndex = current.findIndex((p) => p.id === sanitized.id);
-
-  let updated: PegawaiSIPELKA[];
-  if (existsIndex >= 0) {
-    updated = [...current];
-    updated[existsIndex] = sanitized;
-  } else {
-    updated = [sanitized, ...current];
-  }
-
-  localStorage.setItem(PEGAWAI_STORAGE_KEY, JSON.stringify(updated));
-  return updated;
-}
-
-export function deletePegawai(pegawaiId: string): PegawaiSIPELKA[] {
-  const current = getStoredPegawai();
-  const filtered = current.filter((p) => p.id !== pegawaiId);
-  localStorage.setItem(PEGAWAI_STORAGE_KEY, JSON.stringify(filtered));
-  return filtered;
-}
-
-export function resetDefaultPegawai(): PegawaiSIPELKA[] {
-  localStorage.setItem(PEGAWAI_STORAGE_KEY, JSON.stringify(INITIAL_PEGAWAI_DATA));
-  return INITIAL_PEGAWAI_DATA;
-}
+// ===================== EXPORTS (PURE CLIENT DOWNLOAD) =====================
 
 export function exportPegawaiToCSV(pegawaiList: PegawaiSIPELKA[]): void {
   const headers = [
@@ -199,8 +178,6 @@ export function exportPegawaiToCSV(pegawaiList: PegawaiSIPELKA[]): void {
   link.click();
   document.body.removeChild(link);
 }
-
-// ===================== EXPORTS =====================
 
 export function exportCasesToCSV(cases: KasusKekerasan[], isAnonymized: boolean = false): void {
   const headers = [
@@ -261,8 +238,7 @@ export function exportCasesToCSV(cases: KasusKekerasan[], isAnonymized: boolean 
     ].join(',');
   });
 
-  // UTF-8 BOM for Microsoft Excel
-  const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+  const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r)].join('\r\n');
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
@@ -277,7 +253,7 @@ export function exportCasesToCSV(cases: KasusKekerasan[], isAnonymized: boolean 
 export function exportBackupJSON(cases: KasusKekerasan[], pegawaiList?: PegawaiSIPELKA[]): void {
   const exportData = {
     app: 'SIPELKA Nagekeo',
-    version: '1.2',
+    version: '2.0',
     dinas: 'Dinas PMDP3A Kabupaten Nagekeo',
     bidang: 'Bidang Pemberdayaan Perempuan dan Perlindungan Anak',
     exportedAt: new Date().toISOString(),
@@ -297,81 +273,3 @@ export function exportBackupJSON(cases: KasusKekerasan[], pegawaiList?: PegawaiS
   link.click();
   document.body.removeChild(link);
 }
-
-// ===================== GOOGLE SHEET & WEBHOOK INTEGRATION =====================
-
-const GOOGLE_SHEET_CONFIG_KEY = 'sipelka_google_sheet_config_v1';
-
-export interface GoogleSheetConfig {
-  sheetUrl: string;
-  webhookUrl: string;
-  autoSync: boolean;
-  lastSyncedAt?: string;
-}
-
-export function getGoogleSheetConfig(): GoogleSheetConfig {
-  try {
-    const raw = localStorage.getItem(GOOGLE_SHEET_CONFIG_KEY);
-    if (!raw) {
-      return {
-        sheetUrl: '',
-        webhookUrl: '',
-        autoSync: true
-      };
-    }
-    return JSON.parse(raw);
-  } catch {
-    return { sheetUrl: '', webhookUrl: '', autoSync: true };
-  }
-}
-
-export function saveGoogleSheetConfig(config: GoogleSheetConfig): void {
-  try {
-    localStorage.setItem(GOOGLE_SHEET_CONFIG_KEY, JSON.stringify(config));
-  } catch (err) {
-    console.error('Gagal menyimpan konfigurasi Google Sheet:', err);
-  }
-}
-
-export async function sendDataToGoogleSheetWebhook(
-  payload: any,
-  config?: GoogleSheetConfig
-): Promise<{ success: boolean; message: string }> {
-  const cfg = config || getGoogleSheetConfig();
-  if (!cfg.webhookUrl) {
-    return { success: false, message: 'URL Webhook Google Sheet belum dikonfigurasi.' };
-  }
-
-  try {
-    // Construct URL with query parameters for maximum compatibility with Google Apps Script
-    const sanitizedPayload = sanitizeObjectData(payload);
-    let targetUrl = cfg.webhookUrl;
-    try {
-      const urlObj = new URL(cfg.webhookUrl);
-      if (sanitizedPayload.action) urlObj.searchParams.set('action', String(sanitizedPayload.action));
-      if (sanitizedPayload.nomorRegistrasi) urlObj.searchParams.set('nomorRegistrasi', String(sanitizedPayload.nomorRegistrasi));
-      if (sanitizedPayload.id) urlObj.searchParams.set('id', String(sanitizedPayload.id));
-      targetUrl = urlObj.toString();
-    } catch {
-      // Fallback if URL constructor fails
-    }
-
-    await fetch(targetUrl, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
-      },
-      body: JSON.stringify(sanitizedPayload)
-    });
-
-    const now = new Date().toISOString();
-    saveGoogleSheetConfig({ ...cfg, lastSyncedAt: now });
-
-    return { success: true, message: 'Data berhasil dikirim ke Webhook Google Sheet.' };
-  } catch (err: any) {
-    console.error('Gagal mengirim ke Webhook Google Sheet:', err);
-    return { success: false, message: err?.message || 'Gagal terhubung ke Webhook.' };
-  }
-}
-

@@ -3,23 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { KasusKekerasan, StatusPenanganan, CatatanPenanganan, PegawaiSIPELKA, AdminUser, AuthSession } from './types';
 import {
-  getStoredCases,
-  saveCase,
-  deleteCase,
-  addProgressNote,
-  getAnonymizedPreference,
-  setAnonymizedPreference,
-  getStoredPegawai,
-  savePegawai,
-  deletePegawai,
-  getGoogleSheetConfig,
-  sendDataToGoogleSheetWebhook
+  fetchSheetConfig,
+  fetchLatestFromGoogleSheet,
+  sendDataToGoogleSheetWebhook,
+  GoogleSheetConfig
 } from './services/storageService';
 import { enableClientSecurityShield } from './services/securityService';
 import { getAuthSession, logoutAdmin } from './services/authService';
+import { sanitizeObjectData } from './services/securityService';
 import { Header } from './components/Header';
 import { Sidebar, AppTab } from './components/Sidebar';
 import { LoginView } from './components/LoginView';
@@ -33,12 +27,25 @@ import { GoogleSheetIntegrationView } from './components/GoogleSheetIntegrationV
 import { GuideView } from './components/GuideView';
 import { CaseDetailModal } from './components/CaseDetailModal';
 import { PrintDocument } from './components/PrintDocument';
+import { RefreshCw, AlertCircle, FileSpreadsheet } from 'lucide-react';
 
 export default function App() {
   const [authSession, setAuthSession] = useState<AuthSession>(() => getAuthSession());
   const [currentTab, setCurrentTab] = useState<AppTab>('dashboard');
   const [cases, setCases] = useState<KasusKekerasan[]>([]);
   const [pegawaiList, setPegawaiList] = useState<PegawaiSIPELKA[]>([]);
+  const [sheetConfig, setSheetConfig] = useState<GoogleSheetConfig>({
+    sheetUrl: '',
+    webhookUrl: '',
+    autoSync: true
+  });
+  const [isLoadingSheetData, setIsLoadingSheetData] = useState<boolean>(false);
+  const [sheetSyncNotice, setSheetSyncNotice] = useState<{
+    configured: boolean;
+    message?: string;
+    needsScriptUpdate?: boolean;
+  }>({ configured: true });
+
   const [isAnonymized, setIsAnonymized] = useState<boolean>(false);
   const [selectedCaseForDetail, setSelectedCaseForDetail] = useState<KasusKekerasan | null>(null);
   const [caseToEdit, setCaseToEdit] = useState<KasusKekerasan | null>(null);
@@ -68,13 +75,45 @@ export default function App() {
   // Toast / notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadedCases = getStoredCases();
-    setCases(loadedCases);
-    const loadedPegawai = getStoredPegawai();
-    setPegawaiList(loadedPegawai);
-    setIsAnonymized(getAnonymizedPreference());
+  const showToast = useCallback((msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3500);
+  }, []);
 
+  const refreshLiveSheetData = useCallback(async (silent: boolean = false) => {
+    setIsLoadingSheetData(true);
+    try {
+      const [cfg, liveData] = await Promise.all([
+        fetchSheetConfig(),
+        fetchLatestFromGoogleSheet()
+      ]);
+      setSheetConfig(cfg);
+      setCases(liveData.cases);
+      setPegawaiList(liveData.pegawai);
+      setSheetSyncNotice({
+        configured: liveData.configured,
+        message: liveData.message,
+        needsScriptUpdate: liveData.needsScriptUpdate
+      });
+      if (!silent && liveData.configured && !liveData.message) {
+        showToast(`Data terbaru dimuat dari Google Spreadsheet (${liveData.cases.length} kasus, ${liveData.pegawai.length} pegawai).`);
+      }
+    } catch (err) {
+      console.error('Gagal memuat data terbaru dari Google Spreadsheet:', err);
+      setCases([]);
+      setPegawaiList([]);
+      setSheetSyncNotice({
+        configured: true,
+        message: 'Gagal terhubung ke server untuk mengambil data Google Spreadsheet.'
+      });
+    } finally {
+      setIsLoadingSheetData(false);
+    }
+  }, [showToast]);
+
+  useEffect(() => {
     // Aktifkan Cyber Security & Data Protection Shield
     const cleanupSecurity = enableClientSecurityShield((alertMsg) => {
       showToast(alertMsg);
@@ -83,19 +122,21 @@ export default function App() {
     return () => {
       cleanupSecurity();
     };
-  }, []);
+  }, [showToast]);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3500);
-  };
+  // Selalu ambil data terbaru langsung dari Google Spreadsheet saat aplikasi dibuka oleh siapa saja
+  useEffect(() => {
+    if (authSession.isAuthenticated && authSession.user) {
+      refreshLiveSheetData(true);
+    } else {
+      setCases([]);
+      setPegawaiList([]);
+    }
+  }, [authSession.isAuthenticated, authSession.user, refreshLiveSheetData]);
 
   const handleToggleAnonymized = () => {
     const nextVal = !isAnonymized;
     setIsAnonymized(nextVal);
-    setAnonymizedPreference(nextVal);
     showToast(nextVal ? 'Mode Sensor Privasi Nama Diaktifkan' : 'Mode Nama Lengkap Diaktifkan');
   };
 
@@ -134,146 +175,206 @@ export default function App() {
     setCurrentTab('input');
   };
 
-  const handleSaveCase = (savedCase: KasusKekerasan) => {
-    const isExisting = cases.some((c) => c.id === savedCase.id);
-    const originalReg = caseToEdit?.nomorRegistrasi || savedCase.nomorRegistrasi;
-    const updatedList = saveCase(savedCase);
-    setCases(updatedList);
-    setCaseToEdit(null);
-    setCurrentTab('register');
+  const handleSaveCase = async (savedCase: KasusKekerasan) => {
+    const sanitizedCase = sanitizeObjectData(savedCase);
+    const isExisting = cases.some((c) => c.id === sanitizedCase.id);
+    const originalReg = caseToEdit?.nomorRegistrasi || sanitizedCase.nomorRegistrasi;
 
-    // Auto-sync to Google Sheet webhook if enabled
-    const sheetCfg = getGoogleSheetConfig();
-    if (sheetCfg.autoSync && sheetCfg.webhookUrl) {
-      showToast(isExisting 
-        ? `Memperbarui ${savedCase.nomorRegistrasi} di Web & Google Sheet...`
-        : `Menyimpan ${savedCase.nomorRegistrasi} ke Web & Google Sheet...`
-      );
-      sendDataToGoogleSheetWebhook({
+    if (!sheetConfig.webhookUrl) {
+      showToast('URL Webhook Google Spreadsheet belum diatur. Buka menu Integrasi Sheet terlebih dahulu.');
+      setCurrentTab('integrasi');
+      return;
+    }
+
+    showToast(
+      isExisting
+        ? `Memperbarui ${sanitizedCase.nomorRegistrasi} di Google Spreadsheet...`
+        : `Menyimpan ${sanitizedCase.nomorRegistrasi} langsung ke Google Spreadsheet...`
+    );
+
+    const res = await sendDataToGoogleSheetWebhook(
+      {
         action: isExisting ? 'EDIT_CASE' : 'SAVE_CASE',
         timestamp: new Date().toISOString(),
         originalNomorRegistrasi: originalReg,
-        ...savedCase
-      }).then((res) => {
-        if (res.success) {
-          showToast(isExisting 
-            ? `Berkas ${savedCase.nomorRegistrasi} berhasil diperbarui di Web & Google Sheet.`
-            : `Berkas ${savedCase.nomorRegistrasi} berhasil disimpan ke Web & Google Sheet.`
-          );
-        }
-      }).catch((err) => console.error('Auto-sync webhook error:', err));
-    } else {
-      showToast(`Berkas perkara ${savedCase.nomorRegistrasi} berhasil disimpan.`);
+        ...sanitizedCase
+      },
+      sheetConfig
+    );
+
+    if (!res.success) {
+      showToast(`Gagal menyimpan ke Google Spreadsheet: ${res.message}`);
+      return;
     }
+
+    setCases((prev) =>
+      isExisting
+        ? prev.map((c) => (c.id === sanitizedCase.id ? sanitizedCase : c))
+        : [sanitizedCase, ...prev]
+    );
+    setCaseToEdit(null);
+    setCurrentTab('register');
+    showToast(
+      isExisting
+        ? `Berkas ${sanitizedCase.nomorRegistrasi} berhasil diperbarui di Google Spreadsheet.`
+        : `Berkas ${sanitizedCase.nomorRegistrasi} berhasil disimpan ke Google Spreadsheet.`
+    );
+    await refreshLiveSheetData(true);
   };
 
-  const handleDeleteCase = (id: string) => {
+  const handleDeleteCase = async (id: string) => {
     const targetCase = cases.find((c) => c.id === id);
-    const updatedList = deleteCase(id);
-    setCases(updatedList);
-    if (selectedCaseForDetail?.id === id) {
-      setSelectedCaseForDetail(null);
+    if (!targetCase) return;
+
+    if (!sheetConfig.webhookUrl) {
+      showToast('URL Webhook Google Spreadsheet belum diatur. Tidak dapat menghapus dari Spreadsheet.');
+      return;
     }
 
-    // Sync deletion to Google Sheet webhook if enabled
-    const sheetCfg = getGoogleSheetConfig();
-    if (sheetCfg.autoSync && sheetCfg.webhookUrl && targetCase) {
-      showToast(`Menghapus ${targetCase.nomorRegistrasi} dari Web dan Google Sheet...`);
-      sendDataToGoogleSheetWebhook({
+    showToast(`Menghapus ${targetCase.nomorRegistrasi} dari Google Spreadsheet...`);
+    const res = await sendDataToGoogleSheetWebhook(
+      {
         action: 'DELETE_CASE',
         timestamp: new Date().toISOString(),
         id: targetCase.id,
         nomorRegistrasi: targetCase.nomorRegistrasi,
         namaKorban: targetCase.namaKorban
-      }).then((res) => {
-        if (res.success) {
-          showToast(`Berkas ${targetCase.nomorRegistrasi} berhasil dihapus dari Web & Google Sheet.`);
-        }
-      }).catch((err) => console.error('Delete sync webhook error:', err));
-    } else {
-      showToast('Data berkas perkara berhasil dihapus dari register.');
+      },
+      sheetConfig
+    );
+
+    if (!res.success) {
+      showToast(`Gagal menghapus dari Google Spreadsheet: ${res.message}`);
+      return;
     }
+
+    setCases((prev) => prev.filter((c) => c.id !== id));
+    if (selectedCaseForDetail?.id === id) {
+      setSelectedCaseForDetail(null);
+    }
+    showToast(`Berkas ${targetCase.nomorRegistrasi} berhasil dihapus dari Google Spreadsheet.`);
+    await refreshLiveSheetData(true);
   };
 
-  const handleAddProgressNote = (
+  const handleAddProgressNote = async (
     caseId: string,
     note: Omit<CatatanPenanganan, 'id'>,
     newStatus?: StatusPenanganan
   ) => {
-    const updatedList = addProgressNote(caseId, note, newStatus);
-    setCases(updatedList);
-    const updatedCase = updatedList.find((c) => c.id === caseId) || null;
-    setSelectedCaseForDetail(updatedCase);
-    showToast('Catatan tindakan pendampingan berhasil ditambahkan.');
+    const target = cases.find((c) => c.id === caseId);
+    if (!target) return;
 
-    // Sync progress note / edit update to Google Sheet webhook if enabled
-    const sheetCfg = getGoogleSheetConfig();
-    if (sheetCfg.autoSync && sheetCfg.webhookUrl && updatedCase) {
-      sendDataToGoogleSheetWebhook({
+    if (!sheetConfig.webhookUrl) {
+      showToast('URL Webhook Google Spreadsheet belum diatur.');
+      return;
+    }
+
+    const sanitizedNote = sanitizeObjectData(note);
+    const newNote: CatatanPenanganan = {
+      ...sanitizedNote,
+      id: 'CAT-' + Date.now().toString()
+    };
+
+    const updatedCase: KasusKekerasan = {
+      ...target,
+      statusPenanganan: newStatus || target.statusPenanganan,
+      riwayatPenanganan: [newNote, ...(target.riwayatPenanganan || [])]
+    };
+
+    const res = await sendDataToGoogleSheetWebhook(
+      {
         action: 'EDIT_CASE',
         timestamp: new Date().toISOString(),
+        originalNomorRegistrasi: target.nomorRegistrasi,
         ...updatedCase
-      }).catch((err) => console.error('Progress note sync webhook error:', err));
+      },
+      sheetConfig
+    );
+
+    if (!res.success) {
+      showToast(`Gagal menyimpan catatan ke Google Spreadsheet: ${res.message}`);
+      return;
     }
+
+    setCases((prev) => prev.map((c) => (c.id === caseId ? updatedCase : c)));
+    setSelectedCaseForDetail(updatedCase);
+    showToast('Catatan tindakan pendampingan berhasil disimpan ke Google Spreadsheet.');
+    await refreshLiveSheetData(true);
   };
 
-  // Pegawai Handlers
-  const handleSavePegawai = (p: PegawaiSIPELKA) => {
-    const isExisting = pegawaiList.some((item) => item.id === p.id);
-    const updated = savePegawai(p);
-    setPegawaiList(updated);
+  // Pegawai Handlers (Langsung ke Google Spreadsheet)
+  const handleSavePegawai = async (p: PegawaiSIPELKA) => {
+    const sanitizedPegawai = sanitizeObjectData(p);
+    const isExisting = pegawaiList.some((item) => item.id === sanitizedPegawai.id);
 
-    const sheetCfg = getGoogleSheetConfig();
-    if (sheetCfg.autoSync && sheetCfg.webhookUrl) {
-      showToast(
-        isExisting
-          ? `Memperbarui data pegawai ${p.nama} di Web & Google Sheet...`
-          : `Menyimpan data pegawai ${p.nama} ke Web & Google Sheet...`
-      );
-      sendDataToGoogleSheetWebhook({
+    if (!sheetConfig.webhookUrl) {
+      showToast('URL Webhook Google Spreadsheet belum diatur. Buka menu Integrasi Sheet terlebih dahulu.');
+      setCurrentTab('integrasi');
+      return;
+    }
+
+    showToast(
+      isExisting
+        ? `Memperbarui data pegawai ${sanitizedPegawai.nama} di Google Spreadsheet...`
+        : `Menyimpan data pegawai ${sanitizedPegawai.nama} ke Google Spreadsheet...`
+    );
+
+    const res = await sendDataToGoogleSheetWebhook(
+      {
         action: isExisting ? 'EDIT_PEGAWAI' : 'SAVE_PEGAWAI',
         timestamp: new Date().toISOString(),
-        ...p
-      })
-        .then((res) => {
-          if (res.success) {
-            showToast(
-              isExisting
-                ? `Data pegawai ${p.nama} berhasil diperbarui di Web & Google Sheet.`
-                : `Data pegawai ${p.nama} berhasil direkam ke Google Sheet (Tab Data Pegawai).`
-            );
-          }
-        })
-        .catch((err) => console.error('Auto-sync pegawai webhook error:', err));
-    } else {
-      showToast(`Data pegawai ${p.nama} (${p.kategori}) berhasil disimpan.`);
+        ...sanitizedPegawai
+      },
+      sheetConfig
+    );
+
+    if (!res.success) {
+      showToast(`Gagal menyimpan data pegawai ke Google Spreadsheet: ${res.message}`);
+      return;
     }
+
+    setPegawaiList((prev) =>
+      isExisting
+        ? prev.map((item) => (item.id === sanitizedPegawai.id ? sanitizedPegawai : item))
+        : [sanitizedPegawai, ...prev]
+    );
+    showToast(
+      isExisting
+        ? `Data pegawai ${sanitizedPegawai.nama} berhasil diperbarui di Google Spreadsheet.`
+        : `Data pegawai ${sanitizedPegawai.nama} berhasil disimpan ke Google Spreadsheet (Tab Data Pegawai).`
+    );
+    await refreshLiveSheetData(true);
   };
 
-  const handleDeletePegawai = (id: string) => {
+  const handleDeletePegawai = async (id: string) => {
     const targetPegawai = pegawaiList.find((p) => p.id === id);
-    const updated = deletePegawai(id);
-    setPegawaiList(updated);
+    if (!targetPegawai) return;
 
-    const sheetCfg = getGoogleSheetConfig();
-    if (sheetCfg.autoSync && sheetCfg.webhookUrl && targetPegawai) {
-      showToast(`Menghapus ${targetPegawai.nama} dari Web dan Google Sheet...`);
-      sendDataToGoogleSheetWebhook({
+    if (!sheetConfig.webhookUrl) {
+      showToast('URL Webhook Google Spreadsheet belum diatur.');
+      return;
+    }
+
+    showToast(`Menghapus ${targetPegawai.nama} dari Google Spreadsheet...`);
+    const res = await sendDataToGoogleSheetWebhook(
+      {
         action: 'DELETE_PEGAWAI',
         timestamp: new Date().toISOString(),
         id: targetPegawai.id,
         nama: targetPegawai.nama,
         nipOrIdentitas: targetPegawai.nipOrIdentitas
-      })
-        .then((res) => {
-          if (res.success) {
-            showToast(`Data pegawai ${targetPegawai.nama} berhasil dihapus dari Web & Google Sheet.`);
-          }
-        })
-        .catch((err) => console.error('Delete pegawai sync webhook error:', err));
-    } else {
-      showToast('Data pegawai berhasil dihapus.');
+      },
+      sheetConfig
+    );
+
+    if (!res.success) {
+      showToast(`Gagal menghapus data pegawai dari Google Spreadsheet: ${res.message}`);
+      return;
     }
+
+    setPegawaiList((prev) => prev.filter((p) => p.id !== id));
+    showToast(`Data pegawai ${targetPegawai.nama} berhasil dihapus dari Google Spreadsheet.`);
+    await refreshLiveSheetData(true);
   };
 
   const handleViewOfficerCases = (officerName: string) => {
@@ -310,12 +411,14 @@ export default function App() {
     if (window.confirm('Keluar dari aplikasi SIPELKA? Sesi administrator Anda akan diakhiri.')) {
       logoutAdmin();
       setAuthSession({ isAuthenticated: false, user: null });
+      setCases([]);
+      setPegawaiList([]);
       setCurrentTab('dashboard');
       showToast('Anda telah berhasil keluar dari sistem SIPELKA.');
     }
   };
 
-  // Gerbang Keamanan: Hanya Administrator yang telah login yang dapat mengakses SIPELKA
+  // Gerbang Keamanan: Hanya Administrator / Pimpinan yang telah login yang dapat mengakses SIPELKA
   if (!authSession.isAuthenticated || !authSession.user) {
     return (
       <>
@@ -373,7 +476,46 @@ export default function App() {
         )}
 
       {/* Main Container */}
-      <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-7 py-5">
+      <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-7 py-5 space-y-4">
+        {/* Live Spreadsheet Loading / Configuration Notice */}
+        {isLoadingSheetData && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-900 px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 print:hidden">
+            <RefreshCw className="w-4 h-4 text-[#1A73E8] animate-spin shrink-0" />
+            <span>Mengambil data terbaru langsung dari Google Spreadsheet...</span>
+          </div>
+        )}
+
+        {!isLoadingSheetData && (!sheetSyncNotice.configured || sheetSyncNotice.message) && (
+          <div className="bg-amber-50 border border-amber-300 text-amber-950 px-4 py-3 rounded-xl text-xs flex flex-wrap items-center justify-between gap-3 print:hidden">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />
+              <span className="font-medium">
+                {sheetSyncNotice.message || 'Google Spreadsheet belum terhubung.'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => refreshLiveSheetData(false)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg font-bold text-amber-950 transition-colors"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Muat Ulang</span>
+              </button>
+              {!isPimpinan && currentTab !== 'integrasi' && (
+                <button
+                  type="button"
+                  onClick={() => handleSelectTab('integrasi')}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#08244B] hover:bg-[#0B2D5C] text-white rounded-lg font-bold transition-colors"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5" />
+                  <span>Atur Integrasi Sheet</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {currentTab === 'dashboard' && (
           <DashboardView
             cases={cases}
@@ -382,6 +524,8 @@ export default function App() {
             selectedQuarter={selectedQuarter}
             onSelectCase={(c) => setSelectedCaseForDetail(c)}
             onNavigateToTab={(tab) => handleSelectTab(tab)}
+            onRefreshData={() => refreshLiveSheetData(false)}
+            isLoadingData={isLoadingSheetData}
           />
         )}
 
@@ -422,6 +566,7 @@ export default function App() {
             onDeletePegawai={handleDeletePegawai}
             onViewOfficerCases={handleViewOfficerCases}
             onOpenIntegrasi={isPimpinan ? undefined : () => handleSelectTab('integrasi')}
+            sheetConfig={sheetConfig}
             showToast={showToast}
             isReadOnly={isPimpinan}
           />
@@ -443,6 +588,11 @@ export default function App() {
             cases={cases}
             pegawaiList={pegawaiList}
             showToast={showToast}
+            onConfigSaved={async (cfg) => {
+              setSheetConfig(cfg);
+              await refreshLiveSheetData(false);
+            }}
+            onRefreshFromSheet={() => refreshLiveSheetData(false)}
           />
         )}
 

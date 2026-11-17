@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { PegawaiSIPELKA, KategoriPegawai, KasusKekerasan } from '../types';
 import {
   exportPegawaiToCSV,
-  getGoogleSheetConfig,
+  GoogleSheetConfig,
   sendDataToGoogleSheetWebhook
 } from '../services/storageService';
 import {
@@ -37,6 +37,7 @@ interface PegawaiManagementViewProps {
   onDeletePegawai: (id: string) => void;
   onViewOfficerCases: (officerName: string) => void;
   onOpenIntegrasi?: () => void;
+  sheetConfig?: GoogleSheetConfig;
   showToast?: (msg: string) => void;
   isReadOnly?: boolean;
 }
@@ -56,6 +57,7 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
   onDeletePegawai,
   onViewOfficerCases,
   onOpenIntegrasi,
+  sheetConfig = { sheetUrl: '', webhookUrl: '', autoSync: true },
   showToast,
   isReadOnly = false
 }) => {
@@ -65,10 +67,8 @@ export const PegawaiManagementView: React.FC<PegawaiManagementViewProps> = ({
   const [editingPegawai, setEditingPegawai] = useState<PegawaiSIPELKA | null>(null);
   const [isSyncingSheet, setIsSyncingSheet] = useState(false);
 
-  const sheetConfig = getGoogleSheetConfig();
-
   const handleSyncAllPegawaiToSheet = async () => {
-    const cfg = getGoogleSheetConfig();
+    const cfg = sheetConfig;
     if (!cfg.webhookUrl) {
       if (showToast) {
         showToast('URL Webhook Google Sheet belum diatur. Membuka menu Integrasi Google Sheet...');
