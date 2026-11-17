@@ -86,7 +86,8 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
         petugasId: noteOfficerId || undefined,
         instansi: noteAgency,
         tindakan: noteAction,
-        hasilDanCatatan: noteResult
+        hasilDanCatatan: noteResult,
+        statusLayanan: noteStatus
       },
       noteStatus
     );
@@ -614,7 +615,14 @@ export const CaseDetailModal: React.FC<CaseDetailModalProps> = ({
                         <span>Oleh: {catatan.petugas}</span>
                       </div>
                       <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/80 space-y-1">
-                        <p className="font-semibold text-slate-900">{catatan.tindakan}</p>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="font-semibold text-slate-900">{catatan.tindakan}</p>
+                          {catatan.statusLayanan && (
+                            <span className="text-[10px] font-bold text-sky-900 bg-sky-100 border border-sky-200 px-2 py-0.5 rounded">
+                              {catatan.statusLayanan}
+                            </span>
+                          )}
+                        </div>
                         <p className="text-slate-600 leading-relaxed">{catatan.hasilDanCatatan}</p>
                       </div>
                     </div>

@@ -248,21 +248,40 @@ export const CaseFormView: React.FC<CaseFormViewProps> = ({
 
     const sanitizedFormData = sanitizeObjectData(formData);
 
+    const existingHistory =
+      formData.riwayatPenanganan && formData.riwayatPenanganan.length > 0
+        ? [...formData.riwayatPenanganan]
+        : [
+            {
+              id: 'CAT-' + Date.now(),
+              tanggal: formData.tanggalLapor || new Date().toISOString().slice(0, 10),
+              petugas: formData.petugasPendamping || 'Staf PPPA',
+              instansi: 'UPTD PPA Dinas PMDP3A Kab. Nagekeo',
+              tindakan: 'Penerimaan Laporan & Penginputan Data ke SIPELKA',
+              hasilDanCatatan: 'Berkas kasus berhasil didaftarkan ke sistem SIMFONI PPA Nagekeo.',
+              statusLayanan: (initialCase?.statusPenanganan || formData.statusPenanganan || 'Pengaduan Masuk') as KasusKekerasan['statusPenanganan']
+            }
+          ];
+
+    if (
+      initialCase &&
+      formData.statusPenanganan &&
+      formData.statusPenanganan !== initialCase.statusPenanganan
+    ) {
+      existingHistory.unshift({
+        id: 'CAT-' + (Date.now() + 1),
+        tanggal: new Date().toISOString().slice(0, 10),
+        petugas: formData.petugasPendamping || 'Staf PPPA',
+        instansi: 'UPTD PPA Dinas PMDP3A Kab. Nagekeo',
+        tindakan: `Pembaruan Status Layanan: ${formData.statusPenanganan}`,
+        hasilDanCatatan: `Status penanganan berubah dari "${initialCase.statusPenanganan}" menjadi "${formData.statusPenanganan}".`,
+        statusLayanan: formData.statusPenanganan
+      });
+    }
+
     const payload: KasusKekerasan = {
       ...(sanitizedFormData as KasusKekerasan),
-      riwayatPenanganan:
-        formData.riwayatPenanganan && formData.riwayatPenanganan.length > 0
-          ? formData.riwayatPenanganan
-          : [
-              {
-                id: 'CAT-' + Date.now(),
-                tanggal: formData.tanggalLapor || new Date().toISOString().slice(0, 10),
-                petugas: formData.petugasPendamping || 'Staf PPPA',
-                instansi: 'UPTD PPA Dinas PMDP3A Kab. Nagekeo',
-                tindakan: 'Penerimaan Laporan & Penginputan Data ke SIPELKA',
-                hasilDanCatatan: 'Berkas kasus berhasil didaftarkan ke sistem SIMFONI PPA Nagekeo.'
-              }
-            ]
+      riwayatPenanganan: existingHistory
     };
 
     onSaveCase(payload);

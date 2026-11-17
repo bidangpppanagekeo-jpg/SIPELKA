@@ -85,6 +85,7 @@ export interface CatatanPenanganan {
   instansi: string;
   tindakan: string;
   hasilDanCatatan: string;
+  statusLayanan?: StatusPenanganan;
 }
 
 export interface KasusKekerasan {

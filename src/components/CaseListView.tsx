@@ -11,11 +11,104 @@ import {
   Eye,
   FileText,
   Trash2,
-  Edit,
-  Clock,
-  ChevronDown,
-  ChevronUp
+  Edit
 } from 'lucide-react';
+
+interface StatusTimelineStep {
+  key: string;
+  tanggal: string;
+  label: string;
+}
+
+function inferStatusLabelFromNote(
+  note: KasusKekerasan['riwayatPenanganan'][number],
+  fallbackStatus: string
+): string {
+  if (note.statusLayanan) return note.statusLayanan;
+  const text = `${note.tindakan || ''} ${note.hasilDanCatatan || ''}`.toLowerCase();
+
+  if (text.includes('penerimaan laporan') || text.includes('pengaduan') || text.includes('didaftarkan')) {
+    return 'Pengaduan Masuk';
+  }
+  if (text.includes('asesmen') || text.includes('identifikasi')) {
+    return 'Asesmen & Identifikasi';
+  }
+  if (text.includes('visum') || text.includes('medis') || text.includes('rsud') || text.includes('puskesmas')) {
+    return 'Pendampingan Medis / Visum';
+  }
+  if (text.includes('hukum') || text.includes('polres') || text.includes('kepolisian') || text.includes('bap')) {
+    return 'Pendampingan Hukum & Kepolisian';
+  }
+  if (text.includes('konseling') || text.includes('psikolog') || text.includes('trauma')) {
+    return 'Konseling Psikologis';
+  }
+  if (text.includes('rumah aman') || text.includes('shelter')) {
+    return 'Rumah Aman / Shelter';
+  }
+  if (text.includes('mediasi') || text.includes('restoratif')) {
+    return 'Mediasi / Restoratif';
+  }
+  if (text.includes('reintegrasi') || text.includes('pemulihan')) {
+    return 'Reintegrasi & Pemulihan';
+  }
+  if (text.includes('selesai') || text.includes('tuntas') || text.includes('ditutup')) {
+    return 'Kasus Selesai';
+  }
+  return note.tindakan?.trim() || fallbackStatus;
+}
+
+function buildStatusHistorySteps(item: KasusKekerasan): StatusTimelineStep[] {
+  const rawNotes = Array.isArray(item.riwayatPenanganan) ? item.riwayatPenanganan : [];
+  // riwayatPenanganan disimpan terbaru-di-awal; balik ke kronologis terlama -> terbaru, lalu urutkan tanggal naik
+  const chronological = [...rawNotes].reverse().sort((a, b) =>
+    (a.tanggal || '').localeCompare(b.tanggal || '')
+  );
+
+  const steps: StatusTimelineStep[] = [];
+  for (let i = 0; i < chronological.length; i++) {
+    const note = chronological[i];
+    const tanggal = (note.tanggal || item.tanggalLapor || '-').slice(0, 10);
+    const label = inferStatusLabelFromNote(note, item.statusPenanganan);
+    const prev = steps[steps.length - 1];
+    if (prev && prev.label === label) {
+      // Pertahankan tanggal paling relevan jika label berturut-turut sama
+      prev.tanggal = tanggal;
+      continue;
+    }
+    steps.push({
+      key: note.id || `${item.id}-step-${i}`,
+      tanggal,
+      label
+    });
+  }
+
+  if (steps.length === 0) {
+    const tglLapor = (item.tanggalLapor || '-').slice(0, 10);
+    if (item.statusPenanganan && item.statusPenanganan !== 'Pengaduan Masuk') {
+      steps.push({
+        key: `${item.id}-awal`,
+        tanggal: tglLapor,
+        label: 'Pengaduan Masuk'
+      });
+    }
+    steps.push({
+      key: `${item.id}-akhir`,
+      tanggal: tglLapor,
+      label: item.statusPenanganan
+    });
+  } else if (
+    item.statusPenanganan &&
+    steps[steps.length - 1].label !== item.statusPenanganan
+  ) {
+    steps.push({
+      key: `${item.id}-akhir`,
+      tanggal: steps[steps.length - 1].tanggal || (item.tanggalLapor || '-').slice(0, 10),
+      label: item.statusPenanganan
+    });
+  }
+
+  return steps;
+}
 
 interface CaseListViewProps {
   cases: KasusKekerasan[];
@@ -59,15 +152,6 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
   }, [initialSearchQuery]);
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [expandedHistoryIds, setExpandedHistoryIds] = useState<Record<string, boolean>>({});
-
-  const toggleExpandHistory = (caseId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setExpandedHistoryIds((prev) => ({
-      ...prev,
-      [caseId]: !prev[caseId]
-    }));
-  };
 
   // Filter logic
   const filteredCases = useMemo(() => {
@@ -408,12 +492,38 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                       </div>
                     </td>
 
-                    {/* Status Layanan, Urgensi & Riwayat Penanganan */}
-                    <td className="py-3 px-4 align-top min-w-[240px] max-w-[320px]">
-                      <div className="font-bold text-blue-950">
-                        {item.statusPenanganan}
-                      </div>
-                      <div className="text-[11px] mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    {/* Status Layanan & Urgensi (Riwayat Status Penanganan Kronologis hingga Status Akhir) */}
+                    <td className="py-3 px-4 align-top min-w-[230px] max-w-[300px]">
+                      {(() => {
+                        const steps = buildStatusHistorySteps(item);
+                        return (
+                          <div className="space-y-0.5">
+                            {steps.map((step, sIdx) => {
+                              const isLast = sIdx === steps.length - 1;
+                              return (
+                                <div
+                                  key={step.key}
+                                  className="flex items-start gap-1.5 text-[11px] leading-snug"
+                                >
+                                  <span className="font-mono text-[10px] text-slate-500 shrink-0 tabular-nums mt-[1px]">
+                                    {sIdx > 0 ? `- ${step.tanggal}` : step.tanggal}
+                                  </span>
+                                  <span
+                                    className={
+                                      isLast
+                                        ? 'font-bold text-blue-950'
+                                        : 'font-medium text-slate-600'
+                                    }
+                                  >
+                                    {step.label}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+                      <div className="text-[11px] mt-1.5">
                         <span
                           className={`font-semibold ${
                             item.tingkatUrgensi === 'Darurat'
@@ -426,90 +536,11 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                           Urgensi: {item.tingkatUrgensi}
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-500 mt-1 font-medium flex items-center gap-1">
+                      <div className="text-[10px] text-slate-500 mt-0.5 font-medium flex items-center gap-1">
                         <span className="text-slate-400">Tim:</span>
-                        <span className="truncate max-w-[190px] font-semibold text-slate-700" title={item.petugasPendamping}>
+                        <span className="truncate max-w-[180px] font-semibold text-slate-700" title={item.petugasPendamping}>
                           {item.petugasPendamping}
                         </span>
-                      </div>
-
-                      {/* Riwayat Penanganan Kasus */}
-                      <div className="mt-2 pt-2 border-t border-slate-100 space-y-1.5">
-                        <div className="flex items-center justify-between gap-2 text-[10px] font-bold text-sky-800 uppercase tracking-wide">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-sky-600 shrink-0" />
-                            <span>Riwayat Penanganan</span>
-                          </span>
-                          <span className="font-mono text-[10px] text-sky-900 bg-sky-50 border border-sky-200 px-1.5 py-0.2 rounded tabular-nums">
-                            {item.riwayatPenanganan?.length || 0}
-                          </span>
-                        </div>
-
-                        {item.riwayatPenanganan && item.riwayatPenanganan.length > 0 ? (() => {
-                          const isExpanded = Boolean(expandedHistoryIds[item.id]);
-                          const visibleHistory = isExpanded
-                            ? item.riwayatPenanganan
-                            : item.riwayatPenanganan.slice(0, 2);
-                          const hiddenCount = item.riwayatPenanganan.length - visibleHistory.length;
-
-                          return (
-                            <div className="space-y-1.5">
-                              {visibleHistory.map((riwayat, rIdx) => (
-                                <div
-                                  key={riwayat.id || `${item.id}-riw-${rIdx}`}
-                                  className="border-l-2 border-sky-300 pl-2 py-0.5 text-[10.5px] leading-snug bg-slate-50/70 rounded-r"
-                                >
-                                  <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono tabular-nums">
-                                    <span>{riwayat.tanggal || '-'}</span>
-                                    {riwayat.petugas && (
-                                      <>
-                                        <span>·</span>
-                                        <span className="font-sans truncate max-w-[140px] text-slate-600 font-medium" title={riwayat.petugas}>
-                                          {riwayat.petugas}
-                                        </span>
-                                      </>
-                                    )}
-                                  </div>
-                                  <div className="font-semibold text-slate-800 mt-0.5">
-                                    {riwayat.tindakan}
-                                  </div>
-                                  {riwayat.hasilDanCatatan && (
-                                    <div
-                                      className={`text-slate-600 mt-0.5 ${isExpanded ? '' : 'line-clamp-2'}`}
-                                      title={riwayat.hasilDanCatatan}
-                                    >
-                                      {riwayat.hasilDanCatatan}
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-
-                              {item.riwayatPenanganan.length > 2 && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => toggleExpandHistory(item.id, e)}
-                                  className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-700 hover:text-sky-900 hover:underline pt-0.5"
-                                >
-                                  {isExpanded ? (
-                                    <>
-                                      <ChevronUp className="w-3 h-3" />
-                                      <span>Ringkas riwayat</span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <ChevronDown className="w-3 h-3" />
-                                      <span>+{hiddenCount} riwayat lainnya</span>
-                                    </>
-                                  )}
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })() : (
-                          <div className="text-[10.5px] text-slate-400 italic">
-                            Belum ada catatan riwayat penanganan.
-                          </div>
-                        )}
                       </div>
                     </td>
 
