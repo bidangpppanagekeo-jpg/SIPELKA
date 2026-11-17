@@ -251,6 +251,37 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="space-y-4 sm:space-y-5">
+      {/* Banner Kotak Judul Dashboard */}
+      <div className="bg-gradient-to-r from-sky-200 via-sky-100 to-blue-100 text-sky-950 p-6 sm:p-7 rounded-3xl border border-sky-300 shadow-sm relative overflow-hidden">
+        <div className="absolute right-0 top-0 bottom-0 w-80 bg-gradient-to-l from-white/50 to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-cyan-400 to-amber-400" />
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-extrabold text-sky-800 uppercase tracking-wider">
+              <span>Ringkasan Terpadu SIMFONI PPA</span>
+              <span aria-hidden="true">·</span>
+              <span className="text-blue-950">Dinas PMDP3A Nagekeo</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-sky-950 tracking-tight">
+              Dashboard Pemantauan &amp; Pelaporan Kasus PPPA
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-700 font-medium max-w-2xl leading-relaxed">
+              Pencatatan dan pemantauan statistik pengaduan kekerasan perempuan dan anak se-Kabupaten Nagekeo sesuai standar Kementerian PPPA Republik Indonesia.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onNavigateToTab('register')}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-sky-50 text-sky-950 border border-sky-200 rounded-2xl text-xs font-bold shadow-xs transition-colors whitespace-nowrap shrink-0 self-start md:self-center"
+          >
+            <span>Buka Register Kasus</span>
+            <ArrowRight className="w-4 h-4 text-sky-700" />
+          </button>
+        </div>
+      </div>
+
       {/* 1. ROW 1: 4 Vivid Gradient KPI Cards matching reference */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {/* KPI 1: Royal Blue */}
