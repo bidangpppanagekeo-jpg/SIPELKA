@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   LogIn,
   AlertCircle,
-  KeyRound,
   ShieldAlert
 } from 'lucide-react';
 import { loginAdmin } from '../services/authService';
@@ -110,10 +109,6 @@ export const LoginView: React.FC<LoginViewProps> = ({
             <p className="text-xs text-blue-900 font-bold uppercase tracking-wider mt-0.5">
               Sistem Informasi Pelayanan Kasus PPPA
             </p>
-            <div className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-full text-[11px] font-semibold">
-              <KeyRound className="w-3.5 h-3.5 text-amber-600" />
-              <span>Akses Khusus Administrator Dinas PMDP3A</span>
-            </div>
           </div>
 
           {/* Error Notification */}
