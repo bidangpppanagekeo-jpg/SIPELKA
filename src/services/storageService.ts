@@ -1,5 +1,10 @@
 import { KasusKekerasan, PegawaiSIPELKA } from '../types';
 import { sanitizeObjectData } from './securityService';
+import {
+  readSheetConfigFromFirestore,
+  saveSheetConfigToFirestore,
+  formatFirestoreErrorForUser
+} from './firebaseService';
 
 export interface GoogleSheetConfig {
   sheetUrl: string;
@@ -144,6 +149,18 @@ function normalizeClientPegawaiRecord(raw: Record<string, unknown>, idx: number)
 
 export async function fetchSheetConfig(): Promise<GoogleSheetConfig> {
   const fallback = getEnvSheetConfigFallback();
+
+  // 1. Utama: Ambil konfigurasi permanen dari Cloud Firestore (berlaku untuk semua pengguna di mana saja)
+  try {
+    const cloudConfig = await readSheetConfigFromFirestore();
+    if (cloudConfig && (cloudConfig.webhookUrl || cloudConfig.sheetUrl)) {
+      return cloudConfig;
+    }
+  } catch (err) {
+    console.warn('Membaca konfigurasi dari Firestore gagal, mencoba fallback server/env:', err);
+  }
+
+  // 2. Fallback: Ambil dari server Express (/api/sheet-config) atau VITE_* env
   try {
     const res = await fetch(`/api/sheet-config?_ts=${Date.now()}`, {
       method: 'GET',
@@ -179,68 +196,43 @@ export async function saveGoogleSheetConfig(config: GoogleSheetConfig): Promise<
     lastSyncedAt: config.lastSyncedAt
   };
 
-  const res = await fetch('/api/sheet-config', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(normalizedConfig)
-  });
-
-  const parsed = await parseJsonSafely<GoogleSheetConfig & { error?: string }>(res);
-
-  // Jika dibuka melalui hosting statis (HTTP 405 Method Not Allowed / 404 / HTML SPA fallback)
-  if (parsed.isHtml || res.status === 405 || res.status === 404) {
-    if (normalizedConfig.webhookUrl) {
-      try {
-        const testUrl = new URL(normalizedConfig.webhookUrl);
-        testUrl.searchParams.set('action', 'GET_ALL');
-        testUrl.searchParams.set('_ts', String(Date.now()));
-        const directRes = await fetch(testUrl.toString(), { method: 'GET', redirect: 'follow' });
-        const directParsed = await parseJsonSafely<{ status?: string }>(directRes);
-
-        if (!directParsed.isHtml && directParsed.data?.status === 'success') {
-          return {
-            config: normalizedConfig,
-            persistedOnServer: false,
-            notice:
-              `URL Webhook valid & data berhasil terhubung untuk sesi ini. Namun penyimpanan permanen ke server ditolak (HTTP ${res.status}) karena URL aplikasi ini berjalan di mode statis tanpa backend API. Untuk menyimpan permanen bagi semua pengguna, buka melalui Development App URL atau atur GOOGLE_SHEET_URL & GOOGLE_SHEET_WEBHOOK_URL (serta VITE_*) pada Secrets.`
-          };
-        }
-
-        if (!directParsed.isHtml) {
-          return {
-            config: normalizedConfig,
-            persistedOnServer: false,
-            notice:
-              `Webhook diaktifkan untuk sesi ini, tetapi doGet() Apps Script belum mengembalikan JSON data (perbarui Code.gs & Deploy versi baru). Selain itu, penyimpanan permanen server ditolak (HTTP ${res.status}) karena aplikasi berjalan di mode statis.`
-          };
-        }
-      } catch {
-        // Lanjut ke pesan error yang jelas di bawah
-      }
-    }
-
-    throw new Error(
-      `Penyimpanan konfigurasi ke server ditolak (HTTP ${res.status}: metode POST tidak diizinkan pada mode hosting statis). Buka aplikasi melalui Development App URL agar server backend menyimpan konfigurasi untuk semua pengguna.`
-    );
+  // 1. Simpan permanen ke Cloud Firestore agar berlaku untuk seluruh pengguna di Shared App maupun Dev App
+  let savedCloud: GoogleSheetConfig;
+  try {
+    savedCloud = await saveSheetConfigToFirestore(normalizedConfig);
+  } catch (err) {
+    throw new Error(formatFirestoreErrorForUser(err));
   }
 
-  if (!res.ok || !parsed.data) {
-    const rawDetail = parsed.rawText && parsed.rawText.trim().length < 180 ? parsed.rawText.trim() : '';
-    throw new Error(
-      parsed.data?.error ||
-        (rawDetail ? `Gagal menyimpan konfigurasi (${res.status}): ${rawDetail}` : `Gagal menyimpan konfigurasi Google Sheet (HTTP ${res.status}).`)
-    );
+  // 2. Sinkronisasi best-effort ke backend Express jika sedang berjalan (abaikan 404/405/HTML di hosting statis)
+  try {
+    await fetch('/api/sheet-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(savedCloud)
+    });
+  } catch {
+    // Tidak masalah jika berjalan di mode statis (Shared App URL)
   }
 
   return {
-    config: parsed.data,
+    config: savedCloud,
     persistedOnServer: true
   };
 }
 
 export async function fetchLatestFromGoogleSheet(configOverride?: GoogleSheetConfig): Promise<LiveSheetDataResult> {
   try {
-    const res = await fetch(`/api/sheet-data?_ts=${Date.now()}`, {
+    const apiUrl = new URL('/api/sheet-data', window.location.origin);
+    apiUrl.searchParams.set('_ts', String(Date.now()));
+    if (configOverride?.webhookUrl) {
+      apiUrl.searchParams.set('webhookUrl', configOverride.webhookUrl);
+    }
+    if (configOverride?.sheetUrl) {
+      apiUrl.searchParams.set('sheetUrl', configOverride.sheetUrl);
+    }
+
+    const res = await fetch(apiUrl.pathname + apiUrl.search, {
       method: 'GET',
       cache: 'no-store'
     });

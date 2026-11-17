@@ -1,0 +1,140 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net: Default-deny all paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ==================== GLOBAL HARDENED HELPERS ====================
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedEmail() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isBootstrappedAdmin() {
+      return isVerifiedEmail() && request.auth.token.email == 'bidangpppanagekeo@gmail.com';
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin() || (
+        isVerifiedEmail() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // ==================== ENTITY VALIDATION BLUEPRINTS ====================
+    function isValidSheetConfig(data) {
+      return data.keys().hasAll([
+          'sheetUrl',
+          'webhookUrl',
+          'autoSync',
+          'updatedByUid',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'sheetUrl',
+          'webhookUrl',
+          'autoSync',
+          'updatedByUid',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.sheetUrl is string
+        && data.sheetUrl.size() <= 1000
+        && data.sheetUrl.matches('^($|https?://.+)')
+        && data.webhookUrl is string
+        && data.webhookUrl.size() >= 1
+        && data.webhookUrl.size() <= 1000
+        && data.webhookUrl.matches('^https?://.+')
+        && data.autoSync is bool
+        && data.updatedByUid is string
+        && data.updatedByUid.size() >= 1
+        && data.updatedByUid.size() <= 128
+        && data.updatedByUid.matches('^[a-zA-Z0-9_\\-]+$')
+        && data.updatedByUid == request.auth.uid
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidAdminRecord(data) {
+      return data.keys().hasAll(['email', 'role', 'createdAt'])
+        && data.keys().hasOnly(['email', 'role', 'createdAt'])
+        && data.email is string
+        && data.email.size() >= 5
+        && data.email.size() <= 254
+        && data.role is string
+        && data.role == 'admin'
+        && data.createdAt is timestamp;
+    }
+
+    // ==================== COLLECTION RULES ====================
+
+    // Shared non-PII Google Sheet integration config (/settings/google_sheet)
+    // Singleton get allowed without collection listing so all SIPELKA users
+    // (Admin & Pimpinan) load live Google Sheet data immediately.
+    // All writes are strictly restricted to verified Admin users.
+    match /settings/{settingId} {
+      allow get: if isValidId(settingId) && settingId == 'google_sheet';
+      allow list: if false;
+
+      allow create: if isAdmin()
+        && isValidId(settingId)
+        && settingId == 'google_sheet'
+        && isValidSheetConfig(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+
+      allow update: if isAdmin()
+        && isValidId(settingId)
+        && settingId == 'google_sheet'
+        && isValidSheetConfig(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'sheetUrl',
+          'webhookUrl',
+          'autoSync',
+          'updatedByUid',
+          'updatedAt'
+        ]);
+
+      allow delete: if isAdmin()
+        && isValidId(settingId)
+        && settingId == 'google_sheet';
+    }
+
+    // Administrator registry (protected from self-escalation & collection listing)
+    match /admins/{adminId} {
+      allow get: if isSignedIn() && isValidId(adminId) && (
+        request.auth.uid == adminId || isBootstrappedAdmin()
+      );
+      allow list: if false;
+
+      allow create: if isBootstrappedAdmin()
+        && isValidId(adminId)
+        && isValidAdminRecord(incoming())
+        && incoming().createdAt == request.time;
+
+      allow update: if false;
+      allow delete: if isBootstrappedAdmin() && isValidId(adminId);
+    }
+  }
+}

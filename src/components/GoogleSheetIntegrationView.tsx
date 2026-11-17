@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { KasusKekerasan, PegawaiSIPELKA } from '../types';
+import type { User } from 'firebase/auth';
 import {
   fetchSheetConfig,
   saveGoogleSheetConfig,
   sendDataToGoogleSheetWebhook,
   GoogleSheetConfig
 } from '../services/storageService';
+import {
+  getCurrentFirebaseUser,
+  subscribeFirebaseAuth,
+  signInGoogleAdmin,
+  signOutGoogleAdmin
+} from '../services/firebaseService';
 import {
   FileSpreadsheet,
   Link,
@@ -51,10 +58,19 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
 
   const [isTesting, setIsTesting] = useState(false);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
+  const [isAuthenticatingCloud, setIsAuthenticatingCloud] = useState(false);
+  const [firebaseUser, setFirebaseUser] = useState<User | null>(() => getCurrentFirebaseUser());
   const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
   const [isSyncingAll, setIsSyncingAll] = useState(false);
   const [isSyncingPegawai, setIsSyncingPegawai] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = subscribeFirebaseAuth((user) => {
+      setFirebaseUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -69,6 +85,20 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
     };
   }, []);
 
+  const handleCloudGoogleSignIn = async () => {
+    setIsAuthenticatingCloud(true);
+    try {
+      const user = await signInGoogleAdmin();
+      setFirebaseUser(user);
+      showToast(`Akun Google Admin terverifikasi: ${user.email || 'Admin'}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Gagal masuk dengan Google.';
+      showToast(msg);
+    } finally {
+      setIsAuthenticatingCloud(false);
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSavingConfig(true);
@@ -79,21 +109,18 @@ export const GoogleSheetIntegrationView: React.FC<GoogleSheetIntegrationViewProp
       webhookUrl: config.webhookUrl.trim()
     };
     try {
+      // Picu verifikasi Google Admin segera dalam klik event agar popup tidak diblokir browser
+      if (!getCurrentFirebaseUser()) {
+        const verifiedUser = await signInGoogleAdmin();
+        setFirebaseUser(verifiedUser);
+      }
       const result = await saveGoogleSheetConfig(cleanedConfig);
       setConfig(result.config);
-      if (result.persistedOnServer) {
-        setTestResult({
-          success: true,
-          message: 'Konfigurasi URL Google Sheet & Webhook berhasil disimpan di server untuk semua pengguna.'
-        });
-        showToast('Konfigurasi Google Sheet & Webhook tersimpan di server untuk semua pengguna.');
-      } else {
-        setTestResult({
-          success: true,
-          message: result.notice || 'Webhook diaktifkan untuk sesi ini.'
-        });
-        showToast('Webhook terhubung untuk sesi ini (lihat catatan di bawah).');
-      }
+      setTestResult({
+        success: true,
+        message: 'Konfigurasi URL Google Sheet & Webhook berhasil disimpan permanen di Cloud Firestore untuk semua pengguna.'
+      });
+      showToast('Konfigurasi Google Sheet tersimpan permanen untuk semua pengguna.');
       if (onConfigSaved) {
         await onConfigSaved(result.config);
       }
@@ -892,18 +919,53 @@ function doGet(e) {
       {/* 3. Configuration Form & Testing Controls */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-7 bg-white p-6 sm:p-7 rounded-3xl border-2 border-blue-200 shadow-sm space-y-5">
-          <div className="border-b border-blue-100 pb-3 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
-              <Link className="w-5 h-5" />
+          <div className="border-b border-blue-100 pb-3 flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                <Link className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-base font-extrabold text-blue-950">
+                  Pengaturan URL Google Sheet &amp; Webhook
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Tersimpan permanen di Cloud Firestore agar langsung aktif untuk semua pengguna
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-base font-extrabold text-blue-950">
-                Pengaturan URL Google Sheet & Webhook
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Masukkan tautan spreadsheet dan endpoint Webhook Apps Script Anda di bawah ini
-              </p>
+          </div>
+
+          <div className={`p-3 rounded-2xl border flex flex-wrap items-center justify-between gap-2 text-xs ${firebaseUser ? 'bg-emerald-50 border-emerald-200 text-emerald-950' : 'bg-sky-50 border-sky-200 text-sky-950'}`}>
+            <div className="flex items-center gap-2 min-w-0">
+              <Shield className={`w-4 h-4 shrink-0 ${firebaseUser ? 'text-emerald-600' : 'text-sky-600'}`} />
+              <span className="truncate font-medium">
+                {firebaseUser
+                  ? `Cloud Admin Terverifikasi: ${firebaseUser.email || firebaseUser.uid}`
+                  : 'Verifikasi Google Admin (bidangpppanagekeo@gmail.com) diperlukan saat menyimpan permanen ke Cloud.'}
+              </span>
             </div>
+            {firebaseUser ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  await signOutGoogleAdmin();
+                  setFirebaseUser(null);
+                  showToast('Sesi verifikasi Google Admin dilepas.');
+                }}
+                className="px-2.5 py-1 bg-white hover:bg-emerald-100 border border-emerald-300 rounded-lg font-bold text-[11px] shrink-0"
+              >
+                Ganti Akun
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCloudGoogleSignIn}
+                disabled={isAuthenticatingCloud}
+                className="px-3 py-1.5 bg-[#08244B] hover:bg-[#0B2D5C] text-white rounded-lg font-bold text-[11px] shrink-0 disabled:opacity-60"
+              >
+                {isAuthenticatingCloud ? 'Memverifikasi...' : 'Verifikasi Google Admin'}
+              </button>
+            )}
           </div>
 
           <form onSubmit={handleSave} className="space-y-4 text-xs">

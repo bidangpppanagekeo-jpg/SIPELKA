@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "SheetIntegrationConfig": {
+      "title": "SheetIntegrationConfig",
+      "description": "Shared Google Spreadsheet and Apps Script Web App Webhook configuration for SIPELKA Nagekeo (contains no PII).",
+      "type": "object",
+      "properties": {
+        "sheetUrl": {
+          "type": "string",
+          "description": "Google Spreadsheet URL for quick link and gviz fallback.",
+          "minLength": 0,
+          "maxLength": 1000,
+          "pattern": "^($|https?://.+)"
+        },
+        "webhookUrl": {
+          "type": "string",
+          "description": "Google Apps Script Web App /exec endpoint URL.",
+          "minLength": 1,
+          "maxLength": 1000,
+          "pattern": "^https?://.+"
+        },
+        "autoSync": {
+          "type": "boolean",
+          "description": "Whether data mutations automatically sync to Google Spreadsheet."
+        },
+        "updatedByUid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the administrator who last saved this configuration.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the configuration document was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the configuration document was last updated."
+        }
+      },
+      "required": [
+        "sheetUrl",
+        "webhookUrl",
+        "autoSync",
+        "updatedByUid",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "AdminRecord": {
+      "title": "AdminRecord",
+      "description": "Trusted administrator access list keyed by Firebase Auth UID.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Verified Google account email of the administrator.",
+          "minLength": 5,
+          "maxLength": 254
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin"],
+          "description": "Fixed administrator role."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when admin entry was created."
+        }
+      },
+      "required": ["email", "role", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/settings/{settingId}": {
+      "schema": {
+        "$ref": "#/entities/SheetIntegrationConfig"
+      },
+      "description": "Global application settings; specifically /settings/google_sheet holds the shared Google Spreadsheet integration endpoints."
+    },
+    "/admins/{adminId}": {
+      "schema": {
+        "$ref": "#/entities/AdminRecord"
+      },
+      "description": "Administrator registry for Firestore rule-level RBAC."
+    }
+  }
+}

@@ -390,9 +390,17 @@ async function startServer() {
     }
   });
 
-  app.get('/api/sheet-data', async (_req, res) => {
+  app.get('/api/sheet-data', async (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
-    const config = await readSheetConfig();
+    const storedConfig = await readSheetConfig();
+    const qWebhook = typeof req.query.webhookUrl === 'string' ? req.query.webhookUrl.trim() : '';
+    const qSheet = typeof req.query.sheetUrl === 'string' ? req.query.sheetUrl.trim() : '';
+    const config: SheetConfig = {
+      sheetUrl: qSheet && isValidHttpUrl(qSheet) ? qSheet : storedConfig.sheetUrl,
+      webhookUrl: qWebhook && isValidHttpUrl(qWebhook) ? qWebhook : storedConfig.webhookUrl,
+      autoSync: storedConfig.autoSync,
+      lastSyncedAt: storedConfig.lastSyncedAt
+    };
 
     if (!config.webhookUrl && !config.sheetUrl) {
       res.json({
