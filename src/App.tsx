@@ -156,7 +156,7 @@ export default function App() {
   const isPimpinan = authSession.user?.role === 'pimpinan';
 
   const handleSelectTab = (tab: AppTab) => {
-    if (isPimpinan && (tab === 'input' || tab === 'integrasi')) {
+    if (isPimpinan && (tab === 'input' || tab === 'integrasi' || tab === 'pegawai')) {
       setCurrentTab('dashboard');
       return;
     }

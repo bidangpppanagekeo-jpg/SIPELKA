@@ -112,7 +112,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   const visibleNavItems = isPimpinan
-    ? navItems.filter((item) => item.id !== 'input' && item.id !== 'integrasi')
+    ? navItems.filter((item) => item.id !== 'input' && item.id !== 'integrasi' && item.id !== 'pegawai')
     : navItems;
 
   return (
