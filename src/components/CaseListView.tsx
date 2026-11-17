@@ -11,7 +11,10 @@ import {
   Eye,
   FileText,
   Trash2,
-  Edit
+  Edit,
+  Clock,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface CaseListViewProps {
@@ -56,6 +59,15 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
   }, [initialSearchQuery]);
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [expandedHistoryIds, setExpandedHistoryIds] = useState<Record<string, boolean>>({});
+
+  const toggleExpandHistory = (caseId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedHistoryIds((prev) => ({
+      ...prev,
+      [caseId]: !prev[caseId]
+    }));
+  };
 
   // Filter logic
   const filteredCases = useMemo(() => {
@@ -301,7 +313,7 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                 <th className="py-3.5 px-4 text-sky-950">TKP / Wilayah</th>
                 <th className="py-3.5 px-4 text-sky-950">Bentuk Kekerasan</th>
                 <th className="py-3.5 px-4 text-sky-950">Pelaku / Hubungan</th>
-                <th className="py-3.5 px-4 text-sky-950">Status & Urgensi</th>
+                <th className="py-3.5 px-4 text-sky-950">Status Layanan & Urgensi</th>
                 <th className="py-3.5 px-4 text-right text-sky-950">Aksi Tindakan</th>
               </tr>
             </thead>
@@ -396,12 +408,12 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                       </div>
                     </td>
 
-                    {/* Status & Urgensi */}
-                    <td className="py-3 px-4 align-top">
+                    {/* Status Layanan, Urgensi & Riwayat Penanganan */}
+                    <td className="py-3 px-4 align-top min-w-[240px] max-w-[320px]">
                       <div className="font-bold text-blue-950">
                         {item.statusPenanganan}
                       </div>
-                      <div className="text-[11px] mt-0.5">
+                      <div className="text-[11px] mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
                         <span
                           className={`font-semibold ${
                             item.tingkatUrgensi === 'Darurat'
@@ -416,9 +428,88 @@ export const CaseListView: React.FC<CaseListViewProps> = ({
                       </div>
                       <div className="text-[10px] text-slate-500 mt-1 font-medium flex items-center gap-1">
                         <span className="text-slate-400">Tim:</span>
-                        <span className="truncate max-w-[130px] font-semibold text-slate-700" title={item.petugasPendamping}>
+                        <span className="truncate max-w-[190px] font-semibold text-slate-700" title={item.petugasPendamping}>
                           {item.petugasPendamping}
                         </span>
+                      </div>
+
+                      {/* Riwayat Penanganan Kasus */}
+                      <div className="mt-2 pt-2 border-t border-slate-100 space-y-1.5">
+                        <div className="flex items-center justify-between gap-2 text-[10px] font-bold text-sky-800 uppercase tracking-wide">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-sky-600 shrink-0" />
+                            <span>Riwayat Penanganan</span>
+                          </span>
+                          <span className="font-mono text-[10px] text-sky-900 bg-sky-50 border border-sky-200 px-1.5 py-0.2 rounded tabular-nums">
+                            {item.riwayatPenanganan?.length || 0}
+                          </span>
+                        </div>
+
+                        {item.riwayatPenanganan && item.riwayatPenanganan.length > 0 ? (() => {
+                          const isExpanded = Boolean(expandedHistoryIds[item.id]);
+                          const visibleHistory = isExpanded
+                            ? item.riwayatPenanganan
+                            : item.riwayatPenanganan.slice(0, 2);
+                          const hiddenCount = item.riwayatPenanganan.length - visibleHistory.length;
+
+                          return (
+                            <div className="space-y-1.5">
+                              {visibleHistory.map((riwayat, rIdx) => (
+                                <div
+                                  key={riwayat.id || `${item.id}-riw-${rIdx}`}
+                                  className="border-l-2 border-sky-300 pl-2 py-0.5 text-[10.5px] leading-snug bg-slate-50/70 rounded-r"
+                                >
+                                  <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono tabular-nums">
+                                    <span>{riwayat.tanggal || '-'}</span>
+                                    {riwayat.petugas && (
+                                      <>
+                                        <span>·</span>
+                                        <span className="font-sans truncate max-w-[140px] text-slate-600 font-medium" title={riwayat.petugas}>
+                                          {riwayat.petugas}
+                                        </span>
+                                      </>
+                                    )}
+                                  </div>
+                                  <div className="font-semibold text-slate-800 mt-0.5">
+                                    {riwayat.tindakan}
+                                  </div>
+                                  {riwayat.hasilDanCatatan && (
+                                    <div
+                                      className={`text-slate-600 mt-0.5 ${isExpanded ? '' : 'line-clamp-2'}`}
+                                      title={riwayat.hasilDanCatatan}
+                                    >
+                                      {riwayat.hasilDanCatatan}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+
+                              {item.riwayatPenanganan.length > 2 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => toggleExpandHistory(item.id, e)}
+                                  className="inline-flex items-center gap-1 text-[10px] font-bold text-sky-700 hover:text-sky-900 hover:underline pt-0.5"
+                                >
+                                  {isExpanded ? (
+                                    <>
+                                      <ChevronUp className="w-3 h-3" />
+                                      <span>Ringkas riwayat</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ChevronDown className="w-3 h-3" />
+                                      <span>+{hiddenCount} riwayat lainnya</span>
+                                    </>
+                                  )}
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })() : (
+                          <div className="text-[10.5px] text-slate-400 italic">
+                            Belum ada catatan riwayat penanganan.
+                          </div>
+                        )}
                       </div>
                     </td>
 
