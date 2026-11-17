@@ -124,7 +124,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             {/* Username / Email Field */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Username / Email Dinas <span className="text-rose-500">*</span>
+                Username <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -137,7 +137,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   disabled={isLoading}
                   value={usernameOrEmail}
                   onChange={(e) => setUsernameOrEmail(e.target.value)}
-                  placeholder="Masukkan username atau email dinas"
+                  placeholder="Masukkan username"
                   className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all placeholder:text-slate-400 font-medium"
                 />
               </div>
@@ -147,7 +147,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-xs font-bold text-slate-700">
-                  Kata Sandi Administrator <span className="text-rose-500">*</span>
+                  Kata Sandi <span className="text-rose-500">*</span>
                 </label>
               </div>
               <div className="relative">
@@ -196,12 +196,12 @@ export const LoginView: React.FC<LoginViewProps> = ({
               {isLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Memverifikasi Akses Administrator...</span>
+                  <span>Memverifikasi Akses...</span>
                 </>
               ) : (
                 <>
                   <LogIn className="w-4 h-4 text-amber-300" />
-                  <span>Masuk sebagai Administrator</span>
+                  <span>Masuk</span>
                 </>
               )}
             </button>
